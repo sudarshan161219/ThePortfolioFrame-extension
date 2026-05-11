@@ -1,0 +1,67 @@
+.macWindow {
+  position: relative;
+  z-index: 1;
+  background-color: #000;
+  border: 1px solid #333;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 1200px;
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #111;
+  border-bottom: 1px solid #333;
+  position: relative;
+}
+
+.trafficLights {
+  display: flex;
+  gap: 8px;
+  position: absolute; /* Keeps them anchored to the left */
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* Subtle, desaturated macOS colors to fit the dark aesthetic */
+.close {
+  background-color: #ff5f56;
+}
+.minimize {
+  background-color: #ffbd2e;
+}
+.maximize {
+  background-color: #27c93f;
+}
+
+.urlBar {
+  margin: 0 auto;
+  background-color: #000;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.2rem 2rem;
+  font-size: 0.75rem;
+  color: #666;
+  letter-spacing: 0.05em;
+}
+
+.windowContent {
+  display: flex; /* Removes phantom bottom margins on images */
+  background-color: #000;
+}
+
+.screenshot {
+  width: 100%;
+  height: auto;
+  display: block;
+}

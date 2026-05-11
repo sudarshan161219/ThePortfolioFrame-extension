@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "The Portfolio Frame",
+  "version": "1.0.0",
+  "description": "A minimalist, terminal-style screenshot beautifier.",
+  "permissions": ["activeTab", "storage"],
+  "action": {},
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
+  }
+}

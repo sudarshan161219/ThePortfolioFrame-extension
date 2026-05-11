@@ -1,0 +1,110 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #000;
+  border: 1px solid #333;
+  width: 100%;
+  max-width: 450px;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 1),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #333;
+  background-color: #111;
+}
+
+.header h2 {
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  margin: 0;
+  color: #fff;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-family: monospace;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  color: #fff;
+}
+
+.form {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.description {
+  margin: 0;
+  color: #888;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.input {
+  background-color: #111;
+  border: 1px solid #333;
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #fff;
+}
+
+.submitBtn {
+  background-color: #fff;
+  color: #000;
+  border: none;
+  padding: 0.75rem;
+  font-family: monospace;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.errorText {
+  color: #ff5f56; /* macOS red */
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.successText {
+  color: #27c93f; /* macOS green */
+  margin: 0;
+  font-size: 0.85rem;
+}

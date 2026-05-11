@@ -1,0 +1,553 @@
+.container {
+  min-height: 100vh;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.loadingState {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00ff00;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 52px;
+  background: #141414;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
+}
+
+.header h1 {
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  margin: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 52px;
+  background: #141414;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.logoDotActive {
+  background: #3ecfa0;
+  border-color: #3ecfa0;
+  box-shadow: 0 0 6px rgba(62, 207, 160, 0.4);
+}
+
+.logoText {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.04em;
+}
+
+.logoVersion {
+  display: block;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.06em;
+}
+
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sep {
+  width: 0.5px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.upgradeBtn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 0.5px solid rgba(127, 119, 221, 0.35);
+  background: rgba(127, 119, 221, 0.1);
+  color: #a89cf7;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+.upgradeBtn:hover {
+  background: rgba(127, 119, 221, 0.18);
+}
+
+.proBadge {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 0.5px solid rgba(62, 207, 160, 0.3);
+  background: rgba(62, 207, 160, 0.08);
+  color: #3ecfa0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.proDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #3ecfa0;
+  flex-shrink: 0;
+}
+
+.exportBtn {
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.exportBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+.exportBtn.exporting {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.spinner {
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.canvasArea {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.rawCapture {
+  max-width: 80%;
+  border: 1px solid #333;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+}
+
+.exportWrapper {
+  padding: 4rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s ease;
+}
+
+/* // */
+
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.upgradeBtn {
+  background: transparent;
+  color: #ffbd2e; /* A subtle gold/yellow */
+  border: 1px dashed #ffbd2e;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upgradeBtn:hover {
+  background: rgba(255, 189, 46, 0.1);
+}
+
+.proBadge {
+  color: #27c93f;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+}
+
+/* --- THE BACKGROUND PATTERNS --- */
+
+.bgSolid {
+  background-color: #050505;
+}
+
+.bgGrid {
+  background-color: #000;
+  background-image:
+    linear-gradient(#1a1a1a 1px, transparent 1px),
+    linear-gradient(90deg, #1a1a1a 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bgDots {
+  background-color: #0a0a0a;
+  background-image: radial-gradient(#333 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bgBlueprint {
+  background-color: #001220; /* Deep navy */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.bgGradient {
+  background: linear-gradient(135deg, #090a0f 0%, #040d21 100%);
+}
+
+/* --- TOOLBAR UI --- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #1a1a1a;
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.toolbarLabel {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+}
+
+.divider {
+  width: 0.5px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.bgList {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+}
+
+.swatchGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 0.15s,
+    transform 0.1s;
+  padding: 0;
+}
+.swatch:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+.swatch.active {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+.swatch:disabled {
+  cursor: default;
+}
+
+.lockOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.swatchMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.swatchName {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.freePill,
+.proPill {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.freePill {
+  background: rgba(29, 158, 117, 0.15);
+  color: #3ecfa0;
+  border: 0.5px solid rgba(29, 158, 117, 0.3);
+}
+
+.proPill {
+  background: rgba(127, 119, 221, 0.15);
+  color: #a89cf7;
+  border: 0.5px solid rgba(127, 119, 221, 0.3);
+}
+
+.upgradeBtn {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 5px 11px;
+  border-radius: 6px;
+  background: rgba(127, 119, 221, 0.15);
+  color: #a89cf7;
+  border: 0.5px solid rgba(127, 119, 221, 0.3);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.upgradeBtn:hover {
+  background: rgba(127, 119, 221, 0.25);
+}
+
+/* // */
+/* ─── Noise Glass (FREE) ─── */
+.bgNoiseGlass {
+  background: #0d0d0d;
+  position: relative;
+}
+.bgNoiseGlass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ─── Mesh Gradient (FREE) ─── */
+.bgMeshGradient {
+  background: #0a0a0f;
+  position: relative;
+}
+.bgMeshGradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 60% at 20% 30%,
+      rgba(83, 74, 183, 0.35) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 50% at 80% 70%,
+      rgba(15, 110, 86, 0.3) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 40% 40% at 60% 10%,
+      rgba(42, 42, 60, 0.5) 0%,
+      transparent 70%
+    );
+  pointer-events: none;
+}
+
+/* ─── Contour Lines (PRO) ─── */
+.bgContourLines {
+  background-color: #0c0f14;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 14px,
+      rgba(99, 153, 34, 0.07) 14px,
+      rgba(99, 153, 34, 0.07) 15px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 14px,
+      rgba(99, 153, 34, 0.04) 14px,
+      rgba(99, 153, 34, 0.04) 15px
+    );
+}
+
+/* ─── Aurora Bands (PRO) ─── */
+.bgAuroraBands {
+  background: #050810;
+  position: relative;
+}
+.bgAuroraBands::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(52, 10, 120, 0.7) 0%, transparent 50%),
+    linear-gradient(225deg, rgba(0, 120, 100, 0.5) 0%, transparent 50%),
+    linear-gradient(0deg, rgba(180, 30, 80, 0.2) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ─── Carbon Fiber (PRO) ─── */
+.bgCarbonFiber {
+  background-color: #111111;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.025) 0px,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.025) 0px,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+}
+
+/* ─── Scanline Haze (PRO) ─── */
+.bgScanlineHaze {
+  background: #080808;
+  position: relative;
+}
+.bgScanlineHaze::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.018) 2px,
+    rgba(255, 255, 255, 0.018) 4px
+  );
+  pointer-events: none;
+}
+.bgScanlineHaze::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 80% at 50% 50%,
+    rgba(180, 80, 255, 0.12) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* scroll bar */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: gray transparent;
+}
+
+/* 2. Webkit Support (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px; /* Width for vertical scrollbars */
+  height: 6px; /* Height for horizontal scrollbars */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* blend with background */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #27272a; /* Zinc-800 (Subtle) */
+  border-radius: 9999px; /* Fully rounded */
+  border: 2px solid transparent; /* Creates padding effect if you want it thicker but look thin */
+  background-clip: content-box;
+}
+
+/* 3. Hover State (Make it slightly more visible) */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #52525b; /* Zinc-600 */
+}
+
+/* 4. Active/Click State */
+::-webkit-scrollbar-thumb:active {
+  background-color: #71717a; /* Zinc-500 */
+}
+
+/* Optional: Corner square where horizontal meets vertical */
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
