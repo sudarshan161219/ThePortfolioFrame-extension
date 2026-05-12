@@ -182,7 +182,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  overflow: hidden;
+  background-color: #f1f1f1;
 }
 
 .rawCapture {
@@ -191,13 +192,52 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
 }
 
+.exportClipContainer {
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .exportWrapper {
-  padding: 4rem;
-  width: 100%;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1;
+  background: transparent !important;
   transition: background 0.3s ease;
+}
+
+.absoluteBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1; /* Keep it behind the Frame */
+  pointer-events: none;
+}
+
+.smallBtn {
+  margin-top: 4px;
+  background: #ff5f57;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  cursor: pointer;
+}
+
+/* Ensure color inputs look clean in the Pro Panel */
+.controlGroup input[type="color"] {
+  width: 100%;
+  height: 30px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 /* // */
@@ -550,4 +590,55 @@
 /* Optional: Corner square where horizontal meets vertical */
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+/*  */
+
+/* The 3D Tilt Logic */
+.tiltMode {
+  transform: perspective(1200px) rotateY(-15deg) rotateX(5deg) rotateZ(1deg);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 20px 40px 60px rgba(0, 0, 0, 0.2);
+}
+
+/* Watermark Styling */
+.watermark {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.3); /* Muted for the cream theme */
+  letter-spacing: 0.05em;
+}
+
+/* Pro Panel Positioning */
+.proPanel {
+  z-index: 100;
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  padding: 1.5rem;
+  border-radius: 12px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.controlGroup label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: #888;
+  margin-bottom: 0.5rem;
+}
+
+.controlGroup input[type="range"] {
+  width: 100%;
+  accent-color: #7ca982;
 }

@@ -45,15 +45,28 @@ const BACKGROUNDS = [
 ];
 
 export const EditorApp = () => {
+  const exportRef = useRef<HTMLDivElement>(null);
   const [imageSource, setImageSource] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isPro, setIsPro] = useState(false);
   const [pageUrl, setPageUrl] = useState<string>("localhost:5173");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
   const [activeBg, setActiveBg] = useState(BACKGROUNDS[0]);
+  ///
+  const [padding, setPadding] = useState(64);
+  const [tilt, setTilt] = useState(false);
+  const [frameType, setFrameType] = useState<"browser" | "terminal">("browser");
+  const [handle, setHandle] = useState("");
+  // const [shadowType, setShadowType] = useState<"soft" | "hard">("soft");
+  // const [isAscii, setIsAscii] = useState(false);
 
-  const exportRef = useRef<HTMLDivElement>(null);
+  const [titleBarColor, setTitleBarColor] = useState("#fdfdfb");
+  const [customBg, setCustomBg] = useState("#F7F7F3"); // Default Cream
+  const [bgImage, setBgImage] = useState<string | null>(null);
+  const [bgBlur, setBgBlur] = useState(0);
+  const [bgSize, setBgSize] = useState<"cover" | "contain" | "auto">("cover");
+
+  // const renderAscii = (imgElement: HTMLImageElement) => {};
 
   useEffect(() => {
     chrome.storage.local.get(
@@ -80,6 +93,25 @@ export const EditorApp = () => {
       },
     );
   }, []);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBgImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const dynamicBgStyle: React.CSSProperties = {
+    background: bgImage ? `url(${bgImage})` : customBg,
+    backgroundSize: bgSize,
+    backgroundPosition: "center",
+    filter: `blur(${bgBlur}px)`,
+    transition: "all 0.3s ease",
+  };
 
   const handleExport = async () => {
     if (!exportRef.current) return;
@@ -121,6 +153,8 @@ export const EditorApp = () => {
       </div>
     );
   }
+
+  const usePreset = !isPro || (!bgImage && customBg === "#F7F7F3");
 
   return (
     <div className={styles.container}>
@@ -173,17 +207,145 @@ export const EditorApp = () => {
         </div>
       </header>
 
-      <main
-        className={`${styles.canvasArea} ${styles[activeBg.bgKey as keyof typeof styles]}`}
-      >
-        {/*  macOS Frame component  */}
-        <div
-          ref={exportRef}
-          className={`${styles.exportWrapper} ${styles[activeBg.bgKey as keyof typeof styles]}`}
-        >
-          <Frame imageSrc={imageSource} url={pageUrl} />
+      <main className={styles.canvasArea}>
+        <div className={styles.exportClipContainer}>
+          <div
+            ref={exportRef}
+            className={styles.exportWrapper}
+            style={{ padding: `${padding}px` }}
+          >
+            {/* THE FIX: Apply the preset class OR the custom style to this div ONLY */}
+            <div
+              className={`${styles.absoluteBg} ${usePreset ? styles[activeBg.bgKey as keyof typeof styles] : ""}`}
+              style={!usePreset ? dynamicBgStyle : {}}
+            />
+
+            <Frame
+              imageSrc={imageSource!}
+              url={pageUrl}
+              frameType={frameType}
+              tiltEnabled={tilt}
+              titleBarColor={titleBarColor}
+            />
+
+            {handle && (
+              <div className={styles.watermark}>
+                {handle.startsWith("@") ? handle : `@${handle}`}
+              </div>
+            )}
+          </div>
         </div>
       </main>
+
+      {/* NEW: Pro Sidebar (Only visible if isPro) */}
+      {isPro && (
+        <aside className={styles.proPanel}>
+          <h3>PRO_CONTROLS</h3>
+
+          <div className={styles.controlGroup}>
+            <label>FRAME_TYPE</label>
+            <select
+              value={frameType}
+              onChange={(e) =>
+                setFrameType(e.target.value as "browser" | "terminal")
+              }
+            >
+              <option value="browser">BROWSER</option>
+              <option value="terminal">TERMINAL</option>
+            </select>
+          </div>
+
+          <div className={styles.controlGroup}>
+            <label>TITLE_BAR_COLOR</label>
+            <input
+              type="color"
+              value={titleBarColor}
+              onChange={(e) => setTitleBarColor(e.target.value)}
+            />
+          </div>
+
+          <div className={styles.controlGroup}>
+            <label>CUSTOM_BG_COLOR / GRADIENT</label>
+            <input
+              type="text"
+              placeholder="hex or linear-gradient..."
+              value={customBg}
+              onChange={(e) => setCustomBg(e.target.value)}
+            />
+          </div>
+
+          <div className={styles.controlGroup}>
+            <label>BG_IMAGE_UPLOAD</label>
+            <input type="file" accept="image/*" onChange={handleImageUpload} />
+            {bgImage && (
+              <button
+                onClick={() => setBgImage(null)}
+                className={styles.smallBtn}
+              >
+                REMOVE_IMAGE
+              </button>
+            )}
+          </div>
+
+          {bgImage && (
+            <>
+              <div className={styles.controlGroup}>
+                <label>BG_BLUR: {bgBlur}px</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  value={bgBlur}
+                  onChange={(e) => setBgBlur(Number(e.target.value))}
+                />
+              </div>
+              <div className={styles.controlGroup}>
+                <label>BG_SIZE</label>
+                <select
+                  value={bgSize}
+                  onChange={(e) =>
+                    setBgSize(e.target.value as "cover" | "contain" | "auto")
+                  }
+                >
+                  <option value="cover">COVER</option>
+                  <option value="contain">CONTAIN</option>
+                  <option value="auto">ORIGINAL</option>
+                </select>
+              </div>
+            </>
+          )}
+
+          <div className={styles.controlGroup}>
+            <label>CANVAS_PADDING: {padding}px</label>
+            <input
+              type="range"
+              min="0"
+              max="120"
+              value={padding}
+              onChange={(e) => setPadding(Number(e.target.value))}
+            />
+          </div>
+
+          <div className={styles.controlGroup}>
+            <label>3D_ISOMETRIC_TILT</label>
+            <input
+              type="checkbox"
+              checked={tilt}
+              onChange={(e) => setTilt(e.target.checked)}
+            />
+          </div>
+
+          <div className={styles.controlGroup}>
+            <label>SOCIAL_HANDLE</label>
+            <input
+              type="text"
+              placeholder="@yourname"
+              value={handle}
+              onChange={(e) => setHandle(e.target.value)}
+            />
+          </div>
+        </aside>
+      )}
 
       <footer className={styles.toolbar}>
         <span className={styles.toolbarLabel}>Background</span>
