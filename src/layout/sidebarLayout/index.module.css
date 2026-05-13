@@ -1,0 +1,152 @@
+.root {
+  position: relative;
+  display: flex;
+  flex-grow: 1;
+  height: 100vh;
+  width: 100%;
+  background: #0e0e0e;
+  color: #e8e8e8;
+  overflow: hidden;
+}
+
+/* ── Canvas ─────────────────────────────────── */
+
+.canvas {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.placeholder {
+  font-size: 10px;
+  font-family: "DM Mono", monospace;
+  letter-spacing: 0.1em;
+  opacity: 0.2;
+}
+
+/* ── Sidebar ─────────────────────────────────── */
+
+.proPanel {
+  width: 220px;
+  min-width: 220px;
+  height: 100%;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: 10px;
+  font-family: "DM Mono", monospace;
+  letter-spacing: 0.04em;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.proPanel h3 {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  margin: 0 0 14px 0;
+  opacity: 0.35;
+}
+
+/* ── Control groups ──────────────────────────── */
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.controlGroup:last-child {
+  border-bottom: none;
+}
+
+.controlGroup label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  opacity: 0.45;
+  text-transform: uppercase;
+}
+
+.controlGroup select,
+.controlGroup input[type="text"] {
+  font-size: 10px;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 3px;
+  color: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.controlGroup select:focus,
+.controlGroup input[type="text"]:focus {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.controlGroup input[type="color"] {
+  width: 100%;
+  height: 26px;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 3px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.controlGroup input[type="range"] {
+  width: 100%;
+  height: 2px;
+  accent-color: #e8e8e8;
+  cursor: pointer;
+  margin: 2px 0;
+}
+
+.controlGroup input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  accent-color: #e8e8e8;
+  cursor: pointer;
+}
+
+.controlGroup input[type="file"] {
+  font-size: 9px;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  opacity: 0.6;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* ── Small button ────────────────────────────── */
+
+.smallBtn {
+  font-size: 9px;
+  font-family: inherit;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+  align-self: flex-start;
+}
+
+.smallBtn:hover {
+  opacity: 1;
+}
