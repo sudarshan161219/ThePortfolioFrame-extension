@@ -1,9 +1,9 @@
-import { useFrameStore } from "../../store/useFrameStore";
+import { useControllsStore } from "../../store/useControllsStore";
 import styles from "./index.module.css";
 
 export const Frame = () => {
   const { titleBarColor, tilt, frameType, pageUrl, imageSource } =
-    useFrameStore();
+    useControllsStore();
 
   const cleanUrl = pageUrl
     .replace(/^https?:\/\//, "")

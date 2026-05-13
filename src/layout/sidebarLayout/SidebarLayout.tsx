@@ -1,4 +1,5 @@
-import { useFrameStore } from "../../store/useFrameStore";
+import { Nav } from "../../components/nav/Nav";
+import { useControllsStore } from "../../store/useControllsStore";
 import styles from "./index.module.css";
 
 interface SidebarLayoutProps {
@@ -7,6 +8,7 @@ interface SidebarLayoutProps {
 
 export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const {
+    isPro,
     titleBarColor,
     tilt,
     frameType,
@@ -27,7 +29,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setBgSize,
     setPadding,
     setHandle,
-  } = useFrameStore();
+  } = useControllsStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,12 +40,17 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
 
   return (
     <div className={styles.root}>
-      {/* Main canvas area */}
-      <main className={styles.canvas}>{children}</main>
-
       {/* Pro sidebar */}
       <aside className={styles.proPanel}>
-        <h3>PRO_CONTROLS</h3>
+        <div className={styles.logo}>
+          <div
+            className={`${styles.logoDot} ${isPro ? styles.logoDotActive : ""}`}
+          />
+          <div>
+            <span className={styles.logoText}>The Portfolio Frame</span>
+            <span className={styles.logoVersion}>v1.0.0</span>
+          </div>
+        </div>
 
         <div className={styles.controlGroup}>
           <label>FRAME_TYPE</label>
@@ -148,6 +155,12 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           />
         </div>
       </aside>
+
+      {/* Main canvas area */}
+      <main className={styles.main}>
+        <Nav />
+        <div className={styles.canvas}>{children}</div>
+      </main>
     </div>
   );
 };

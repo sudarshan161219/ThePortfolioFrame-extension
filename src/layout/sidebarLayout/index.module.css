@@ -9,10 +9,53 @@
   overflow: hidden;
 }
 
-/* ── Canvas ─────────────────────────────────── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.logoDotActive {
+  background: #3ecfa0;
+  border-color: #3ecfa0;
+  box-shadow: 0 0 6px rgba(62, 207, 160, 0.4);
+}
+
+.logoText {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.04em;
+}
+
+.logoVersion {
+  display: block;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.06em;
+}
+
+/* ── Main Canvas ─────────────────────────────────── */
+
+.main {
+  width: 100%;
+}
 
 .canvas {
   flex: 1;
+  flex-grow: 1;
   display: flex;
   align-items: center;
   justify-content: center;

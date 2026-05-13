@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef } from "react";
-import { toPng } from "html-to-image";
+import { useEffect, useState } from "react";
+// import { toPng } from "html-to-image";
 import { Frame } from "./components/frame/Frame.tsx";
-import { useFrameStore } from "./store/useFrameStore.ts";
-import { StarIcon, DownloadIcon } from "lucide-react";
+import { useControllsStore } from "./store/useControllsStore.ts";
+
 import { SidebarLayout } from "./layout/sidebarLayout/SidebarLayout.tsx";
 import { SettingsModal } from "./components/settingsModal/SettingsModal.tsx";
 
@@ -48,9 +48,10 @@ const BACKGROUNDS = [
 ];
 
 export const EditorApp = () => {
-  const exportRef = useRef<HTMLDivElement>(null);
+  // const exportRef = useRef<HTMLDivElement>(null);
 
   const {
+    isPro,
     bgImage,
     imageSource,
     customBg,
@@ -58,12 +59,10 @@ export const EditorApp = () => {
     bgSize,
     padding,
     handle,
+    setIsPro,
     setPageUrl,
     setImageSource,
-  } = useFrameStore();
-
-  const [isExporting, setIsExporting] = useState(false);
-  const [isPro, setIsPro] = useState(false);
+  } = useControllsStore();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeBg, setActiveBg] = useState(BACKGROUNDS[0]);
@@ -97,7 +96,7 @@ export const EditorApp = () => {
         }
       },
     );
-  }, [setImageSource, setPageUrl]);
+  }, [setImageSource, setIsPro, setPageUrl]);
 
   const dynamicBgStyle: React.CSSProperties = {
     background: bgImage ? `url(${bgImage})` : customBg,
@@ -105,30 +104,6 @@ export const EditorApp = () => {
     backgroundPosition: "center",
     filter: `blur(${bgBlur}px)`,
     transition: "all 0.3s ease",
-  };
-
-  const handleExport = async () => {
-    if (!exportRef.current) return;
-
-    try {
-      setIsExporting(true);
-
-      // pixelRatio: 2 ensures the output is high-res (Retina quality)
-      const dataUrl = await toPng(exportRef.current, {
-        quality: 1.0,
-        pixelRatio: 2,
-      });
-
-      // Create a temporary link to trigger the download
-      const link = document.createElement("a");
-      link.download = `portfolio-frame-${Date.now()}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error("[The Portfolio Frame] Export failed:", err);
-    } finally {
-      setIsExporting(false);
-    }
   };
 
   const handleBgSelect = (bg: (typeof BACKGROUNDS)[0]) => {
@@ -152,79 +127,30 @@ export const EditorApp = () => {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <div
-            className={`${styles.logoDot} ${isPro ? styles.logoDotActive : ""}`}
-          />
-          <div>
-            <span className={styles.logoText}>The Portfolio Frame</span>
-            <span className={styles.logoVersion}>v1.0.0</span>
-          </div>
-        </div>
-
-        <div className={styles.headerControls}>
-          {!isPro ? (
-            <button
-              className={styles.upgradeBtn}
-              onClick={() => setIsSettingsOpen(true)}
-            >
-              <StarIcon />
-              Upgrade to Pro
-            </button>
-          ) : (
-            <span className={styles.proBadge}>
-              <span className={styles.proDot} />
-              Pro Active
-            </span>
-          )}
-
-          <div className={styles.sep} />
-
-          <button
-            className={`${styles.exportBtn} ${isExporting ? styles.exporting : ""}`}
-            onClick={handleExport}
-            disabled={isExporting}
-          >
-            {isExporting ? (
-              <>
-                <span className={styles.spinner} />
-                Processing...
-              </>
-            ) : (
-              <>
-                <DownloadIcon />
-                Export PNG
-              </>
-            )}
-          </button>
-        </div>
-      </header>
-
       <SidebarLayout>
-        <main className={styles.canvasArea}>
-          <div className={styles.exportClipContainer}>
+        <div className={styles.exportClipContainer}>
+          <div
+            id="portfolio-export-target"
+            className={styles.exportWrapper}
+            style={{ padding: `${padding}px` }}
+          >
+            {/* THE FIX: Apply the preset class OR the custom style to this div ONLY */}
             <div
-              ref={exportRef}
-              className={styles.exportWrapper}
-              style={{ padding: `${padding}px` }}
-            >
-              {/* THE FIX: Apply the preset class OR the custom style to this div ONLY */}
-              <div
-                className={`${styles.absoluteBg} ${usePreset ? styles[activeBg.bgKey as keyof typeof styles] : ""}`}
-                style={!usePreset ? dynamicBgStyle : {}}
-              />
+              className={`${styles.absoluteBg} ${usePreset ? styles[activeBg.bgKey as keyof typeof styles] : ""}`}
+              style={!usePreset ? dynamicBgStyle : {}}
+            />
 
-              <Frame />
+            <Frame />
 
-              {handle && (
-                <div className={styles.watermark}>
-                  {handle.startsWith("@") ? handle : `@${handle}`}
-                </div>
-              )}
-            </div>
+            {handle && (
+              <div className={styles.watermark}>
+                {handle.startsWith("@") ? handle : `@${handle}`}
+              </div>
+            )}
           </div>
-        </main>
+        </div>
+
+        <main className={styles.canvasArea}></main>
       </SidebarLayout>
       <footer className={styles.toolbar}>
         <span className={styles.toolbarLabel}>Background</span>

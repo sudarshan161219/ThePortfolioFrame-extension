@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 // 1. Define the TypeScript types for your state and actions
 interface AppState {
+  isPro: boolean;
   titleBarColor: string;
   tilt: boolean;
   frameType: "browser" | "terminal";
@@ -17,6 +18,7 @@ interface AppState {
   handle: string;
 
   // Setter Actions
+  setIsPro: (status: boolean) => void;
   setTitleBarColor: (color: string) => void;
   setTilt: (val: boolean) => void;
   setFrameType: (type: "browser" | "terminal") => void;
@@ -57,10 +59,11 @@ const chromeStorage = {
 };
 
 // 3. Create the store
-export const useFrameStore = create<AppState>()(
+export const useControllsStore = create<AppState>()(
   persist(
     (set) => ({
       // Default Values
+      isPro: false,
       titleBarColor: "#fdfdfb",
       tilt: false,
       frameType: "browser",
@@ -74,6 +77,7 @@ export const useFrameStore = create<AppState>()(
       handle: "",
 
       // Action Implementations
+      setIsPro: (status) => set({ isPro: status }),
       setTitleBarColor: (color) => set({ titleBarColor: color }),
       setTilt: (val) => set({ tilt: val }),
       setFrameType: (type) => set({ frameType: type }),
