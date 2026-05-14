@@ -251,11 +251,10 @@
   background: rgba(127, 119, 221, 0.25);
 }
 
-/* // */
+/* PRESET_BACKGROUNDS */
 /* ─── Noise Glass (FREE) ─── */
 .bgNoiseGlass {
   background: #0d0d0d;
-  position: relative;
 }
 .bgNoiseGlass::before {
   content: "";
@@ -270,7 +269,6 @@
 /* ─── Mesh Gradient (FREE) ─── */
 .bgMeshGradient {
   background: #0a0a0f;
-  position: relative;
 }
 .bgMeshGradient::before {
   content: "";
@@ -318,7 +316,6 @@
 /* ─── Aurora Bands (PRO) ─── */
 .bgAuroraBands {
   background: #050810;
-  position: relative;
 }
 .bgAuroraBands::before {
   content: "";
@@ -329,6 +326,8 @@
     linear-gradient(225deg, rgba(0, 120, 100, 0.5) 0%, transparent 50%),
     linear-gradient(0deg, rgba(180, 30, 80, 0.2) 0%, transparent 60%);
   pointer-events: none;
+  filter: blur(60px);
+  transform: scale(1.2);
 }
 
 /* ─── Carbon Fiber (PRO) ─── */
@@ -354,7 +353,6 @@
 /* ─── Scanline Haze (PRO) ─── */
 .bgScanlineHaze {
   background: #080808;
-  position: relative;
 }
 .bgScanlineHaze::before {
   content: "";
@@ -379,6 +377,11 @@
     transparent 70%
   );
   pointer-events: none;
+}
+
+.bgScanlineHaze::before,
+.bgScanlineHaze::after {
+  z-index: 0;
 }
 
 /* scroll bar */

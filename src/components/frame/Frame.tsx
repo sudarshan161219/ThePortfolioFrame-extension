@@ -2,7 +2,7 @@ import { useControllsStore } from "../../store/useControllsStore";
 import styles from "./index.module.css";
 
 export const Frame = () => {
-  const { titleBarColor, tilt, frameType, pageUrl, imageSource } =
+  const { titleBarTheme, tilt, frameType, pageUrl, imageSource, terminalPath } =
     useControllsStore();
 
   const cleanUrl = pageUrl
@@ -10,14 +10,17 @@ export const Frame = () => {
     .replace(/^www\./, "")
     .split("/")[0];
 
-  const customPath = "skibidi";
+  // const customPath = " mark-one       0ms   00:00 PM   ";
 
   return (
     <div className={`${styles.macWindow} ${tilt ? styles.tiltMode : ""}`}>
       {/* The macOS Title Bar */}
       <div
         className={styles.titleBar}
-        style={{ backgroundColor: titleBarColor }}
+        style={{
+          backgroundColor: titleBarTheme.bg,
+          borderBottom: `1px solid ${titleBarTheme.borderColor}`,
+        }}
       >
         <div className={styles.trafficLights}>
           <span className={`${styles.dot} ${styles.close}`}></span>
@@ -27,12 +30,24 @@ export const Frame = () => {
         {/*  A mock URL bar to complete the browser look */}
         <div className={styles.headerContent}>
           {frameType === "browser" ? (
-            <div className={styles.urlBar}>
+            <div
+              className={styles.urlBar}
+              style={{
+                backgroundColor: titleBarTheme.urlpathBg,
+                color: titleBarTheme.urlpathText,
+              }}
+            >
               <span>{cleanUrl}</span>
             </div>
           ) : (
-            <div className={styles.terminalPath}>
-              <span>{customPath}</span>
+            <div
+              className={styles.terminalPath}
+              style={{
+                backgroundColor: titleBarTheme.urlpathBg,
+                color: titleBarTheme.urlpathText,
+              }}
+            >
+              <span>{terminalPath}</span>
             </div>
           )}
         </div>

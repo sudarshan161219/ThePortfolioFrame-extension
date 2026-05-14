@@ -58,7 +58,7 @@ export const useNavActionsStore = create<NavActionsState>()(
 
           const dataUrl = await toPng(exportNode, {
             quality: 1.0,
-            pixelRatio: 2,
+            pixelRatio: 3,
           });
 
           const link = document.createElement("a");
