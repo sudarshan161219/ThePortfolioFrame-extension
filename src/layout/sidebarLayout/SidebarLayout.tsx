@@ -1,5 +1,9 @@
 import { Nav } from "../../components/nav/Nav";
-import { useControllsStore } from "../../store/useControllsStore";
+import {
+  useControlsStore,
+  type AspectRatio,
+} from "../../store/useControlsStore";
+import { ratios } from "../../constants/ratios";
 import styles from "./index.module.css";
 
 interface SidebarLayoutProps {
@@ -22,7 +26,7 @@ const BACKGROUNDS = [
   {
     id: "pro-contour-lines",
     name: "Contour Lines",
-    isPro: true,
+    isPro: false,
     bgKey: "bgContourLines",
   },
   {
@@ -42,6 +46,25 @@ const BACKGROUNDS = [
     name: "Scanline Haze",
     isPro: true,
     bgKey: "bgScanlineHaze",
+  },
+
+  {
+    id: "pro-liquid-chrome",
+    name: "Liquid Chrome",
+    isPro: true,
+    bgKey: "bgLiquidChrome",
+  },
+  {
+    id: "pro-neural-grid",
+    name: "Neural Grid",
+    isPro: true,
+    bgKey: "bgNeuralGrid",
+  },
+  {
+    id: "pro-velvet-glow",
+    name: "Velvet Glow",
+    isPro: true,
+    bgKey: "bgVelvetGlow",
   },
 ];
 
@@ -121,12 +144,44 @@ const PREMIUM_TITLE_BARS = [
 const TERMINAL_PRESETS = [
   {
     name: "Linux Fish (Default)",
-    value: " mark-one       0ms   00:00 PM   ",
+    value: " ~/projects/invoice-app   main ✗ ❯",
   },
-  { name: "macOS Zsh", value: "   ~/portfolio   main  " },
-  { name: "Node Minimal", value: "󰎙 src ❯  v20.11.0 ❯  main ❯" },
-  { name: "Windows PS", value: " PS C:\\Dev\\app   master ≡ " },
-  { name: "Cyberpunk", value: "󰆍 root@sys  󰉖 /api/v1  󰞷 compiled  " },
+  {
+    name: "macOS Zsh",
+    value: " ~/portfolio % ",
+  },
+  {
+    name: "Node Minimal",
+    value: "󰎙 server  node v20.11.0  main ❯",
+  },
+  {
+    name: "Windows PS",
+    value: "PS C:\\Users\\dev\\invoice-app> ",
+  },
+  {
+    name: "Cyberpunk",
+    value: "root@neo ~/api  docker:up  ",
+  },
+  {
+    name: "Ubuntu Bash",
+    value: "user@ubuntu:~/workspace$ ",
+  },
+  {
+    name: "Developer Git",
+    value: "~/client-portal  feature/auth ± ❯",
+  },
+  {
+    name: "Docker Shell",
+    value: "󰡨 container:/usr/src/app # ",
+  },
+  {
+    name: "TypeScript Dev",
+    value: " web-app  ts-node  dev ❯",
+  },
+  {
+    name: "Minimal Clean",
+    value: "~/code/snippets ❯",
+  },
 ];
 
 export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
@@ -142,7 +197,10 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     padding,
     handle,
     activeBg,
-
+    tiltX,
+    tiltY,
+    zoom,
+    aspectRatio,
     settitleBarTheme,
     setTilt,
     setFrameType,
@@ -156,7 +214,12 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
 
     setActiveBg,
     setTerminalPath,
-  } = useControllsStore();
+
+    setTiltX,
+    setTiltY,
+    setAspectRatio,
+    setZoom,
+  } = useControlsStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -194,8 +257,10 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
         </div>
 
         <div className={styles.controlGroup}>
-          <label>FRAME_TYPE</label>
+          <label htmlFor="FRAME_TYPE">FRAME_TYPE</label>
           <select
+            id="FRAME_TYPE"
+            className={styles.select}
             value={frameType}
             onChange={(e) =>
               setFrameType(e.target.value as "browser" | "terminal")
@@ -207,10 +272,11 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
         </div>
 
         <div className={styles.controlGroup}>
-          <label>TERMINAL_STYLE</label>
+          <label htmlFor="TERMINAL_STYLE">TERMINAL_STYLE</label>
           <select
+            id="TERMINAL_STYLE"
+            className={styles.select}
             onChange={(e) => setTerminalPath(e.target.value)}
-            /* Keep the value tied to the text input so it updates if they type custom text! */
           >
             <option value="" disabled>
               Select a preset...
@@ -288,6 +354,21 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
         </div>
 
         <div className={styles.controlGroup}>
+          <label>Aspect Ratio</label>
+          <div className={styles.ratioGrid}>
+            {ratios.map((ratio) => (
+              <button
+                key={ratio.value}
+                onClick={() => setAspectRatio(ratio.value as AspectRatio)}
+                className={`${styles.ratioBtn} ${aspectRatio === ratio.value ? styles.active : ""}`}
+              >
+                {ratio.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.controlGroup}>
           <label>CUSTOM_BG_COLOR / GRADIENT</label>
           <input
             type="text"
@@ -323,8 +404,10 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               />
             </div>
             <div className={styles.controlGroup}>
-              <label>BG_SIZE</label>
+              <label htmlFor="BG_SIZE">BG_SIZE</label>
               <select
+                id="BG_SIZE"
+                className={styles.select}
                 value={bgSize}
                 onChange={(e) =>
                   setBgSize(e.target.value as "cover" | "contain" | "auto")
@@ -339,6 +422,19 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
         )}
 
         <div className={styles.controlGroup}>
+          <label htmlFor="zoom">Zoom: {zoom}px</label>
+          <input
+            id="zoom"
+            type="range"
+            min={0.1}
+            max={2}
+            step={0.01}
+            value={zoom}
+            onChange={(e) => setZoom(Number(e.target.value))}
+          />
+        </div>
+
+        <div className={styles.controlGroup}>
           <label>CANVAS_PADDING: {padding}px</label>
           <input
             type="range"
@@ -346,6 +442,24 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
             max="120"
             value={padding}
             onChange={(e) => setPadding(Number(e.target.value))}
+          />
+        </div>
+
+        <div className={styles.controlGroup}>
+          <label>3D_ISOMETRIC_TILT</label>
+          <input
+            type="range"
+            min={-20}
+            max={20}
+            value={tiltX}
+            onChange={(e) => setTiltX(Number(e.target.value))}
+          />
+          <input
+            type="range"
+            min={-20}
+            max={20}
+            value={tiltY}
+            onChange={(e) => setTiltY(Number(e.target.value))}
           />
         </div>
 

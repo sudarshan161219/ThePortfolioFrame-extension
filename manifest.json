@@ -3,10 +3,15 @@
   "name": "The Portfolio Frame",
   "version": "1.0.0",
   "description": "A minimalist, terminal-style screenshot beautifier.",
-  "permissions": ["activeTab", "storage"],
-  "action": {},
-  "background": {
-    "service_worker": "src/background.ts",
-    "type": "module"
-  }
+  "permissions": ["activeTab", "storage", "tabs", "unlimitedStorage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Open The Portfolio Frame"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["upload.html", "upload.js", "editor.html", "popup.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

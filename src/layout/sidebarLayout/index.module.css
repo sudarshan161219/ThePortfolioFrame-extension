@@ -4,7 +4,7 @@
   flex-grow: 1;
   height: 100vh;
   width: 100%;
-  background: #0e0e0e;
+  background: #0a0a0a;
   color: #e8e8e8;
   overflow: hidden;
 }
@@ -13,6 +13,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #737373bd;
 }
 
 .logoDot {
@@ -43,7 +46,7 @@
 .logoVersion {
   display: block;
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.2);
+  color: #b4b4b8;
   letter-spacing: 0.06em;
 }
 
@@ -72,17 +75,17 @@
 /* ── Sidebar ─────────────────────────────────── */
 
 .proPanel {
-  width: 220px;
-  min-width: 220px;
+  width: 280px;
   height: 100%;
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  background-color: #171717;
+  gap: 12px;
   font-size: 10px;
   font-family: "DM Mono", monospace;
   letter-spacing: 0.04em;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid #737373;
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -102,8 +105,8 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 9px 0;
+  border-bottom: 1px solid #ffffff26;
 }
 
 .controlGroup:last-child {
@@ -114,8 +117,16 @@
   font-size: 9px;
   font-weight: 500;
   letter-spacing: 0.08em;
-  opacity: 0.45;
+  opacity: 0.85;
   text-transform: uppercase;
+  color: #b4b4b8;
+}
+
+.select option {
+  color: #fff;
+  background: rgba(0, 0, 0, 0.861);
+  border: 1px solid rgba(255, 255, 255, 0.296);
+  cursor: pointer;
 }
 
 .controlGroup select,
@@ -131,6 +142,7 @@
   width: 100%;
   box-sizing: border-box;
   outline: none;
+  cursor: pointer;
 }
 
 .controlGroup select:focus,
@@ -407,6 +419,116 @@
     ellipse 80% 80% at 50% 50%,
     rgba(180, 80, 255, 0.12) 0%,
     transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* ─── Liquid Chrome (PRO) ─── */
+.bgLiquidChrome {
+  background: #060606;
+  /* position: relative; */
+  overflow: hidden;
+}
+
+.bgLiquidChrome::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.18),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 70% 60%,
+      rgba(120, 120, 255, 0.14),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 50% 80%,
+      rgba(255, 100, 180, 0.1),
+      transparent 35%
+    );
+  filter: blur(60px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* ─── Neural Grid (PRO) ─── */
+.bgNeuralGrid {
+  background-color: #0a0d12;
+  /* position: relative; */
+  overflow: hidden;
+}
+
+.bgNeuralGrid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at center, black 45%, transparent 90%);
+  pointer-events: none;
+}
+
+.bgNeuralGrid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(0, 255, 170, 0.12),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(100, 140, 255, 0.12),
+      transparent 30%
+    );
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+/* ─── Velvet Glow (PRO) ─── */
+.bgVelvetGlow {
+  background: linear-gradient(135deg, #08070d 0%, #11131a 50%, #09090c 100%);
+  /* position: relative; */
+  overflow: hidden;
+}
+
+.bgVelvetGlow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 50% at 30% 40%,
+      rgba(120, 70, 255, 0.18),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 70% 60%,
+      rgba(0, 180, 255, 0.12),
+      transparent 70%
+    );
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.bgVelvetGlow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.015),
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.02)
   );
   pointer-events: none;
 }

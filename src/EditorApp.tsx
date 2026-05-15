@@ -1,62 +1,59 @@
 import { useEffect, useState } from "react";
-// import { toPng } from "html-to-image";
 import { Frame } from "./components/frame/Frame.tsx";
-import { useControllsStore } from "./store/useControllsStore.ts";
-
+import { useControlsStore } from "./store/useControlsStore.ts";
 import { SidebarLayout } from "./layout/sidebarLayout/SidebarLayout.tsx";
 import { SettingsModal } from "./components/settingsModal/SettingsModal.tsx";
-
+import { ratios } from "./constants/ratios";
 import styles from "./EditorApp.module.css";
 
 export const EditorApp = () => {
-  // const exportRef = useRef<HTMLDivElement>(null);
-
   const {
     bgImage,
     imageSource,
     customBg,
     activeBg,
+    // tiltX,
+    // tiltY,
+    aspectRatio,
     bgBlur,
     bgSize,
-    padding,
+    // padding,
     handle,
     setIsPro,
     setPageUrl,
     setImageSource,
-  } = useControllsStore();
-
+  } = useControlsStore();
+  // const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  // const [isHovering, setIsHovering] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  // const [shadowType, setShadowType] = useState<"soft" | "hard">("soft");
-  // const [isAscii, setIsAscii] = useState(false);
-
-  // const renderAscii = (imgElement: HTMLImageElement) => {};
 
   useEffect(() => {
     chrome.storage.local.get(
-      ["capturedImage", "isPro", "capturedUrl"],
+      ["tempImageBridge", "tempUrlBridge", "capturedImage", "capturedUrl"],
       (result) => {
-        if (result.isPro) setIsPro(true);
+        // 2. Prioritize the new bridge, fallback to the old capture method
+        const finalImage = result.tempImageBridge || result.capturedImage;
+        const finalUrl = result.tempUrlBridge || result.capturedUrl;
 
-        const image = result.capturedImage;
-        const url = result.capturedUrl;
-
-        if (url && typeof url === "string") {
-          setPageUrl(url);
-        }
-
-        if (image && typeof image === "string") {
-          setImageSource(image);
-
-          // chrome.storage.local.remove("capturedImage");
+        if (finalImage && typeof finalImage === "string") {
+          setImageSource(finalImage);
         } else {
           console.warn(
             "[The Portfolio Frame] No valid image found in storage.",
           );
         }
+
+        if (finalUrl && typeof finalUrl === "string") {
+          setPageUrl(finalUrl);
+        }
+
+        // 3. Destroy ONLY the bridge data so it's fresh for next time
+        if (result.tempImageBridge) {
+          chrome.storage.local.remove(["tempImageBridge", "tempUrlBridge"]);
+        }
       },
     );
-  }, [setImageSource, setIsPro, setPageUrl]);
+  }, [setImageSource, setPageUrl]);
 
   const dynamicBgStyle: React.CSSProperties = {
     background: bgImage ? `url(${bgImage})` : customBg || "transparent",
@@ -74,9 +71,11 @@ export const EditorApp = () => {
     );
   }
 
-  // const usePreset = !isPro || (!bgImage && customBg === "#F7F7F3");
   const usePreset = !bgImage && !customBg;
-  console.log("editor", activeBg);
+
+  const ratio = ratios.find((r) => r.value === aspectRatio);
+  const newAspectRatio =
+    ratio?.width && ratio?.height ? `${ratio.width} / ${ratio.height}` : "auto";
 
   return (
     <div className={styles.container}>
@@ -85,11 +84,19 @@ export const EditorApp = () => {
           <div
             id="portfolio-export-target"
             className={styles.exportWrapper}
-            style={{ padding: `${padding}px` }}
+            data-auto={ratio?.value === "auto"}
+            style={
+              {
+                "--w": ratio?.width,
+                "--h": ratio?.height,
+                "--ratio": newAspectRatio,
+              } as React.CSSProperties
+            }
           >
-            {/* THE FIX: Apply the preset class OR the custom style to this div ONLY */}
             <div
-              className={`${styles.absoluteBg} ${usePreset ? styles[activeBg?.bgKey as keyof typeof styles] : ""}`}
+              className={`${styles.absoluteBg} ${
+                usePreset ? styles[activeBg?.bgKey as keyof typeof styles] : ""
+              }`}
               style={!usePreset ? dynamicBgStyle : {}}
             />
 

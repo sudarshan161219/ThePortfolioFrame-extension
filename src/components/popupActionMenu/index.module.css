@@ -1,0 +1,135 @@
+.popupMenu {
+  width: 100%;
+  background: #0e1118;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: "Syne", sans-serif;
+}
+
+.popupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 4px;
+}
+
+.popupDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c8ff00;
+}
+
+.popupTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  /* width: 100%; */
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+  color: rgba(240, 240, 240, 0.85);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: left;
+  letter-spacing: -0.01em;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.menuItem:hover {
+  background: rgba(200, 255, 0, 0.06);
+  border-color: rgba(200, 255, 0, 0.12);
+  color: #f0f0f0;
+}
+
+.menuItem:hover .itemIcon {
+  color: #c8ff00;
+  background: rgba(200, 255, 0, 0.1);
+  border-color: rgba(200, 255, 0, 0.2);
+}
+
+.menuItem:hover .itemArrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.itemIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: rgba(240, 240, 240, 0.45);
+  transition:
+    color 0.15s,
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.itemLabel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.itemSub {
+  font-size: 10px;
+  font-weight: 400;
+  color: #b4b4b8;
+  letter-spacing: 0.02em;
+  margin-top: 1px;
+  font-family: "DM Mono", monospace;
+}
+
+.itemArrow {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+  color: rgba(200, 255, 0, 0.5);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.popupFooter {
+  padding: 6px 12px 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 2px;
+}
+
+.footerText {
+  font-size: 10px;
+  font-family: "DM Mono", monospace;
+  color: rgba(240, 240, 240, 0.2);
+  letter-spacing: 0.08em;
+}
+
+.footerAccent {
+  color: rgba(200, 255, 0, 0.4);
+}
+
+.hiddenInput {
+  display: none;
+}

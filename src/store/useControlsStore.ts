@@ -17,6 +17,19 @@ type titleBar = {
   urlpathText: string;
 };
 
+export type AspectRatio =
+  | "auto"
+  | "1 / 1"
+  | "4 / 5"
+  | "9 / 16"
+  | "2 / 3"
+  | "3 / 4"
+  | "16 / 9"
+  | "4 / 3"
+  | "3 / 2"
+  | "21 / 9"
+  | "1.91 / 1";
+
 // 1. Define the TypeScript types for your state and actions
 interface AppState {
   isPro: boolean;
@@ -35,6 +48,12 @@ interface AppState {
   handle: string;
   terminalPath: string;
 
+  tiltX: number;
+  tiltY: number;
+
+  aspectRatio: AspectRatio;
+  zoom: number;
+
   // Setter Actions
   setIsPro: (status: boolean) => void;
   settitleBarTheme: (val: titleBar) => void;
@@ -52,6 +71,12 @@ interface AppState {
   setPadding: (val: number) => void;
   setHandle: (val: string) => void;
   setTerminalPath: (path: string) => void;
+
+  setTiltX: (val: number) => void;
+  setTiltY: (val: number) => void;
+
+  setAspectRatio: (ratio: AspectRatio) => void;
+  setZoom: (val: number) => void;
 }
 
 // 2. The Chrome Storage Engine
@@ -80,7 +105,7 @@ const chromeStorage = {
 };
 
 // 3. Create the store
-export const useControllsStore = create<AppState>()(
+export const useControlsStore = create<AppState>()(
   persist(
     (set) => ({
       // Default Values
@@ -103,6 +128,10 @@ export const useControllsStore = create<AppState>()(
       handle: "",
       activeBg: null,
       terminalPath: "~/home",
+      tiltX: 0,
+      tiltY: 0,
+      aspectRatio: "auto",
+      zoom: 0.5,
 
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
@@ -119,10 +148,19 @@ export const useControllsStore = create<AppState>()(
       setHandle: (val) => set({ handle: val }),
       setActiveBg: (val) => set({ activeBg: val }),
       setTerminalPath: (path) => set({ terminalPath: path }),
+
+      setTiltX: (val) => set({ tiltX: val }),
+      setTiltY: (val) => set({ tiltY: val }),
+      setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
+      setZoom: (val) => set({ zoom: val }),
     }),
     {
       name: "portfolio-frame-storage", // The key used in chrome.storage.local
       storage: createJSONStorage(() => chromeStorage),
+      partialize: (state) => {
+        const { imageSource, ...rest } = state;
+        return rest;
+      },
       // Optional: If you don't want to persist the imageSource across sessions
       // (to save storage space), you can partiallyize the store like this:
       // partialize: (state) => ({ ...state, imageSource: null }),

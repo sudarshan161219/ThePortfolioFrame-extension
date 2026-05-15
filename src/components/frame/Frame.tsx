@@ -1,19 +1,33 @@
-import { useControllsStore } from "../../store/useControllsStore";
+import { useControlsStore } from "../../store/useControlsStore";
 import styles from "./index.module.css";
 
 export const Frame = () => {
-  const { titleBarTheme, tilt, frameType, pageUrl, imageSource, terminalPath } =
-    useControllsStore();
+  const {
+    titleBarTheme,
+    tilt,
+    frameType,
+    pageUrl,
+    imageSource,
+    terminalPath,
+    // tiltX,
+    // tiltY,
+    zoom,
+  } = useControlsStore();
 
   const cleanUrl = pageUrl
     .replace(/^https?:\/\//, "")
     .replace(/^www\./, "")
     .split("/")[0];
 
-  // const customPath = " mark-one       0ms   00:00 PM   ";
-
   return (
-    <div className={`${styles.macWindow} ${tilt ? styles.tiltMode : ""}`}>
+    <div
+      className={`${styles.macWindow} ${tilt ? styles.tiltMode : ""}`}
+      style={{
+        transform: `scale(${zoom})`,
+        // transform: `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
+        transformStyle: "preserve-3d" as const,
+      }}
+    >
       {/* The macOS Title Bar */}
       <div
         className={styles.titleBar}

@@ -12,6 +12,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         editor: resolve(__dirname, "editor.html"),
+        popup: resolve(__dirname, "popup.html"),
+        upload: resolve(__dirname, "upload.html"),
       },
     },
   },

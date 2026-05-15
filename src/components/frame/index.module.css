@@ -8,12 +8,12 @@
   display: flex;
   flex-direction: column;
   transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  transform-style: preserve-3d; /* Required for the 3D tilt effect */
-}
+  transform-style: preserve-3d;
 
-.tiltMode {
-  transform: perspective(1200px) rotateY(-15deg) rotateX(5deg) rotateZ(1deg);
-  box-shadow: 25px 45px 75px rgba(0, 0, 0, 0.25);
+  transform-origin: center center;
+  will-change: transform;
+
+  flex-shrink: 0;
 }
 
 .titleBar {
@@ -21,7 +21,6 @@
   display: flex;
   align-items: center;
   padding: 0 16px;
-  /* border-bottom: 1px solid #f0f0ee; */
   position: relative;
 }
 
@@ -84,11 +83,8 @@
 
 .screenshot {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
-
-  image-rendering: high-smooth;
+  image-rendering: -webkit-optimize-contrast;
   -webkit-font-smoothing: antialiased;
-
-  /* image-rendering: -webkit-optimize-contrast; */
 }

@@ -2,11 +2,11 @@ import { StarIcon, DownloadIcon } from "lucide-react";
 import { useNavActionsStore } from "../../store/useNavActionsStore";
 import styles from "./index.module.css";
 import { useState } from "react";
-import { useControllsStore } from "../../store/useControllsStore";
+import { useControlsStore } from "../../store/useControlsStore";
 
 export const Nav = () => {
   const { isExporting, triggerExport } = useNavActionsStore();
-  const { isPro } = useControllsStore();
+  const { isPro } = useControlsStore();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 

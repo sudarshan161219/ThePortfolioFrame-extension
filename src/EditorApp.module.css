@@ -21,11 +21,13 @@
 }
 
 .exportClipContainer {
-  overflow: hidden;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
 }
 
 .exportWrapper {
@@ -36,6 +38,21 @@
   z-index: 1;
   background: transparent !important;
   transition: background 0.3s ease;
+
+  aspect-ratio: var(--ratio);
+
+  width: min(calc(85vh * (var(--w) / var(--h))), 92vw);
+
+  height: min(calc(92vw * (var(--h) / var(--w))), 85vh);
+  overflow: hidden;
+}
+
+.exportWrapper[data-auto="true"] {
+  aspect-ratio: auto;
+  width: fit-content;
+  height: fit-content;
+  max-width: 92vw;
+  max-height: 85vh;
 }
 
 .absoluteBg {
@@ -382,6 +399,113 @@
 .bgScanlineHaze::before,
 .bgScanlineHaze::after {
   z-index: 0;
+}
+
+/* ─── Liquid Chrome (PRO) ─── */
+.bgLiquidChrome {
+  background: #060606;
+  overflow: hidden;
+}
+
+.bgLiquidChrome::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255, 255, 255, 0.18),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 70% 60%,
+      rgba(120, 120, 255, 0.14),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 50% 80%,
+      rgba(255, 100, 180, 0.1),
+      transparent 35%
+    );
+  filter: blur(60px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* ─── Neural Grid (PRO) ─── */
+.bgNeuralGrid {
+  background-color: #0a0d12;
+  overflow: hidden;
+}
+
+.bgNeuralGrid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at center, black 45%, transparent 90%);
+  pointer-events: none;
+}
+
+.bgNeuralGrid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(0, 255, 170, 0.12),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(100, 140, 255, 0.12),
+      transparent 30%
+    );
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+/* ─── Velvet Glow (PRO) ─── */
+.bgVelvetGlow {
+  background: linear-gradient(135deg, #08070d 0%, #11131a 50%, #09090c 100%);
+  overflow: hidden;
+}
+
+.bgVelvetGlow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 50% at 30% 40%,
+      rgba(120, 70, 255, 0.18),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 70% 60%,
+      rgba(0, 180, 255, 0.12),
+      transparent 70%
+    );
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.bgVelvetGlow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.015),
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.02)
+  );
+  pointer-events: none;
 }
 
 /* scroll bar */
