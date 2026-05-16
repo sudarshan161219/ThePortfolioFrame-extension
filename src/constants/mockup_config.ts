@@ -1,6 +1,3 @@
-import { useControlsStore } from "../../store/useControlsStore";
-import styles from "./index.module.css";
-
 type TextOverlay = {
   type: "url" | "title";
   top: string;
@@ -17,7 +14,7 @@ type MockupConfig = {
   overlays: TextOverlay[];
 };
 
-const MOCKUP_CONFIG: Record<string, MockupConfig> = {
+export const MOCKUP_CONFIG: Record<string, MockupConfig> = {
   "chrome-win-light": {
     src: "/chrome-win-light.png",
     overlays: [
@@ -141,71 +138,3 @@ const MOCKUP_CONFIG: Record<string, MockupConfig> = {
     ],
   },
 } as const;
-
-export const Frame = () => {
-  const {
-    showBrowserFrame,
-    browserMockup,
-    pageUrl,
-    tilt,
-    tiltX,
-    tiltY,
-    imageSource,
-    zoom,
-  } = useControlsStore();
-
-  const combinedTransform = tilt
-    ? `scale(${zoom}) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`
-    : `scale(${zoom})`;
-
-  // Clean the URL for display
-  const cleanUrl = pageUrl.replace(/^https?:\/\//, "").replace(/^www\./, "");
-  const pageTitle = cleanUrl.split("/")[0];
-  const activeConfig =
-    MOCKUP_CONFIG[browserMockup as keyof typeof MOCKUP_CONFIG];
-
-  return (
-    <div
-      className={styles.canvasWrapper}
-      style={{ transform: combinedTransform, transformStyle: "preserve-3d" }}
-    >
-      {/* Render the PNG Browser Mockup with absolute text overlay */}
-      {showBrowserFrame && activeConfig && (
-        <div className={styles.mockupHeader}>
-          <img
-            src={activeConfig.src}
-            alt={browserMockup}
-            className={styles.mockupImage}
-          />
-          {/* The dynamically positioned URL text */}
-          {activeConfig.overlays.map((overlay, index) => (
-            <div
-              key={index}
-              className={styles.absoluteText}
-              style={{
-                top: overlay.top,
-                left: overlay.left,
-                width: overlay.width,
-                fontSize: overlay.fontSize,
-                color: overlay.color,
-                textAlign: overlay.align,
-                fontWeight: overlay.fontWeight || "400",
-              }}
-            >
-              {overlay.type === "url" ? cleanUrl : pageTitle}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* The Screenshot */}
-      <div className={styles.windowContent}>
-        <img
-          src={imageSource!}
-          alt="Captured tab"
-          className={styles.screenshot}
-        />
-      </div>
-    </div>
-  );
-};

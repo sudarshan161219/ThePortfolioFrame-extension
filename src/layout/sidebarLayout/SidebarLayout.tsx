@@ -2,223 +2,50 @@ import { Nav } from "../../components/nav/Nav";
 import {
   useControlsStore,
   type AspectRatio,
+  type BrowserMockup,
 } from "../../store/useControlsStore";
 import { ratios } from "../../constants/ratios";
+import { BACKGROUNDS } from "../../constants/backgrounds";
+import { BROWSER_MOCKUPS } from "../../constants/browser_mockups";
+
 import styles from "./index.module.css";
 
 interface SidebarLayoutProps {
   children?: React.ReactNode;
 }
 
-const BACKGROUNDS = [
-  {
-    id: "free-noise-glass",
-    name: "Noise Glass",
-    isPro: false,
-    bgKey: "bgNoiseGlass",
-  },
-  {
-    id: "free-mesh-gradient",
-    name: "Mesh Gradient",
-    isPro: false,
-    bgKey: "bgMeshGradient",
-  },
-  {
-    id: "pro-contour-lines",
-    name: "Contour Lines",
-    isPro: false,
-    bgKey: "bgContourLines",
-  },
-  {
-    id: "pro-aurora-bands",
-    name: "Aurora Bands",
-    isPro: true,
-    bgKey: "bgAuroraBands",
-  },
-  {
-    id: "pro-carbon-fiber",
-    name: "Carbon Fiber",
-    isPro: true,
-    bgKey: "bgCarbonFiber",
-  },
-  {
-    id: "pro-scanline-haze",
-    name: "Scanline Haze",
-    isPro: true,
-    bgKey: "bgScanlineHaze",
-  },
-
-  {
-    id: "pro-liquid-chrome",
-    name: "Liquid Chrome",
-    isPro: true,
-    bgKey: "bgLiquidChrome",
-  },
-  {
-    id: "pro-neural-grid",
-    name: "Neural Grid",
-    isPro: true,
-    bgKey: "bgNeuralGrid",
-  },
-  {
-    id: "pro-velvet-glow",
-    name: "Velvet Glow",
-    isPro: true,
-    bgKey: "bgVelvetGlow",
-  },
-];
-
-const PREMIUM_TITLE_BARS = [
-  {
-    name: "Classic Light",
-    bg: "#FDFDFB",
-    border: "#EAEAEA",
-    inputBg: "rgba(0, 0, 0, 0.05)",
-    inputText: "#111827",
-  },
-  {
-    name: "macOS Silver",
-    bg: "#E3E3E3",
-    border: "#C9C9C9",
-    inputBg: "rgba(255, 255, 255, 0.4)",
-    inputText: "#111827",
-  },
-  {
-    name: "Obsidian",
-    bg: "#1E1E1E",
-    border: "#111111",
-    inputBg: "rgba(255, 255, 255, 0.1)",
-    inputText: "#F3F4F6",
-  },
-  {
-    name: "GitHub Dark",
-    bg: "#161B22",
-    border: "#0D1117",
-    inputBg: "rgba(255, 255, 255, 0.08)",
-    inputText: "#C9D1D9",
-  },
-  {
-    name: "Vercel Pitch",
-    bg: "#000000",
-    border: "#333333",
-    inputBg: "rgba(255, 255, 255, 0.12)",
-    inputText: "#EDEDED",
-  },
-  {
-    name: "Slate",
-    bg: "#0F172A",
-    border: "#020617",
-    inputBg: "rgba(255, 255, 255, 0.08)",
-    inputText: "#F8FAFC",
-  },
-  {
-    name: "Midnight Blue",
-    bg: "#0B132B",
-    border: "#060B19",
-    inputBg: "rgba(255, 255, 255, 0.1)",
-    inputText: "#E2E8F0",
-  },
-  {
-    name: "Hacker Green",
-    bg: "#0D1F16",
-    border: "#06120B",
-    inputBg: "rgba(16, 185, 129, 0.1)",
-    inputText: "#10B981",
-  }, // Neon green text
-  {
-    name: "Lavender Dark",
-    bg: "#1A1625",
-    border: "#100D1A",
-    inputBg: "rgba(255, 255, 255, 0.08)",
-    inputText: "#E9D5FF",
-  },
-  {
-    name: "Rose Gold",
-    bg: "#F9EAE9",
-    border: "#E5D1D0",
-    inputBg: "rgba(0, 0, 0, 0.04)",
-    inputText: "#4C0519",
-  },
-];
-
-const TERMINAL_PRESETS = [
-  {
-    name: "Linux Fish (Default)",
-    value: " ~/projects/invoice-app   main ✗ ❯",
-  },
-  {
-    name: "macOS Zsh",
-    value: " ~/portfolio % ",
-  },
-  {
-    name: "Node Minimal",
-    value: "󰎙 server  node v20.11.0  main ❯",
-  },
-  {
-    name: "Windows PS",
-    value: "PS C:\\Users\\dev\\invoice-app> ",
-  },
-  {
-    name: "Cyberpunk",
-    value: "root@neo ~/api  docker:up  ",
-  },
-  {
-    name: "Ubuntu Bash",
-    value: "user@ubuntu:~/workspace$ ",
-  },
-  {
-    name: "Developer Git",
-    value: "~/client-portal  feature/auth ± ❯",
-  },
-  {
-    name: "Docker Shell",
-    value: "󰡨 container:/usr/src/app # ",
-  },
-  {
-    name: "TypeScript Dev",
-    value: " web-app  ts-node  dev ❯",
-  },
-  {
-    name: "Minimal Clean",
-    value: "~/code/snippets ❯",
-  },
-];
-
 export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const {
     isPro,
-    titleBarTheme,
     tilt,
-    frameType,
+    showBrowserFrame,
+
     bgImage,
     customBg,
     bgBlur,
     bgSize,
-    padding,
     handle,
     activeBg,
     tiltX,
     tiltY,
     zoom,
     aspectRatio,
-    settitleBarTheme,
-    setTilt,
-    setFrameType,
+    browserMockup,
 
+    setTilt,
+    setBrowserFrame,
     setBgImage,
     setCustomBg,
     setBgBlur,
     setBgSize,
-    setPadding,
     setHandle,
 
     setActiveBg,
-    setTerminalPath,
-
     setTiltX,
     setTiltY,
     setAspectRatio,
     setZoom,
+    setBrowserMockup,
   } = useControlsStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,11 +58,9 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const handleBgSelect = (bg: (typeof BACKGROUNDS)[0]) => {
     if (bg.isPro && !isPro) {
       // Trigger the upsell if they aren't pro
-      // setIsSettingsOpen(true);
-      console.log("s");
+      console.log("Upsell triggered");
     } else {
       setActiveBg(bg);
-
       // THE FIX: Clear custom values so the preset can take priority!
       setBgImage(null);
       setCustomBg("");
@@ -244,8 +69,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
 
   return (
     <div className={styles.root}>
-      {/* Pro sidebar */}
       <aside className={styles.proPanel}>
+        {/* --- HEADER --- */}
         <div className={styles.logo}>
           <div
             className={`${styles.logoDot} ${isPro ? styles.logoDotActive : ""}`}
@@ -256,68 +81,94 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           </div>
         </div>
 
+        {/* ==========================================
+            SECTION 1: FRAME SETTINGS 
+        ========================================== */}
+
         <div className={styles.controlGroup}>
-          <label htmlFor="FRAME_TYPE">FRAME_TYPE</label>
-          <select
-            id="FRAME_TYPE"
-            className={styles.select}
-            value={frameType}
-            onChange={(e) =>
-              setFrameType(e.target.value as "browser" | "terminal")
-            }
-          >
-            <option value="browser">BROWSER</option>
-            <option value="terminal">TERMINAL</option>
-          </select>
+          <label className={styles.switchLabel}>
+            <span>SHOW_BROWSER_MOCKUP</span>
+            <input
+              type="checkbox"
+              checked={showBrowserFrame}
+              onChange={(e) => setBrowserFrame(e.target.checked)}
+              className={styles.toggleSwitch}
+            />
+          </label>
         </div>
 
-        <div className={styles.controlGroup}>
-          <label htmlFor="TERMINAL_STYLE">TERMINAL_STYLE</label>
-          <select
-            id="TERMINAL_STYLE"
-            className={styles.select}
-            onChange={(e) => setTerminalPath(e.target.value)}
-          >
-            <option value="" disabled>
-              Select a preset...
-            </option>
-            {TERMINAL_PRESETS.map((preset) => (
-              <option key={preset.name} value={preset.value}>
-                {preset.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* ONLY show OS settings if the browser mockup is enabled */}
+        {showBrowserFrame && (
+          <div className={styles.controlGroup}>
+            <label htmlFor="CHOOSE_MOCKUP">CHOOSE_MOCKUP</label>
+            <select
+              id="CHOOSE_MOCKUP"
+              className={styles.select}
+              value={browserMockup}
+              onChange={(e) =>
+                setBrowserMockup(e.target.value as BrowserMockup)
+              }
+            >
+              {BROWSER_MOCKUPS.map((mockup) => (
+                <option key={mockup.id} value={mockup.id}>
+                  {mockup.label} - {mockup.os}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* ==========================================
+            SECTION 2: CANVAS & LAYOUT 
+        ========================================== */}
 
         <div className={styles.controlGroup}>
-          <label>TITLE_BAR_THEME</label>
-          <div className={styles.titleBarGrid}>
-            {PREMIUM_TITLE_BARS.map((theme) => {
-              const isActive = titleBarTheme.bg === theme.bg;
-
-              const titleBarThemeObj = {
-                bg: theme.bg,
-                borderColor: theme.border,
-                urlpathBg: theme.inputBg,
-                urlpathText: theme.inputText,
-              };
+          <label>ASPECT_RATIO</label>
+          <div className={styles.ratioGrid}>
+            {ratios.map((ratio) => {
+              const isPortrait = (ratio.height ?? 0) > (ratio.width ?? 0);
+              const isSquare = ratio.width === ratio.height;
 
               return (
                 <button
-                  key={theme.name}
-                  onClick={() => settitleBarTheme(titleBarThemeObj)}
-                  className={`${styles.titleBarSwatch} ${isActive ? styles.activeSwatch : ""}`}
-                  title={theme.name}
-                  aria-label={theme.name}
-                  style={{
-                    backgroundColor: theme.bg,
-                    borderBottomColor: theme.border,
-                  }}
-                />
+                  key={ratio.value}
+                  onClick={() => setAspectRatio(ratio.value as AspectRatio)}
+                  className={`${styles.ratioBtn} ${aspectRatio === ratio.value ? styles.active : ""}`}
+                  style={
+                    {
+                      "--ratio":
+                        ratio.width && ratio.height
+                          ? `${ratio.width} / ${ratio.height}`
+                          : "1 / 1",
+                      "--preview-w": isPortrait ? "14px" : "20px",
+                      "--preview-h": isPortrait && !isSquare ? "20px" : "14px",
+                    } as React.CSSProperties
+                  }
+                >
+                  <div className={styles.ratioShape} />
+                  <span className={styles.ratioLabel}>{ratio.label}</span>
+                </button>
               );
             })}
           </div>
         </div>
+
+        <div className={styles.controlGroup}>
+          <label htmlFor="zoom">ZOOM: {zoom}x</label>
+          <input
+            id="zoom"
+            type="range"
+            min={0.1}
+            max={2}
+            step={0.01}
+            value={zoom}
+            onChange={(e) => setZoom(Number(e.target.value))}
+          />
+        </div>
+
+        {/* ==========================================
+            SECTION 3: BACKGROUNDS 
+        ========================================== */}
 
         <div className={styles.controlGroup}>
           <label>PRESET_BACKGROUNDS</label>
@@ -330,13 +181,10 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                   <button
                     onClick={() => !isLocked && handleBgSelect(bg)}
                     className={`${styles.swatch} ${styles[bg.bgKey as keyof typeof styles]} ${isActive ? styles.active : ""} ${isLocked ? styles.locked : ""}`}
-                    title={bg.name}
-                    aria-label={bg.name}
                     disabled={isLocked}
                   >
                     {isLocked && <div className={styles.lockOverlay}>🔒</div>}
                   </button>
-
                   <div className={styles.swatchMeta}>
                     <span className={styles.swatchName}>
                       {bg.name.split(" ")[0]}
@@ -350,21 +198,6 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        <div className={styles.controlGroup}>
-          <label>Aspect Ratio</label>
-          <div className={styles.ratioGrid}>
-            {ratios.map((ratio) => (
-              <button
-                key={ratio.value}
-                onClick={() => setAspectRatio(ratio.value as AspectRatio)}
-                className={`${styles.ratioBtn} ${aspectRatio === ratio.value ? styles.active : ""}`}
-              >
-                {ratio.label}
-              </button>
-            ))}
           </div>
         </div>
 
@@ -421,55 +254,46 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           </>
         )}
 
-        <div className={styles.controlGroup}>
-          <label htmlFor="zoom">Zoom: {zoom}px</label>
-          <input
-            id="zoom"
-            type="range"
-            min={0.1}
-            max={2}
-            step={0.01}
-            value={zoom}
-            onChange={(e) => setZoom(Number(e.target.value))}
-          />
-        </div>
+        {/* ==========================================
+            SECTION 4: EFFECTS & WATERMARK 
+        ========================================== */}
 
         <div className={styles.controlGroup}>
-          <label>CANVAS_PADDING: {padding}px</label>
-          <input
-            type="range"
-            min="0"
-            max="120"
-            value={padding}
-            onChange={(e) => setPadding(Number(e.target.value))}
-          />
-        </div>
+          <label className={styles.switchLabel}>
+            <span>3D_ISOMETRIC_TILT</span>
+            <input
+              type="checkbox"
+              checked={tilt}
+              onChange={(e) => setTilt(e.target.checked)}
+              className={styles.toggleSwitch}
+            />
+          </label>
 
-        <div className={styles.controlGroup}>
-          <label>3D_ISOMETRIC_TILT</label>
-          <input
-            type="range"
-            min={-20}
-            max={20}
-            value={tiltX}
-            onChange={(e) => setTiltX(Number(e.target.value))}
-          />
-          <input
-            type="range"
-            min={-20}
-            max={20}
-            value={tiltY}
-            onChange={(e) => setTiltY(Number(e.target.value))}
-          />
-        </div>
-
-        <div className={styles.controlGroup}>
-          <label>3D_ISOMETRIC_TILT</label>
-          <input
-            type="checkbox"
-            checked={tilt}
-            onChange={(e) => setTilt(e.target.checked)}
-          />
+          {/* ONLY show the sliders if the checkbox is turned on! */}
+          {tilt && (
+            <div className={styles.subSliders}>
+              <div className={styles.sliderRow}>
+                <span>X-Axis</span>
+                <input
+                  type="range"
+                  min={-20}
+                  max={20}
+                  value={tiltX}
+                  onChange={(e) => setTiltX(Number(e.target.value))}
+                />
+              </div>
+              <div className={styles.sliderRow}>
+                <span>Y-Axis</span>
+                <input
+                  type="range"
+                  min={-20}
+                  max={20}
+                  value={tiltY}
+                  onChange={(e) => setTiltY(Number(e.target.value))}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className={styles.controlGroup}>

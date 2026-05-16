@@ -1,0 +1,72 @@
+export const PREMIUM_TITLE_BARS = [
+  {
+    name: "Classic Light",
+    bg: "#FDFDFB",
+    border: "#EAEAEA",
+    inputBg: "rgba(0, 0, 0, 0.05)",
+    inputText: "#111827",
+  },
+  {
+    name: "macOS Silver",
+    bg: "#E3E3E3",
+    border: "#C9C9C9",
+    inputBg: "rgba(255, 255, 255, 0.4)",
+    inputText: "#111827",
+  },
+  {
+    name: "Obsidian",
+    bg: "#1E1E1E",
+    border: "#111111",
+    inputBg: "rgba(255, 255, 255, 0.1)",
+    inputText: "#F3F4F6",
+  },
+  {
+    name: "GitHub Dark",
+    bg: "#161B22",
+    border: "#0D1117",
+    inputBg: "rgba(255, 255, 255, 0.08)",
+    inputText: "#C9D1D9",
+  },
+  {
+    name: "Vercel Pitch",
+    bg: "#000000",
+    border: "#333333",
+    inputBg: "rgba(255, 255, 255, 0.12)",
+    inputText: "#EDEDED",
+  },
+  {
+    name: "Slate",
+    bg: "#0F172A",
+    border: "#020617",
+    inputBg: "rgba(255, 255, 255, 0.08)",
+    inputText: "#F8FAFC",
+  },
+  {
+    name: "Midnight Blue",
+    bg: "#0B132B",
+    border: "#060B19",
+    inputBg: "rgba(255, 255, 255, 0.1)",
+    inputText: "#E2E8F0",
+  },
+  {
+    name: "Hacker Green",
+    bg: "#0D1F16",
+    border: "#06120B",
+    inputBg: "rgba(16, 185, 129, 0.1)",
+    inputText: "#10B981",
+  }, // Neon green text
+  {
+    name: "Lavender Dark",
+    bg: "#1A1625",
+    border: "#100D1A",
+    inputBg: "rgba(255, 255, 255, 0.08)",
+    inputText: "#E9D5FF",
+  },
+  {
+    name: "Rose Gold",
+    bg: "#F9EAE9",
+    border: "#E5D1D0",
+    inputBg: "rgba(0, 0, 0, 0.04)",
+    inputText: "#4C0519",
+  },
+];

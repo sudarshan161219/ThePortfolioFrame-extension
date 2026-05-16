@@ -30,12 +30,22 @@ export type AspectRatio =
   | "21 / 9"
   | "1.91 / 1";
 
+export type BrowserMockup =
+  | "chrome-win-light"
+  | "chrome-win-dark"
+  | "chrome-mac-light"
+  | "chrome-mac-dark"
+  | "safari-mac-light"
+  | "safari-mac-dark";
+
 // 1. Define the TypeScript types for your state and actions
 interface AppState {
   isPro: boolean;
+  showBrowserFrame: boolean;
   titleBarTheme: titleBar;
   tilt: boolean;
   frameType: "browser" | "terminal";
+  osStyle: "mac" | "windows";
   pageUrl: string;
   imageSource: string | null;
   bgImage: string | null;
@@ -44,7 +54,7 @@ interface AppState {
   customBg: string;
   bgBlur: number;
   bgSize: "cover" | "contain" | "auto";
-  padding: number;
+
   handle: string;
   terminalPath: string;
 
@@ -53,9 +63,12 @@ interface AppState {
 
   aspectRatio: AspectRatio;
   zoom: number;
+  browserMockup: BrowserMockup;
 
   // Setter Actions
   setIsPro: (status: boolean) => void;
+  setBrowserFrame: (status: boolean) => void;
+  setOsStyle: (type: "mac" | "windows") => void;
   settitleBarTheme: (val: titleBar) => void;
   setTilt: (val: boolean) => void;
   setFrameType: (type: "browser" | "terminal") => void;
@@ -68,7 +81,6 @@ interface AppState {
   setCustomBg: (val: string) => void;
   setBgBlur: (val: number) => void;
   setBgSize: (val: "cover" | "contain" | "auto") => void;
-  setPadding: (val: number) => void;
   setHandle: (val: string) => void;
   setTerminalPath: (path: string) => void;
 
@@ -77,6 +89,7 @@ interface AppState {
 
   setAspectRatio: (ratio: AspectRatio) => void;
   setZoom: (val: number) => void;
+  setBrowserMockup: (mockup: BrowserMockup) => void;
 }
 
 // 2. The Chrome Storage Engine
@@ -110,6 +123,7 @@ export const useControlsStore = create<AppState>()(
     (set) => ({
       // Default Values
       isPro: false,
+      showBrowserFrame: true,
       titleBarTheme: {
         bg: "#fdfdfb",
         borderColor: "",
@@ -117,6 +131,7 @@ export const useControlsStore = create<AppState>()(
         urlpathText: "#111827",
       },
       tilt: false,
+      osStyle: "mac",
       frameType: "browser",
       pageUrl: "localhost:5173",
       imageSource: null,
@@ -124,7 +139,7 @@ export const useControlsStore = create<AppState>()(
       customBg: "",
       bgBlur: 0,
       bgSize: "cover",
-      padding: 40,
+
       handle: "",
       activeBg: null,
       terminalPath: "~/home",
@@ -132,10 +147,13 @@ export const useControlsStore = create<AppState>()(
       tiltY: 0,
       aspectRatio: "auto",
       zoom: 0.5,
+      browserMockup: "safari-mac-light",
 
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
+      setBrowserFrame: (status) => set({ showBrowserFrame: status }),
       settitleBarTheme: (color) => set({ titleBarTheme: color }),
+      setOsStyle: (type) => set({ osStyle: type }),
       setTilt: (val) => set({ tilt: val }),
       setFrameType: (type) => set({ frameType: type }),
       setPageUrl: (url) => set({ pageUrl: url }),
@@ -144,7 +162,7 @@ export const useControlsStore = create<AppState>()(
       setCustomBg: (val) => set({ customBg: val }),
       setBgBlur: (val) => set({ bgBlur: val }),
       setBgSize: (val) => set({ bgSize: val }),
-      setPadding: (val) => set({ padding: val }),
+
       setHandle: (val) => set({ handle: val }),
       setActiveBg: (val) => set({ activeBg: val }),
       setTerminalPath: (path) => set({ terminalPath: path }),
@@ -153,6 +171,7 @@ export const useControlsStore = create<AppState>()(
       setTiltY: (val) => set({ tiltY: val }),
       setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
       setZoom: (val) => set({ zoom: val }),
+      setBrowserMockup: (mockup) => set({ browserMockup: mockup }),
     }),
     {
       name: "portfolio-frame-storage", // The key used in chrome.storage.local

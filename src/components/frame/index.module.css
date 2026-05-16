@@ -1,90 +1,63 @@
-.macWindow {
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  width: 100%;
-  max-width: 900px;
+.canvasWrapper {
   display: flex;
   flex-direction: column;
-  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  transform-style: preserve-3d;
-
-  transform-origin: center center;
-  will-change: transform;
-
-  flex-shrink: 0;
-}
-
-.titleBar {
-  height: 40px;
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  position: relative;
-}
-
-.trafficLights {
-  display: flex;
-  gap: 8px;
-  position: absolute;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-/* Subtle, desaturated macOS colors to fit the dark aesthetic */
-.close {
-  background-color: #ff5f56;
-}
-.minimize {
-  background-color: #ffbd2e;
-}
-.maximize {
-  background-color: #27c93f;
-}
-
-.headerContent {
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.urlBar,
-.terminalPath {
-  background: #f1f1ee;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-family: "JetBrains Mono", "Fira Code", monospace;
-  font-size: 0.7rem;
-  color: #71717a;
-  min-width: 200px;
-  text-align: center;
-  white-space: nowrap;
+  width: 100%;
+  border-radius: 12px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-.terminalPath {
-  background: #333;
-  color: #27c93f;
-  text-align: left;
-}
-
-.windowContent {
+/* Let the PNG image naturally dictate the height */
+.mockupHeader {
+  width: 100%;
+  position: relative;
   display: flex;
-  background-color: #000;
-  line-height: 0;
+  flex-shrink: 0;
+  container-type: inline-size;
+}
+
+.mockupImage {
+  width: 100%;
+  height: auto;
+  display: block; /* Fixes the annoying 3px gap under inline images */
 }
 
 .screenshot {
   width: 100%;
   height: 100%;
+  object-fit: cover;
   display: block;
   image-rendering: -webkit-optimize-contrast;
-  -webkit-font-smoothing: antialiased;
+}
+
+.imageContainer > img {
+  width: 100%;
+}
+
+.mockupHeader {
+  width: 100%;
+  position: relative; /* Crucial for absolute positioning the text */
+  display: flex;
+  flex-shrink: 0;
+
+  /* THIS IS MAGIC: Tells CSS to track the width of this specific box */
+  container-type: inline-size;
+}
+
+.mockupImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.absoluteText {
+  position: absolute;
+  /* We use translateY(-50%) to ensure the text is vertically centered at whatever top % we give it */
+  transform: translateY(-50%);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
 }

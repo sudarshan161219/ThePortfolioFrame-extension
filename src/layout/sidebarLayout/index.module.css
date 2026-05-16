@@ -57,6 +57,7 @@
 }
 
 .canvas {
+  padding: 1rem;
   flex: 1;
   flex-grow: 1;
   display: flex;
@@ -100,6 +101,29 @@
 }
 
 /* ── Control groups ──────────────────────────── */
+
+.switchLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.subSliders {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted); /* use whatever your muted text color is */
+}
 
 .controlGroup {
   display: flex;
@@ -567,4 +591,64 @@
   /* The "pressed" button effect */
   transform: translateY(2px);
   border-bottom-width: 2px;
+}
+
+.ratioGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ratioBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  width: 72px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.ratioBtn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ratioBtn.active {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* The shape preview */
+.ratioBtn::before {
+  content: "";
+  display: block;
+  aspect-ratio: var(--ratio);
+  width: var(--preview-w, 20px);
+  height: var(--preview-h, 20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  transition: border-color 0.15s;
+}
+
+.ratioBtn.active::before {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.ratioLabel {
+  font-family: "DM Mono", monospace;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.04em;
+}
+
+.ratioBtn.active .ratioLabel {
+  color: rgba(255, 255, 255, 0.85);
 }

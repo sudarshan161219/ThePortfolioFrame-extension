@@ -12,12 +12,9 @@ export const EditorApp = () => {
     imageSource,
     customBg,
     activeBg,
-    // tiltX,
-    // tiltY,
     aspectRatio,
     bgBlur,
     bgSize,
-    // padding,
     handle,
     setIsPro,
     setPageUrl,
@@ -109,8 +106,6 @@ export const EditorApp = () => {
             )}
           </div>
         </div>
-
-        <main className={styles.canvasArea}></main>
       </SidebarLayout>
 
       <SettingsModal
