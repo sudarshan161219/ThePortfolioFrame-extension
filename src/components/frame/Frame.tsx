@@ -1,157 +1,22 @@
 import { useControlsStore } from "../../store/useControlsStore";
+import { SHADOW_PRESETS } from "../../constants/shadow_presets";
+import { MOCKUP_CONFIG } from "../../constants/mockup_config";
 import styles from "./index.module.css";
-
-type TextOverlay = {
-  type: "url" | "title";
-  top: string;
-  left: string;
-  width: string;
-  fontSize: string;
-  color: string;
-  align: "left" | "center";
-  fontWeight?: string;
-};
-
-type MockupConfig = {
-  src: string;
-  overlays: TextOverlay[];
-};
-
-const MOCKUP_CONFIG: Record<string, MockupConfig> = {
-  "chrome-win-light": {
-    src: "/chrome-win-light.png",
-    overlays: [
-      {
-        type: "title",
-        top: "18%",
-        left: "4%",
-        width: "25%",
-        fontSize: "1cqw",
-        color: "#4A4A4A",
-        align: "left",
-      },
-      {
-        type: "url",
-        top: "58%",
-        left: "10%",
-        width: "60%",
-        fontSize: "1.01cqw",
-        color: "#1F1F1F",
-        align: "left",
-      },
-    ],
-  },
-  "chrome-win-dark": {
-    src: "/chrome-win-dark.png",
-    overlays: [
-      {
-        type: "title",
-        top: "22%",
-        left: "4%",
-        width: "25%",
-        fontSize: "1cqw",
-        color: "#9CA3AF",
-        align: "left",
-      },
-      {
-        type: "url",
-        top: "58%",
-        left: "10%",
-        width: "60%",
-        fontSize: "1.01cqw",
-        color: "#E3E3E3",
-        align: "left",
-      },
-    ],
-  },
-  "chrome-mac-light": {
-    src: "/chrome-mac-light.png",
-    overlays: [
-      {
-        type: "title",
-        top: "29%",
-        left: "7%",
-        width: "25%",
-        fontSize: "1cqw",
-        color: "#4A4A4A", // Dark grey for light mode tab
-        align: "left",
-      },
-      {
-        type: "url",
-        top: "73%",
-        left: "10%",
-        width: "64%",
-        fontSize: "1.01cqw",
-        color: "#1F1F1F",
-        align: "left",
-      },
-    ],
-  },
-  "chrome-mac-dark": {
-    src: "/chrome-mac-dark.png",
-    overlays: [
-      {
-        type: "title",
-        top: "26%",
-        left: "7%",
-        width: "25%",
-        fontSize: "1cqw",
-        color: "#9CA3AF",
-        align: "left",
-      },
-      {
-        type: "url",
-        top: "73%",
-        left: "10%",
-        width: "64%",
-        fontSize: "1.01cqw",
-        color: "#E3E3E3",
-        align: "left",
-      },
-    ],
-  },
-  "safari-mac-light": {
-    src: "/safari-mac-light.png",
-    overlays: [
-      {
-        type: "url",
-        top: "50%",
-        left: "29%",
-        width: "50%",
-        fontSize: "1cqw",
-        color: "#1F1F1F",
-        align: "center",
-        fontWeight: "600",
-      },
-    ],
-  },
-  "safari-mac-dark": {
-    src: "/safari-mac-dark.png",
-    overlays: [
-      {
-        type: "url",
-        top: "50%",
-        left: "29%",
-        width: "50%",
-        fontSize: "1cqw",
-        color: "#E3E3E3",
-        align: "center",
-        fontWeight: "600",
-      },
-    ],
-  },
-} as const;
 
 export const Frame = () => {
   const {
     showBrowserFrame,
     browserMockup,
     pageUrl,
+    pageTitle,
     tilt,
     tiltX,
     tiltY,
     imageSource,
     zoom,
+    borderRadius,
+    shadowVariant,
+    shadowOpacity,
   } = useControlsStore();
 
   const combinedTransform = tilt
@@ -160,14 +25,27 @@ export const Frame = () => {
 
   // Clean the URL for display
   const cleanUrl = pageUrl.replace(/^https?:\/\//, "").replace(/^www\./, "");
-  const pageTitle = cleanUrl.split("/")[0];
+
+  const displayTitle =
+    pageTitle.trim() !== "" ? pageTitle : cleanUrl.split("/")[0];
   const activeConfig =
     MOCKUP_CONFIG[browserMockup as keyof typeof MOCKUP_CONFIG];
+
+  const currentPreset = SHADOW_PRESETS[shadowVariant] || SHADOW_PRESETS[0];
+  const dynamicShadow = currentPreset.value.replace(
+    /__OPACITY__/g,
+    shadowOpacity.toString(),
+  );
 
   return (
     <div
       className={styles.canvasWrapper}
-      style={{ transform: combinedTransform, transformStyle: "preserve-3d" }}
+      style={{
+        transform: combinedTransform,
+        transformStyle: "preserve-3d",
+        borderRadius: `${borderRadius}px`,
+        boxShadow: dynamicShadow,
+      }}
     >
       {/* Render the PNG Browser Mockup with absolute text overlay */}
       {showBrowserFrame && activeConfig && (
@@ -192,7 +70,7 @@ export const Frame = () => {
                 fontWeight: overlay.fontWeight || "400",
               }}
             >
-              {overlay.type === "url" ? cleanUrl : pageTitle}
+              {overlay.type === "url" ? cleanUrl : displayTitle}
             </div>
           ))}
         </div>

@@ -47,6 +47,7 @@ interface AppState {
   frameType: "browser" | "terminal";
   osStyle: "mac" | "windows";
   pageUrl: string;
+  pageTitle: string;
   imageSource: string | null;
   bgImage: string | null;
   activeBg: Background | null;
@@ -64,6 +65,10 @@ interface AppState {
   aspectRatio: AspectRatio;
   zoom: number;
   browserMockup: BrowserMockup;
+  borderRadius: number;
+
+  shadowVariant: number;
+  shadowOpacity: number;
 
   // Setter Actions
   setIsPro: (status: boolean) => void;
@@ -73,6 +78,7 @@ interface AppState {
   setTilt: (val: boolean) => void;
   setFrameType: (type: "browser" | "terminal") => void;
   setPageUrl: (url: string) => void;
+  setPageTitle: (title: string) => void;
   setImageSource: (src: string | null) => void;
   setBgImage: (src: string | null) => void;
 
@@ -90,6 +96,9 @@ interface AppState {
   setAspectRatio: (ratio: AspectRatio) => void;
   setZoom: (val: number) => void;
   setBrowserMockup: (mockup: BrowserMockup) => void;
+  setBorderRadius: (radius: number) => void;
+  setShadowVariant: (index: number) => void;
+  setShadowOpacity: (opacity: number) => void;
 }
 
 // 2. The Chrome Storage Engine
@@ -134,6 +143,7 @@ export const useControlsStore = create<AppState>()(
       osStyle: "mac",
       frameType: "browser",
       pageUrl: "localhost:5173",
+      pageTitle: "",
       imageSource: null,
       bgImage: null,
       customBg: "",
@@ -148,6 +158,9 @@ export const useControlsStore = create<AppState>()(
       aspectRatio: "auto",
       zoom: 0.5,
       browserMockup: "safari-mac-light",
+      borderRadius: 12,
+      shadowVariant: 4,
+      shadowOpacity: 0.4,
 
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
@@ -157,6 +170,7 @@ export const useControlsStore = create<AppState>()(
       setTilt: (val) => set({ tilt: val }),
       setFrameType: (type) => set({ frameType: type }),
       setPageUrl: (url) => set({ pageUrl: url }),
+      setPageTitle: (title) => set({ pageTitle: title }),
       setImageSource: (src) => set({ imageSource: src }),
       setBgImage: (src) => set({ bgImage: src }),
       setCustomBg: (val) => set({ customBg: val }),
@@ -172,17 +186,20 @@ export const useControlsStore = create<AppState>()(
       setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
       setZoom: (val) => set({ zoom: val }),
       setBrowserMockup: (mockup) => set({ browserMockup: mockup }),
+      setBorderRadius: (radius) => set({ borderRadius: radius }),
+      setShadowVariant: (index) => set({ shadowVariant: index }),
+      setShadowOpacity: (opacity) => set({ shadowOpacity: opacity }),
     }),
     {
       name: "portfolio-frame-storage", // The key used in chrome.storage.local
       storage: createJSONStorage(() => chromeStorage),
-      partialize: (state) => {
-        const { imageSource, ...rest } = state;
-        return rest;
-      },
+      // partialize: (state) => {
+      //   const { imageSource, ...rest } = state;
+      //   return rest;
+      // },
       // Optional: If you don't want to persist the imageSource across sessions
       // (to save storage space), you can partiallyize the store like this:
-      // partialize: (state) => ({ ...state, imageSource: null }),
+      partialize: (state) => ({ ...state, imageSource: null }),
     },
   ),
 );

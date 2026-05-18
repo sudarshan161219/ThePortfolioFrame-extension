@@ -7,6 +7,8 @@ import {
 import { ratios } from "../../constants/ratios";
 import { BACKGROUNDS } from "../../constants/backgrounds";
 import { BROWSER_MOCKUPS } from "../../constants/browser_mockups";
+import { RADIUS_PRESETS } from "../../constants/radius_presets";
+import { SHADOW_PRESETS } from "../../constants/shadow_presets";
 
 import styles from "./index.module.css";
 
@@ -19,7 +21,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     isPro,
     tilt,
     showBrowserFrame,
-
+    pageUrl,
+    pageTitle,
     bgImage,
     customBg,
     bgBlur,
@@ -31,7 +34,9 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     zoom,
     aspectRatio,
     browserMockup,
-
+    borderRadius,
+    shadowVariant,
+    shadowOpacity,
     setTilt,
     setBrowserFrame,
     setBgImage,
@@ -39,13 +44,17 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setBgBlur,
     setBgSize,
     setHandle,
-
+    setPageUrl,
+    setPageTitle,
     setActiveBg,
     setTiltX,
     setTiltY,
     setAspectRatio,
     setZoom,
     setBrowserMockup,
+    setBorderRadius,
+    setShadowVariant,
+    setShadowOpacity,
   } = useControlsStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,24 +108,122 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
 
         {/* ONLY show OS settings if the browser mockup is enabled */}
         {showBrowserFrame && (
-          <div className={styles.controlGroup}>
-            <label htmlFor="CHOOSE_MOCKUP">CHOOSE_MOCKUP</label>
-            <select
-              id="CHOOSE_MOCKUP"
-              className={styles.select}
-              value={browserMockup}
-              onChange={(e) =>
-                setBrowserMockup(e.target.value as BrowserMockup)
-              }
-            >
-              {BROWSER_MOCKUPS.map((mockup) => (
-                <option key={mockup.id} value={mockup.id}>
-                  {mockup.label} - {mockup.os}
-                </option>
-              ))}
-            </select>
-          </div>
+          <>
+            <div className={styles.controlGroup}>
+              <label htmlFor="CHOOSE_MOCKUP">CHOOSE_MOCKUP</label>
+              <select
+                id="CHOOSE_MOCKUP"
+                className={styles.select}
+                value={browserMockup}
+                onChange={(e) =>
+                  setBrowserMockup(e.target.value as BrowserMockup)
+                }
+              >
+                {BROWSER_MOCKUPS.map((mockup) => (
+                  <option key={mockup.id} value={mockup.id}>
+                    {mockup.label} - {mockup.os}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* NEW: Custom Text Inputs */}
+            <div className={styles.controlGroup}>
+              <label htmlFor="pageUrl">BROWSER_URL</label>
+              <input
+                id="pageUrl"
+                type="text"
+                placeholder="e.g., yourdomain.com"
+                value={pageUrl}
+                onChange={(e) => setPageUrl(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.controlGroup}>
+              <label htmlFor="pageTitle">TAB_TITLE</label>
+              <input
+                id="pageTitle"
+                type="text"
+                placeholder="Leave blank to auto-generate..."
+                value={pageTitle}
+                onChange={(e) => setPageTitle(e.target.value)}
+              />
+            </div>
+          </>
         )}
+
+        <div className={styles.controlGroup}>
+          <label htmlFor="borderRadius">BORDER_RADIUS: {borderRadius}px</label>
+
+          {/* The precise slider */}
+          <input
+            id="borderRadius"
+            type="range"
+            min={0}
+            max={40}
+            step={1}
+            value={borderRadius}
+            onChange={(e) => setBorderRadius(Number(e.target.value))}
+            style={{ marginBottom: "12px" }}
+          />
+
+          {/* The 4 quick-preset buttons */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: "8px",
+            }}
+          >
+            {RADIUS_PRESETS.map((preset) => (
+              <button
+                key={preset.label}
+                onClick={() => setBorderRadius(preset.value)}
+                className={`${styles.ratioBtn} ${borderRadius === preset.value ? styles.active : ""}`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.controlGroup}>
+          <label htmlFor="shadowOpacity">
+            SHADOW_OPACITY: {Math.round(shadowOpacity * 100)}%
+          </label>
+
+          {/* The Opacity Slider */}
+          <input
+            id="shadowOpacity"
+            type="range"
+            min={0}
+            max={1}
+            step={0.02} // Fine-grain control
+            value={shadowOpacity}
+            onChange={(e) => setShadowOpacity(Number(e.target.value))}
+            style={{ marginBottom: "12px" }}
+            disabled={shadowVariant === 0} // Disable slider if "None" is selected
+          />
+
+          {/* The 6 Preset Buttons */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "8px",
+            }}
+          >
+            {SHADOW_PRESETS.map((preset, index) => (
+              <button
+                key={preset.label}
+                onClick={() => setShadowVariant(index)}
+                className={`${styles.ratioBtn} ${shadowVariant === index ? styles.active : ""}`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* ==========================================
             SECTION 2: CANVAS & LAYOUT 
