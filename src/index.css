@@ -1,19 +1,59 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* ==========================================
+     1. BACKGROUNDS (Warm & Clean)
+  ========================================== */
+  --bg-app: #f9fafb; /* Very soft off-white for the main app/body */
+  --bg-sidebar: #ffffff; /* Pure white for the sidebar to pop slightly */
+  --bg-hover: #f3f4f6; /* Gentle gray for hovering over buttons/swatches */
+  --bg-active: #f0fdf4; /* Optional: Soft mint green for success states */
 
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* ==========================================
+     2. TYPOGRAPHY (Low Contrast & Readable)
+  ========================================== */
+  --text-main: #374151; /* Soft charcoal for primary text (never #000) */
+  --text-muted: #6b7280; /* Medium slate gray for labels and tiny text */
+  --text-light: #9ca3af; /* Light gray for placeholders */
+
+  /* ==========================================
+     3. BRAND ACCENTS (Friendly & Vibrant)
+  ========================================== */
+  --accent-main: #8b5cf6; /* A friendly, creative soft purple (Canva/Figma vibe) */
+  --accent-hover: #7c3aed; /* Slightly darker purple for button hovers */
+  --accent-soft: #ede9fe; /* Very pale purple for active toggle buttons */
+
+  /* ==========================================
+     4. BORDERS (Invisible or Faint)
+  ========================================== */
+  --border-light: #f3f4f6; /* Almost invisible dividers */
+  --border-medium: #e5e7eb; /* For input fields and sidebar borders */
+  --border-active: #c4b5fd; /* Soft purple border for focused inputs */
+
+  /* ==========================================
+     5. RADII (Squishy & Friendly)
+  ========================================== */
+  --radius-sm: 8px; /* For small buttons and inputs */
+  --radius-md: 12px; /* For cards, swatches, and inner panels */
+  --radius-lg: 20px; /* For the main canvas workspace */
+  --radius-pill: 9999px; /* For fully rounded toggle switches */
+
+  /* ==========================================
+     6. SHADOWS (Diffused & Soft)
+  ========================================== */
+  /* Used for small buttons or dropdowns */
+  --shadow-sm: 0 2px 4px rgba(149, 157, 165, 0.1);
+
+  /* Used for the sidebar or floating panels */
+  --shadow-md: 0 8px 24px rgba(149, 157, 165, 0.15);
+
+  /* The "Float" shadow - Use this on the Canvas to make it look like paper */
+  --shadow-canvas:
+    0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+
+  /* ==========================================
+     7. TRANSITIONS (Smooth & Bouncy)
+  ========================================== */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-bounce: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -50,64 +90,8 @@
   }
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
 }
 
 * {

@@ -57,6 +57,7 @@ export const EditorApp = () => {
     backgroundSize: bgSize,
     backgroundPosition: "center",
     filter: `blur(${bgImage && bgBlur}px)`,
+    transform: bgImage ? `scale(${1 + bgBlur / 200})` : undefined,
     transition: "all 0.3s ease",
   };
 

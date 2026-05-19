@@ -45,60 +45,68 @@ export const Frame = () => {
     dynamicShadow += `, inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1)`;
   }
 
-  return (
-    // 1. The stationary parent (This should get `perspective: 1200px` in your CSS)
-    <div className={styles.canvasWrapper}>
-      {/* // 2. The spinning child (This gets all the dynamic inline styles) */}
-      <div
-        className={styles.windowWrapper} // <-- Don't forget to add this class back!
-        style={{
-          transform: combinedTransform,
-          transformStyle: "preserve-3d",
-          borderRadius: `${borderRadius}px`,
-          boxShadow: dynamicShadow,
-          border:
-            borderWidth > 0 ? `${borderWidth}px solid ${borderColor}` : "none",
-          backdropFilter: isGlassBorder ? "blur(16px) saturate(180%)" : "none",
-          WebkitBackdropFilter: isGlassBorder
-            ? "blur(16px) saturate(180%)"
-            : "none",
-        }}
-      >
-        {/* Render the PNG Browser Mockup with absolute text overlay */}
-        {showBrowserFrame && activeConfig && (
-          <div className={styles.mockupHeader}>
-            <img
-              src={activeConfig.src}
-              alt={browserMockup}
-              className={styles.mockupImage}
-            />
-            {activeConfig.overlays.map((overlay, index) => (
-              <div
-                key={index}
-                className={styles.absoluteText}
-                style={{
-                  top: overlay.top,
-                  left: overlay.left,
-                  width: overlay.width,
-                  fontSize: overlay.fontSize,
-                  color: overlay.color,
-                  textAlign: overlay.align,
-                  fontWeight: overlay.fontWeight || "400",
-                }}
-              >
-                {overlay.type === "url" ? cleanUrl : displayTitle}
-              </div>
-            ))}
-          </div>
-        )}
+  const innerRadius =
+    borderWidth > 0 ? Math.max(0, borderRadius - borderWidth) : borderRadius;
 
-        {/* The Screenshot */}
-        <div className={styles.windowContent}>
-          <img
-            src={imageSource!}
-            alt="Captured tab"
-            className={styles.screenshot}
-          />
+  return (
+    <div className={styles.canvasWrapper}>
+      <div
+        className={`${styles.windowWrapper} ${!isGlassBorder ? styles.noGlass : ""}`}
+        style={
+          {
+            transform: combinedTransform,
+            borderRadius: `${borderRadius}px`,
+            boxShadow: dynamicShadow,
+            border:
+              borderWidth > 0
+                ? `${borderWidth}px solid ${borderColor}`
+                : "none",
+            "--glass-opacity": 0.12,
+          } as React.CSSProperties
+        }
+      >
+        <div
+          className={styles.innerClip}
+          style={{ borderRadius: `${innerRadius}px` }}
+        >
+          {showBrowserFrame && activeConfig && (
+            <div className={styles.mockupHeader}>
+              <img
+                src={activeConfig.src}
+                alt={browserMockup}
+                className={styles.mockupImage}
+              />
+              {activeConfig.overlays.map((overlay, index) => (
+                <div
+                  key={index}
+                  className={styles.absoluteText}
+                  style={{
+                    top: overlay.top,
+                    left: overlay.left,
+                    width: overlay.width,
+                    fontSize: overlay.fontSize,
+                    color: overlay.color,
+                    textAlign: overlay.align,
+                    fontWeight: overlay.fontWeight || "400",
+                  }}
+                >
+                  {overlay.type === "url" ? cleanUrl : displayTitle}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* The Screenshot */}
+          <div
+            className={styles.windowContent}
+            style={{ isolation: "isolate" }}
+          >
+            <img
+              src={imageSource!}
+              alt="Captured tab"
+              className={styles.screenshot}
+            />
+          </div>
         </div>
       </div>
     </div>

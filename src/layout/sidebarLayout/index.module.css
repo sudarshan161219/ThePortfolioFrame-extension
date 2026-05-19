@@ -1,272 +1,318 @@
+/* ============================================================
+   SidebarLayout/index.module.css
+   ============================================================ */
+
+/* ── Root shell ────────────────────────────────────────── */
 .root {
-  position: relative;
   display: flex;
-  flex-grow: 1;
   height: 100vh;
-  width: 100%;
-  background: #0a0a0a;
-  color: #e8e8e8;
+  width: 100vw;
   overflow: hidden;
+  background: var(--bg-app);
+  font-family: var(--font-sans);
 }
 
+/* ── Sidebar (aside) ───────────────────────────────────── */
+.proPanel {
+  width: 240px;
+  min-width: 300px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-medium);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 24px;
+}
+
+/* ── Logo / Header ─────────────────────────────────────── */
 .logo {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 1rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid #737373bd;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  background: var(--bg-sidebar);
+  z-index: 10;
 }
 
 .logoDot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  background: var(--border-medium);
   flex-shrink: 0;
-  transition:
-    background 0.2s,
-    box-shadow 0.2s;
+  transition: background var(--transition-fast);
 }
+
 .logoDotActive {
-  background: #3ecfa0;
-  border-color: #3ecfa0;
-  box-shadow: 0 0 6px rgba(62, 207, 160, 0.4);
+  background: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
 }
 
 .logoText {
   display: block;
   font-size: 13px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .logoVersion {
   display: block;
   font-size: 10px;
-  color: #b4b4b8;
-  letter-spacing: 0.06em;
+  color: var(--text-light);
+  font-weight: 400;
+  letter-spacing: 0.02em;
 }
 
-/* ── Main Canvas ─────────────────────────────────── */
-
-.main {
-  width: 100%;
+/* ── Section Headers ───────────────────────────────────── */
+.sectionHeader {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  padding: 16px 16px 8px;
+  margin-top: 4px;
 }
 
-.canvas {
-  padding: 1rem;
-  flex: 1;
-  flex-grow: 1;
+/* ── Control Groups ────────────────────────────────────── */
+.controlGroup {
+  padding: 0 16px 14px;
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.controlGroup > label,
+.controlGroup label[for] {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ── Select ────────────────────────────────────────────── */
+.select {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-main);
+  background: var(--bg-app);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  width: 100%;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.select:focus {
+  border-color: var(--accent-main);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  outline: none;
+}
+
+/* ── Ratio / Preset Buttons ────────────────────────────── */
+.ratioGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.ratioBtn {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-}
-
-.placeholder {
+  gap: 5px;
+  padding: 8px 4px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: var(--bg-app);
+  color: var(--text-muted);
   font-size: 10px;
-  font-family: "DM Mono", monospace;
-  letter-spacing: 0.1em;
-  opacity: 0.2;
-}
-
-/* ── Sidebar ─────────────────────────────────── */
-
-.proPanel {
-  width: 280px;
-  height: 100%;
-  padding: 16px 12px;
-  display: flex;
-  flex-direction: column;
-  background-color: #171717;
-  gap: 12px;
-  font-size: 10px;
-  font-family: "DM Mono", monospace;
-  letter-spacing: 0.04em;
-  border-right: 1px solid #737373;
-  overflow-y: auto;
-  overflow-x: hidden;
-  box-sizing: border-box;
-}
-
-.proPanel h3 {
-  font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.12em;
-  margin: 0 0 14px 0;
-  opacity: 0.35;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
-/* ── Control groups ──────────────────────────── */
+.ratioBtn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-active);
+  color: var(--accent-main);
+}
 
+.ratioBtn.active {
+  background: var(--accent-soft);
+  border-color: var(--border-active);
+  color: var(--accent-main);
+}
+
+/* ── Ratio Shape Preview ───────────────────────────────── */
+.ratioShape {
+  width: var(--preview-w, 20px);
+  height: var(--preview-h, 14px);
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+.ratioLabel {
+  font-size: 9px;
+}
+
+/* ── Toggle Switch ─────────────────────────────────────── */
 .switchLabel {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  width: 100%;
-  cursor: pointer;
-}
-
-.subSliders {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sliderRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  color: var(--text-muted); /* use whatever your muted text color is */
-}
-
-.controlGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 9px 0;
-  border-bottom: 1px solid #ffffff26;
-}
-
-.controlGroup:last-child {
-  border-bottom: none;
-}
-
-.controlGroup label {
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  opacity: 0.85;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #b4b4b8;
-}
-
-.select option {
-  color: #fff;
-  background: rgba(0, 0, 0, 0.861);
-  border: 1px solid rgba(255, 255, 255, 0.296);
+  color: var(--text-muted);
   cursor: pointer;
+  margin-top: 2px;
+  user-select: none;
 }
 
-.controlGroup select,
-.controlGroup input[type="text"] {
+.toggleSwitch {
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 32px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--border-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.toggleSwitch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.toggleSwitch:checked {
+  background: var(--accent-main);
+}
+
+.toggleSwitch:checked::after {
+  transform: translateX(14px);
+}
+
+/* ── 3D Transform sub-panel ────────────────────────────── */
+.tiltPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-hover);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.tiltRow label {
   font-size: 10px;
-  font-family: inherit;
-  letter-spacing: 0.04em;
-  padding: 4px 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 3px;
-  color: inherit;
-  width: 100%;
-  box-sizing: border-box;
-  outline: none;
-  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
 }
 
-.controlGroup select:focus,
-.controlGroup input[type="text"]:focus {
-  border-color: rgba(255, 255, 255, 0.22);
+/* ── Color Swatches ────────────────────────────────────── */
+.colorGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.controlGroup input[type="color"] {
-  width: 100%;
+.colorSwatch {
+  width: 26px;
   height: 26px;
-  padding: 2px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-medium);
   cursor: pointer;
-  box-sizing: border-box;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
+  flex-shrink: 0;
 }
 
-.controlGroup input[type="range"] {
-  width: 100%;
-  height: 2px;
-  accent-color: #e8e8e8;
-  cursor: pointer;
-  margin: 2px 0;
+.colorSwatch:hover {
+  transform: scale(1.12);
+  box-shadow: var(--shadow-sm);
 }
 
-.controlGroup input[type="checkbox"] {
-  width: 13px;
-  height: 13px;
-  accent-color: #e8e8e8;
-  cursor: pointer;
+.activeSwatch {
+  border-color: var(--accent-main);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  transform: scale(1.08);
 }
 
-.controlGroup input[type="file"] {
-  font-size: 9px;
-  font-family: inherit;
-  letter-spacing: 0.02em;
-  opacity: 0.6;
-  width: 100%;
-  cursor: pointer;
-}
-
-/* ── Small button ────────────────────────────── */
-
-.smallBtn {
-  font-size: 9px;
-  font-family: inherit;
-  letter-spacing: 0.06em;
-  padding: 3px 8px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 3px;
-  color: inherit;
-  cursor: pointer;
-  opacity: 0.55;
-  transition: opacity 0.15s ease;
-  align-self: flex-start;
-}
-
-.smallBtn:hover {
-  opacity: 1;
-}
-
-/* The Grid Container */
+/* ── Background Scenes Grid ────────────────────────────── */
 .sidebarBgGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Creates 3 equal columns */
-  gap: 12px; /* Spacing between swatches */
-  margin-top: 8px;
-  width: 100%;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
-/* Individual Swatch Wrapper */
 .swatchGroup {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  width: 100%; /* Fills the grid column */
+  gap: 4px;
 }
 
-/* The Clickable Button */
 .swatch {
   width: 100%;
-  aspect-ratio: 1; /* Forces a perfect square */
-  border-radius: 8px;
-  border: 2px solid transparent;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-medium);
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+
+.swatch:hover {
+  border-color: var(--border-active);
+  transform: scale(1.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .swatch.active {
-  border-color: #000; /* Or whatever your active highlight color is */
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent-main);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 .swatch.locked {
@@ -274,50 +320,99 @@
   cursor: not-allowed;
 }
 
-.lockOverlay {
-  font-size: 1rem;
+.swatch.locked:hover {
+  transform: none;
+  border-color: var(--border-medium);
 }
 
-/* Text and Pills below the button */
+.lockOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(249, 250, 251, 0.6);
+  backdrop-filter: blur(2px);
+  font-size: 12px;
+}
+
 .swatchMeta {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  width: 100%;
+  justify-content: space-between;
 }
 
 .swatchName {
-  font-size: 0.6rem;
-  font-weight: 500;
-  color: #666;
-  text-align: center;
-  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
+  white-space: nowrap;
 }
 
-/* Tiny indicators for Free/Pro */
-.freePill,
-.proPill {
-  font-size: 0.5rem;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-top: 2px;
-  font-weight: 600;
-  text-transform: uppercase;
+/* ── Pro / Free Pills ──────────────────────────────────── */
+.proPill,
+.freePill {
+  font-size: 8px;
+  font-weight: 700;
   letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+.proPill {
+  background: var(--accent-soft);
+  color: var(--accent-main);
 }
 
 .freePill {
-  background: #f1f1f1;
-  color: #888;
+  background: var(--bg-hover);
+  color: var(--text-light);
 }
 
-.proPill {
-  background: #000;
-  color: #fff;
+/* ── Small utility button ──────────────────────────────── */
+.smallBtn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: 0.03em;
 }
+
+.smallBtn:hover {
+  background: var(--accent-soft);
+  color: var(--accent-main);
+  border-color: var(--border-active);
+}
+
+/* ── Main content area ─────────────────────────────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-app);
+}
+
+.canvas {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+/*  */
 
 .bgNoiseGlass {
   background: #0d0d0d;
@@ -555,144 +650,4 @@
     rgba(255, 255, 255, 0.02)
   );
   pointer-events: none;
-}
-
-/* ─── Title Bar Color Grid ─── */
-.titleBarGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  margin-top: 8px;
-  width: 100%;
-}
-
-.titleBarSwatch {
-  width: 100%;
-  aspect-ratio: 1; /* Keeps them perfectly square */
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  /* Creates the 3D matching border effect */
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-bottom-width: 4px;
-  border-bottom-style: solid;
-}
-
-.titleBarSwatch:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.titleBarSwatch.activeSwatch {
-  outline: 2px solid #000; /* High contrast focus ring */
-  outline-offset: 2px;
-
-  /* The "pressed" button effect */
-  transform: translateY(2px);
-  border-bottom-width: 2px;
-}
-
-.ratioGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.ratioBtn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 8px;
-  width: 72px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  cursor: pointer;
-  transition:
-    border-color 0.15s,
-    background 0.15s;
-}
-
-.ratioBtn:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.ratioBtn.active {
-  border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-/* The shape preview */
-.ratioBtn::before {
-  content: "";
-  display: block;
-  aspect-ratio: var(--ratio);
-  width: var(--preview-w, 20px);
-  height: var(--preview-h, 20px);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  border-radius: 2px;
-  transition: border-color 0.15s;
-}
-
-.ratioBtn.active::before {
-  border-color: rgba(255, 255, 255, 0.7);
-}
-
-.ratioLabel {
-  font-family: "DM Mono", monospace;
-  font-size: 0.6rem;
-  color: rgba(255, 255, 255, 0.4);
-  letter-spacing: 0.04em;
-}
-
-.ratioBtn.active .ratioLabel {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-/* ==========================================
-   COLOR & GRADIENT SWATCHES
-========================================== */
-.colorGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 5 swatches per row */
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.colorSwatch {
-  width: 100%;
-  aspect-ratio: 1 / 1; /* Keeps them perfectly square */
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0;
-
-  /* Adds a tiny inner shadow so pure white (#FFFFFF) doesn't disappear */
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-
-.colorSwatch:hover {
-  transform: scale(1.05);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.activeSwatch {
-  border: 2px solid var(--accent); /* Assuming you have an accent CSS variable, or use #fff */
-  transform: scale(1.05);
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.1),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-
-.sectionHeader {
-  font-weight: 600;
-  font-size: 12px;
-  text-transform: uppercase;
-  margin: 24px 0 12px 0;
-  color: var(--text-muted);
 }

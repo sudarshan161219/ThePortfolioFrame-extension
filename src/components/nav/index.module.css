@@ -1,4 +1,4 @@
-.header {
+/* .header {
   display: flex;
   align-items: center;
   justify-content: end;
@@ -143,6 +143,162 @@
   border-top-color: rgba(255, 255, 255, 0.7);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+} */
+
+/* ============================================================
+   Nav/index.module.css
+   ============================================================ */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 20px;
+  height: 56px;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-medium);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+/* ── Controls cluster ──────────────────────────────────── */
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Separator ─────────────────────────────────────────── */
+.sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border-medium);
+  flex-shrink: 0;
+}
+
+/* ── Upgrade button ────────────────────────────────────── */
+.upgradeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-main);
+  background: var(--accent-soft);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: 0.01em;
+}
+
+.upgradeBtn svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--accent-main);
+}
+
+.upgradeBtn:hover {
+  background: var(--accent-main);
+  color: white;
+  border-color: var(--accent-main);
+}
+
+.upgradeBtn:hover svg {
+  stroke: white;
+}
+
+/* ── Pro badge ─────────────────────────────────────────── */
+.proBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: var(--radius-pill);
+}
+
+.proDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ── Export button ─────────────────────────────────────── */
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  background: var(--accent-main);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+  border: none;
+}
+
+.exportBtn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.exportBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.exportBtn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.exportBtn.exporting {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+/* ── Spinner ───────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  flex-shrink: 0;
 }
 
 @keyframes spin {

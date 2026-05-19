@@ -1,4 +1,4 @@
-.popupMenu {
+/* .popupMenu {
   width: 100%;
   background: #0e1118;
 
@@ -36,7 +36,6 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  /* width: 100%; */
   padding: 10px 12px;
   background: transparent;
   border: 1px solid transparent;
@@ -132,4 +131,213 @@
 
 .hiddenInput {
   display: none;
+} */
+
+/* ============================================================
+   PopupActionMenu/index.module.css
+   Chrome extension popup — 320px wide
+   ============================================================ */
+
+:root {
+  --bg-app: #f9fafb; /* Very soft off-white for the main app/body */
+  --bg-sidebar: #ffffff; /* Pure white for the sidebar to pop slightly */
+  --bg-hover: #f3f4f6; /* Gentle gray for hovering over buttons/swatches */
+  --bg-active: #f0fdf4; /* Optional: Soft mint green for success states */
+
+  /* ==========================================
+     2. TYPOGRAPHY (Low Contrast & Readable)
+  ========================================== */
+  --text-main: #374151; /* Soft charcoal for primary text (never #000) */
+  --text-muted: #6b7280; /* Medium slate gray for labels and tiny text */
+  --text-light: #9ca3af; /* Light gray for placeholders */
+
+  /* ==========================================
+     3. BRAND ACCENTS (Friendly & Vibrant)
+  ========================================== */
+  --accent-main: #8b5cf6; /* A friendly, creative soft purple (Canva/Figma vibe) */
+  --accent-hover: #7c3aed; /* Slightly darker purple for button hovers */
+  --accent-soft: #ede9fe; /* Very pale purple for active toggle buttons */
+
+  /* ==========================================
+     4. BORDERS (Invisible or Faint)
+  ========================================== */
+  --border-light: #f3f4f6; /* Almost invisible dividers */
+  --border-medium: #e5e7eb; /* For input fields and sidebar borders */
+  --border-active: #c4b5fd; /* Soft purple border for focused inputs */
+
+  /* ==========================================
+     5. RADII (Squishy & Friendly)
+  ========================================== */
+  --radius-sm: 8px; /* For small buttons and inputs */
+  --radius-md: 12px; /* For cards, swatches, and inner panels */
+  --radius-lg: 20px; /* For the main canvas workspace */
+  --radius-pill: 9999px; /* For fully rounded toggle switches */
+
+  /* ==========================================
+     6. SHADOWS (Diffused & Soft)
+  ========================================== */
+  /* Used for small buttons or dropdowns */
+  --shadow-sm: 0 2px 4px rgba(149, 157, 165, 0.1);
+
+  /* Used for the sidebar or floating panels */
+  --shadow-md: 0 8px 24px rgba(149, 157, 165, 0.15);
+
+  /* The "Float" shadow - Use this on the Canvas to make it look like paper */
+  --shadow-canvas:
+    0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+
+  /* ==========================================
+     7. TRANSITIONS (Smooth & Bouncy)
+  ========================================== */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-bounce: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+/* ── Popup wrapper ─────────────────────────────────────── */
+.popupMenu {
+  width: 100%;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-medium);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: var(--font-sans);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Header strip ──────────────────────────────────────── */
+.popupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 4px;
+}
+
+.popupDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-main);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  flex-shrink: 0;
+}
+
+.popupTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+/* ── Menu items ────────────────────────────────────────── */
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  text-align: left;
+}
+
+.menuItem:last-of-type {
+  border-bottom: none;
+}
+
+.menuItem:hover {
+  background: var(--bg-hover);
+}
+
+/* ── Icon container ────────────────────────────────────── */
+.itemIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  border: 1px solid var(--border-active);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-main);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.menuItem:hover .itemIcon {
+  background: var(--accent-main);
+  color: white;
+  border-color: var(--accent-main);
+}
+
+/* ── Label block ───────────────────────────────────────── */
+.itemLabel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.itemSub {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-light);
+  letter-spacing: 0.02em;
+}
+
+/* ── Arrow ─────────────────────────────────────────────── */
+.itemArrow {
+  font-size: 16px;
+  color: var(--text-light);
+  line-height: 1;
+  transition:
+    transform var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.menuItem:hover .itemArrow {
+  color: var(--accent-main);
+  transform: translateX(2px);
+}
+
+/* ── Footer ────────────────────────────────────────────── */
+.popupFooter {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: center;
+}
+
+.footerText {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+}
+
+.footerAccent {
+  color: var(--accent-main);
 }
