@@ -61,11 +61,15 @@ interface AppState {
 
   tiltX: number;
   tiltY: number;
+  tiltZ: number;
 
   aspectRatio: AspectRatio;
   zoom: number;
   browserMockup: BrowserMockup;
   borderRadius: number;
+  borderWidth: number;
+  borderColor: string;
+  isGlassBorder: boolean;
 
   shadowVariant: number;
   shadowOpacity: number;
@@ -92,6 +96,7 @@ interface AppState {
 
   setTiltX: (val: number) => void;
   setTiltY: (val: number) => void;
+  setTiltZ: (z: number) => void;
 
   setAspectRatio: (ratio: AspectRatio) => void;
   setZoom: (val: number) => void;
@@ -99,6 +104,9 @@ interface AppState {
   setBorderRadius: (radius: number) => void;
   setShadowVariant: (index: number) => void;
   setShadowOpacity: (opacity: number) => void;
+  setBorderWidth: (width: number) => void;
+  setBorderColor: (color: string) => void;
+  setIsGlassBorder: (isGlass: boolean) => void;
 }
 
 // 2. The Chrome Storage Engine
@@ -153,14 +161,18 @@ export const useControlsStore = create<AppState>()(
       handle: "",
       activeBg: null,
       terminalPath: "~/home",
-      tiltX: 0,
-      tiltY: 0,
+      tiltX: 15,
+      tiltY: -15,
+      tiltZ: 0,
       aspectRatio: "auto",
       zoom: 0.5,
       browserMockup: "safari-mac-light",
       borderRadius: 12,
       shadowVariant: 4,
       shadowOpacity: 0.4,
+      borderWidth: 0,
+      borderColor: "rgba(255, 255, 255, 0.2)",
+      isGlassBorder: false,
 
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
@@ -183,12 +195,16 @@ export const useControlsStore = create<AppState>()(
 
       setTiltX: (val) => set({ tiltX: val }),
       setTiltY: (val) => set({ tiltY: val }),
+      setTiltZ: (z) => set({ tiltZ: z }),
       setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
       setZoom: (val) => set({ zoom: val }),
       setBrowserMockup: (mockup) => set({ browserMockup: mockup }),
       setBorderRadius: (radius) => set({ borderRadius: radius }),
       setShadowVariant: (index) => set({ shadowVariant: index }),
       setShadowOpacity: (opacity) => set({ shadowOpacity: opacity }),
+      setBorderWidth: (width) => set({ borderWidth: width }),
+      setBorderColor: (color) => set({ borderColor: color }),
+      setIsGlassBorder: (isGlass) => set({ isGlassBorder: isGlass }),
     }),
     {
       name: "portfolio-frame-storage", // The key used in chrome.storage.local

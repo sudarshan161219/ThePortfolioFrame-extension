@@ -36,13 +36,23 @@
   justify-content: center;
   align-items: center;
   z-index: 1;
-  background: transparent !important;
+  /* background: transparent !important; */
   transition: background 0.3s ease;
 
+  background-color: #f3f4f6;
+  background-image: conic-gradient(
+    #e5e7eb 25%,
+    transparent 25%,
+    transparent 50%,
+    #e5e7eb 50%,
+    #e5e7eb 75%,
+    transparent 75%,
+    transparent 100%
+  );
+  background-size: 24px 24px;
+
   aspect-ratio: var(--ratio);
-
   width: min(calc(85vh * (var(--w) / var(--h))), 92vw);
-
   height: min(calc(92vw * (var(--h) / var(--w))), 85vh);
   overflow: hidden;
 }
@@ -61,7 +71,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: -1; /* Keep it behind the Frame */
+  z-index: -1; 
   pointer-events: none;
 }
 

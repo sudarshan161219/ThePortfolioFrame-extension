@@ -652,3 +652,47 @@
 .ratioBtn.active .ratioLabel {
   color: rgba(255, 255, 255, 0.85);
 }
+
+/* ==========================================
+   COLOR & GRADIENT SWATCHES
+========================================== */
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 swatches per row */
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.colorSwatch {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Keeps them perfectly square */
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+
+  /* Adds a tiny inner shadow so pure white (#FFFFFF) doesn't disappear */
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.colorSwatch:hover {
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.activeSwatch {
+  border: 2px solid var(--accent); /* Assuming you have an accent CSS variable, or use #fff */
+  transform: scale(1.05);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.1),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.sectionHeader {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  margin: 24px 0 12px 0;
+  color: var(--text-muted);
+}

@@ -53,10 +53,10 @@ export const EditorApp = () => {
   }, [setImageSource, setPageUrl]);
 
   const dynamicBgStyle: React.CSSProperties = {
-    background: bgImage ? `url(${bgImage})` : customBg || "transparent",
+    background: bgImage ? `url(${bgImage})` : customBg,
     backgroundSize: bgSize,
     backgroundPosition: "center",
-    filter: `blur(${bgBlur}px)`,
+    filter: `blur(${bgImage && bgBlur}px)`,
     transition: "all 0.3s ease",
   };
 
