@@ -3,9 +3,11 @@ import { useNavActionsStore } from "../../store/useNavActionsStore";
 import styles from "./index.module.css";
 import { useState } from "react";
 import { useControlsStore } from "../../store/useControlsStore";
+import { useThemeStore } from "../../store/useThemeStore";
 
 export const Nav = () => {
   const { isExporting, triggerExport } = useNavActionsStore();
+  const { theme, toggleTheme } = useThemeStore();
   const { isPro } = useControlsStore();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -13,6 +15,9 @@ export const Nav = () => {
   return (
     <header className={styles.header}>
       {isSettingsOpen && ""}
+      <button onClick={toggleTheme} className={styles.iconBtn}>
+        {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+      </button>
       {/* <div className={styles.logo}>
         <div
           className={`${styles.logoDot} ${isPro ? styles.logoDotActive : ""}`}

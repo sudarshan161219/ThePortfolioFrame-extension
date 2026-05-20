@@ -70,24 +70,48 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+:root[data-theme="dark"] {
+  /* 1. BACKGROUNDS (Deep Slates, Not Black) */
+  --bg-app: #111827; /* Very deep charcoal for the main canvas area */
+  --bg-sidebar: #1f2937; /* Slightly lighter slate for the sidebar to create depth */
+  --bg-hover: #374151; /* Soft slate for hovering over buttons/swatches */
+  --bg-active: rgba(
+    139,
+    92,
+    246,
+    0.15
+  ); /* A translucent wash of your purple accent */
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+  /* 2. TYPOGRAPHY (Off-Whites to prevent eye strain) */
+  --text-main: #f9fafb; /* Soft off-white for primary text */
+  --text-muted: #9ca3af; /* Muted slate gray for labels and tiny text */
+  --text-light: #4b5563; /* Darker gray for placeholders */
+
+  /* 3. BRAND ACCENTS (Brighter for Dark Mode Contrast) */
+  --accent-main: #a78bfa; /* A lighter, brighter soft purple so it pops in dark mode */
+  --accent-hover: #c4b5fd; /* Even lighter purple for hovers */
+  --accent-soft: rgba(
+    139,
+    92,
+    246,
+    0.2
+  ); /* Translucent background for active states */
+
+  /* 4. BORDERS (Translucent Whites) */
+  --border-light: rgba(255, 255, 255, 0.05); /* Almost invisible dividers */
+  --border-medium: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Standard inputs and sidebar borders */
+  --border-active: #a78bfa; /* Matches the main accent */
+
+  /* 5. SHADOWS (Deeper and Darker) 
+     Note: Shadows need to be much darker in Dark Mode to be visible. */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-canvas: 0 20px 40px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 body {

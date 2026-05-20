@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Frame } from "./components/frame/Frame.tsx";
 import { useControlsStore } from "./store/useControlsStore.ts";
-import { SidebarLayout } from "./layout/sidebarLayout/SidebarLayout.tsx";
 import { SettingsModal } from "./components/settingsModal/SettingsModal.tsx";
 import { ratios } from "./constants/ratios";
 import styles from "./EditorApp.module.css";
@@ -20,8 +19,6 @@ export const EditorApp = () => {
     setPageUrl,
     setImageSource,
   } = useControlsStore();
-  // const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  // const [isHovering, setIsHovering] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
@@ -77,37 +74,35 @@ export const EditorApp = () => {
 
   return (
     <div className={styles.container}>
-      <SidebarLayout>
-        <div className={styles.exportClipContainer}>
+      <div className={styles.exportClipContainer}>
+        <div
+          id="portfolio-export-target"
+          className={styles.exportWrapper}
+          data-auto={ratio?.value === "auto"}
+          style={
+            {
+              "--w": ratio?.width,
+              "--h": ratio?.height,
+              "--ratio": newAspectRatio,
+            } as React.CSSProperties
+          }
+        >
           <div
-            id="portfolio-export-target"
-            className={styles.exportWrapper}
-            data-auto={ratio?.value === "auto"}
-            style={
-              {
-                "--w": ratio?.width,
-                "--h": ratio?.height,
-                "--ratio": newAspectRatio,
-              } as React.CSSProperties
-            }
-          >
-            <div
-              className={`${styles.absoluteBg} ${
-                usePreset ? styles[activeBg?.bgKey as keyof typeof styles] : ""
-              }`}
-              style={!usePreset ? dynamicBgStyle : {}}
-            />
+            className={`${styles.absoluteBg} ${
+              usePreset ? styles[activeBg?.bgKey as keyof typeof styles] : ""
+            }`}
+            style={!usePreset ? dynamicBgStyle : {}}
+          />
 
-            <Frame />
+          <Frame />
 
-            {handle && (
-              <div className={styles.watermark}>
-                {handle.startsWith("@") ? handle : `@${handle}`}
-              </div>
-            )}
-          </div>
+          {handle && (
+            <div className={styles.watermark}>
+              {handle.startsWith("@") ? handle : `@${handle}`}
+            </div>
+          )}
         </div>
-      </SidebarLayout>
+      </div>
 
       <SettingsModal
         isOpen={isSettingsOpen}

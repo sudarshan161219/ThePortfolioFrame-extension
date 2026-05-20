@@ -6,9 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
-  /* CRITICAL FOR 3D: Tells the browser the "camera" is 1100px away */
-  perspective: 1100px;
+  perspective: 1200px;
 }
 
 /* ==========================================
@@ -22,11 +20,13 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-
+  transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
   overflow: visible;
 
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
+  isolation: isolate;
   border-radius: var(--border-radius);
 }
 
@@ -128,4 +128,6 @@
   /* Forces the browser to maintain the highest quality contrast when stretching/tilting */
   image-rendering: high-quality;
   image-rendering: -webkit-optimize-contrast;
+  -webkit-font-smoothing: subpixel-antialiased;
+  transform: translateZ(0);
 }

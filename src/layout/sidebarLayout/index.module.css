@@ -1,8 +1,9 @@
 /* ============================================================
-   SidebarLayout/index.module.css
+   SidebarLayout / index.module.css
+   Redesign — dark industrial-minimal, token-first
    ============================================================ */
 
-/* ── Root shell ────────────────────────────────────────── */
+/* ── Root shell ─────────────────────────────────────────── */
 .root {
   display: flex;
   height: 100vh;
@@ -12,279 +13,486 @@
   font-family: var(--font-sans);
 }
 
-/* ── Sidebar (aside) ───────────────────────────────────── */
-.proPanel {
-  width: 240px;
-  min-width: 300px;
+/* ── Sidebar ────────────────────────────────────────────── */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
   height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border-medium);
-  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding-bottom: 24px;
+  background: var(--bg-sidebar);
+  border-right: 0.5px solid var(--border-medium);
+  overflow: hidden;
 }
 
-/* ── Logo / Header ─────────────────────────────────────── */
-.logo {
+/* ── Logo / Header ──────────────────────────────────────── */
+.logoBar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 18px 16px 14px;
-  border-bottom: 1px solid var(--border-light);
-  position: sticky;
-  top: 0;
-  background: var(--bg-sidebar);
-  z-index: 10;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 52px;
+  border-bottom: 0.5px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+.logoLeft {
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
 .logoDot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--border-medium);
   flex-shrink: 0;
-  transition: background var(--transition-fast);
+  transition:
+    background 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .logoDotActive {
   background: #34d399;
-  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.18);
 }
 
-.logoText {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
+.logoName {
+  font-size: 12px;
+  font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.01em;
-  line-height: 1.2;
+  line-height: 1;
 }
 
 .logoVersion {
-  display: block;
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text-light);
   font-weight: 400;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
 }
 
-/* ── Section Headers ───────────────────────────────────── */
-.sectionHeader {
+.proBadge {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: var(--accent-soft);
+  color: var(--accent-main);
+  border: 0.5px solid var(--border-active);
+}
+
+/* ── Scroll body ────────────────────────────────────────── */
+.sidebarBody {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 32px;
+
+  /* thin scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-medium) transparent;
+}
+
+.sidebarBody::-webkit-scrollbar {
+  width: 3px;
+}
+.sidebarBody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebarBody::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 99px;
+}
+
+/* ── Collapsible Section ────────────────────────────────── */
+.section {
+  border-bottom: 0.5px solid var(--border-light);
+}
+
+.sectionToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sectionToggle:hover .sectionTitle {
+  color: var(--text-main);
+}
+
+.sectionTitle {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  transition: color 150ms ease;
+}
+
+.sectionChevron {
   font-size: 10px;
+  color: var(--text-light);
+  transition: transform 200ms ease;
+  line-height: 1;
+}
+
+.sectionChevronOpen {
+  transform: rotate(180deg);
+}
+
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 4px;
+}
+
+/* ── Control Row ────────────────────────────────────────── */
+.controlRow {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* label/eyebrow */
+.eyebrow {
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-light);
-  padding: 16px 16px 8px;
-  margin-top: 4px;
-}
-
-/* ── Control Groups ────────────────────────────────────── */
-.controlGroup {
-  padding: 0 16px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.controlGroup > label,
-.controlGroup label[for] {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   color: var(--text-muted);
-  line-height: 1.4;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* ── Select ────────────────────────────────────────────── */
-.select {
+.eyebrowVal {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--text-light);
+  letter-spacing: 0;
+}
+
+/* ── Range Slider ───────────────────────────────────────── */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border-medium);
+  outline: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--text-main);
+  border: 2px solid var(--bg-sidebar);
+  box-shadow: 0 0 0 1px var(--border-active);
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--text-main);
+  border: 2px solid var(--bg-sidebar);
+  box-shadow: 0 0 0 1px var(--border-active);
+  cursor: pointer;
+}
+
+.slider:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+}
+
+/* ── Text Input ─────────────────────────────────────────── */
+.input {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-main);
   background: var(--bg-app);
-  border: 1px solid var(--border-medium);
+  border: 0.5px solid var(--border-medium);
   border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  padding: 7px 10px;
   width: 100%;
-  cursor: pointer;
+  box-sizing: border-box;
   transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--text-light);
+  opacity: 0.6;
+}
+
+.input:focus {
+  border-color: var(--accent-main);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* ── Select ─────────────────────────────────────────────── */
+.select {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--text-main);
+  background: var(--bg-app);
+  border: 0.5px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: 7px 28px 7px 10px;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  outline: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  padding-right: 28px;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .select:focus {
   border-color: var(--accent-main);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* ── Toggle row (label + switch inline) ─────────────────── */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toggleLabel {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Toggle Switch ──────────────────────────────────────── */
+.switch {
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 30px;
+  height: 16px;
+  border-radius: 99px;
+  background: var(--border-medium);
+  cursor: pointer;
+  transition: background 180ms ease;
+  flex-shrink: 0;
+  margin: 0;
   outline: none;
 }
 
-/* ── Ratio / Preset Buttons ────────────────────────────── */
-.ratioGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 180ms ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.ratioBtn {
+.switch:checked {
+  background: var(--accent-main);
+}
+
+.switch:checked::after {
+  transform: translateX(14px);
+}
+
+/* ── Sub-panel (3D transform, etc.) ────────────────────── */
+.subPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-app);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border-light);
+  margin-top: 2px;
+}
+
+.subRow {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* ── Button Grid (ratio / shadow / radius presets) ──────── */
+.btnGrid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.btnGrid4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+.presetBtn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 8px 4px;
-  border: 1px solid var(--border-medium);
+  gap: 4px;
+  padding: 7px 4px;
+  border: 0.5px solid var(--border-medium);
   border-radius: var(--radius-sm);
   background: var(--bg-app);
   color: var(--text-muted);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 150ms ease;
 }
 
-.ratioBtn:hover {
-  background: var(--bg-hover);
+.presetBtn:hover {
   border-color: var(--border-active);
-  color: var(--accent-main);
+  color: var(--text-main);
+  background: var(--bg-hover);
 }
 
-.ratioBtn.active {
+.presetBtn.active {
   background: var(--accent-soft);
   border-color: var(--border-active);
   color: var(--accent-main);
 }
 
-/* ── Ratio Shape Preview ───────────────────────────────── */
+/* ratio shape preview */
 .ratioShape {
-  width: var(--preview-w, 20px);
-  height: var(--preview-h, 14px);
+  width: var(--preview-w, 18px);
+  height: var(--preview-h, 13px);
   border: 1.5px solid currentColor;
   border-radius: 2px;
-  opacity: 0.7;
+  opacity: 0.65;
 }
 
-.ratioLabel {
-  font-size: 9px;
-}
-
-/* ── Toggle Switch ─────────────────────────────────────── */
-.switchLabel {
+/* ── Small utility buttons (row) ────────────────────────── */
+.btnRow {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  gap: 5px;
+}
+
+.ghostBtn {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
+  background: var(--bg-app);
+  border: 0.5px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
   cursor: pointer;
-  margin-top: 2px;
-  user-select: none;
+  transition: all 150ms ease;
 }
 
-.toggleSwitch {
-  position: relative;
-  appearance: none;
-  -webkit-appearance: none;
-  width: 32px;
-  height: 18px;
-  border-radius: var(--radius-pill);
-  background: var(--border-medium);
-  cursor: pointer;
-  transition: background var(--transition-fast);
-  flex-shrink: 0;
-  margin: 0;
+.ghostBtn:hover {
+  border-color: var(--border-active);
+  color: var(--accent-main);
+  background: var(--accent-soft);
 }
 
-.toggleSwitch::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: white;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast);
-}
-
-.toggleSwitch:checked {
-  background: var(--accent-main);
-}
-
-.toggleSwitch:checked::after {
-  transform: translateX(14px);
-}
-
-/* ── 3D Transform sub-panel ────────────────────────────── */
-.tiltPanel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: var(--bg-hover);
-  padding: 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-}
-
-.tiltRow label {
+.resetBtn {
+  font-family: var(--font-sans);
   font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color 150ms ease;
 }
 
-/* ── Color Swatches ────────────────────────────────────── */
-.colorGrid {
+.resetBtn:hover {
+  color: var(--text-muted);
+}
+
+/* ── Color Swatches ─────────────────────────────────────── */
+.swatchGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
 }
 
 .colorSwatch {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border-medium);
+  border: 0.5px solid var(--border-medium);
   cursor: pointer;
-  transition:
-    transform var(--transition-fast),
-    box-shadow var(--transition-fast),
-    border-color var(--transition-fast);
   flex-shrink: 0;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease;
 }
 
 .colorSwatch:hover {
-  transform: scale(1.12);
-  box-shadow: var(--shadow-sm);
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.activeSwatch {
+.colorSwatch.swatchActive {
   border-color: var(--accent-main);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-  transform: scale(1.08);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+  transform: scale(1.1);
 }
 
-/* ── Background Scenes Grid ────────────────────────────── */
-.sidebarBgGrid {
+/* ── Background Scene Grid ──────────────────────────────── */
+.bgGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 7px;
 }
 
 .swatchGroup {
@@ -293,36 +501,40 @@
   gap: 4px;
 }
 
-.swatch {
+.bgSwatch {
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border-medium);
+  border: 0.5px solid var(--border-medium);
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: all var(--transition-fast);
+  transition:
+    border-color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
 }
 
-.swatch:hover {
+.bgSwatch:hover {
   border-color: var(--border-active);
   transform: scale(1.04);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-.swatch.active {
+.bgSwatch.bgSwatchActive {
   border-color: var(--accent-main);
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
-.swatch.locked {
-  opacity: 0.6;
+.bgSwatch.bgSwatchLocked {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.swatch.locked:hover {
+.bgSwatch.bgSwatchLocked:hover {
   transform: none;
   border-color: var(--border-medium);
+  box-shadow: none;
 }
 
 .lockOverlay {
@@ -331,9 +543,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(249, 250, 251, 0.6);
+  background: rgba(10, 10, 12, 0.5);
   backdrop-filter: blur(2px);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .swatchMeta {
@@ -343,59 +555,69 @@
 }
 
 .swatchName {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: var(--text-light);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* ── Pro / Free Pills ──────────────────────────────────── */
-.proPill,
-.freePill {
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+/* ── Tier pills ─────────────────────────────────────────── */
+.proPill {
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   padding: 2px 5px;
-  border-radius: var(--radius-pill);
+  border-radius: 2px;
+  background: var(--accent-soft);
+  color: var(--accent-main);
   flex-shrink: 0;
 }
 
-.proPill {
-  background: var(--accent-soft);
-  color: var(--accent-main);
-}
-
 .freePill {
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 2px;
   background: var(--bg-hover);
   color: var(--text-light);
+  flex-shrink: 0;
 }
 
-/* ── Small utility button ──────────────────────────────── */
-.smallBtn {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--bg-hover);
-  border: 1px solid var(--border-medium);
+/* ── File Upload ─────────────────────────────────────────── */
+.fileUpload {
+  display: block;
+  padding: 8px 12px;
+  border: 0.5px dashed var(--border-medium);
   border-radius: var(--radius-sm);
-  padding: 6px 10px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
   cursor: pointer;
-  transition: all var(--transition-fast);
-  letter-spacing: 0.03em;
+  transition:
+    border-color 150ms ease,
+    color 150ms ease;
 }
 
-.smallBtn:hover {
-  background: var(--accent-soft);
-  color: var(--accent-main);
+.fileUpload:hover {
   border-color: var(--border-active);
+  color: var(--text-main);
 }
 
-/* ── Main content area ─────────────────────────────────── */
+.fileUpload input[type="file"] {
+  display: none;
+}
+
+/* ── Main content area ───────────────────────────────────── */
 .main {
   flex: 1;
   display: flex;
@@ -412,7 +634,17 @@
   justify-content: center;
   padding: 32px;
 }
-/*  */
+
+/* ── Divider ─────────────────────────────────────────────── */
+.divider {
+  height: 0.5px;
+  background: var(--border-light);
+  margin: 2px 0;
+}
+
+/* ================================================================
+   BACKGROUND SCENE CLASSES (unchanged logic, same keys)
+   ================================================================ */
 
 .bgNoiseGlass {
   background: #0d0d0d;
@@ -428,7 +660,6 @@
   pointer-events: none;
 }
 
-/* ─── Mesh Gradient (FREE) ─── */
 .bgMeshGradient {
   background: #0a0a0f;
   position: relative;
@@ -456,7 +687,6 @@
   pointer-events: none;
 }
 
-/* ─── Contour Lines (PRO) ─── */
 .bgContourLines {
   background-color: #0c0f14;
   background-image:
@@ -476,7 +706,6 @@
     );
 }
 
-/* ─── Aurora Bands (PRO) ─── */
 .bgAuroraBands {
   background: #050810;
   position: relative;
@@ -492,7 +721,6 @@
   pointer-events: none;
 }
 
-/* ─── Carbon Fiber (PRO) ─── */
 .bgCarbonFiber {
   background-color: #111111;
   background-image:
@@ -512,7 +740,6 @@
     );
 }
 
-/* ─── Scanline Haze (PRO) ─── */
 .bgScanlineHaze {
   background: #080808;
   position: relative;
@@ -542,13 +769,10 @@
   pointer-events: none;
 }
 
-/* ─── Liquid Chrome (PRO) ─── */
 .bgLiquidChrome {
   background: #060606;
-  /* position: relative; */
   overflow: hidden;
 }
-
 .bgLiquidChrome::before {
   content: "";
   position: absolute;
@@ -574,13 +798,10 @@
   pointer-events: none;
 }
 
-/* ─── Neural Grid (PRO) ─── */
 .bgNeuralGrid {
   background-color: #0a0d12;
-  /* position: relative; */
   overflow: hidden;
 }
-
 .bgNeuralGrid::before {
   content: "";
   position: absolute;
@@ -592,7 +813,6 @@
   mask-image: radial-gradient(circle at center, black 45%, transparent 90%);
   pointer-events: none;
 }
-
 .bgNeuralGrid::after {
   content: "";
   position: absolute;
@@ -612,13 +832,10 @@
   pointer-events: none;
 }
 
-/* ─── Velvet Glow (PRO) ─── */
 .bgVelvetGlow {
   background: linear-gradient(135deg, #08070d 0%, #11131a 50%, #09090c 100%);
-  /* position: relative; */
   overflow: hidden;
 }
-
 .bgVelvetGlow::before {
   content: "";
   position: absolute;
@@ -637,7 +854,6 @@
   filter: blur(50px);
   pointer-events: none;
 }
-
 .bgVelvetGlow::after {
   content: "";
   position: absolute;
