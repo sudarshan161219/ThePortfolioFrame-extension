@@ -11,7 +11,7 @@ import { BROWSER_MOCKUPS } from "../../constants/browser_mockups";
 import { RADIUS_PRESETS } from "../../constants/radius_presets";
 import { SHADOW_PRESETS } from "../../constants/shadow_presets";
 import { SOLID_COLORS, GRADIENTS } from "../../constants/palettes";
-
+import { ANIMATION_PRESETS } from "../../constants/animations";
 import styles from "./index.module.css";
 
 interface SidebarLayoutProps {
@@ -29,6 +29,7 @@ function Section({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+
   return (
     <div className={styles.section}>
       <button
@@ -126,6 +127,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     borderWidth,
     borderColor,
     isGlassBorder,
+    animation,
     setTilt,
     setBrowserFrame,
     setBgImage,
@@ -148,7 +150,17 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setBorderWidth,
     setBorderColor,
     setIsGlassBorder,
+    setAnimation,
   } = useControlsStore();
+
+  const handleAnimationSelect = (preset: (typeof ANIMATION_PRESETS)[0]) => {
+    if (preset.isPro && !isPro) {
+      console.log("Trigger Upsell Modal!");
+      return;
+    }
+    console.log(preset.id);
+    setAnimation(preset.id);
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -302,6 +314,44 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                 </div>
               </div>
             )}
+          </Section>
+
+          <Section title="VIDEO ANIMATIONS" defaultOpen={true}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: "8px",
+              }}
+            >
+              {ANIMATION_PRESETS.map((preset) => {
+                const isLocked = preset.isPro && !isPro;
+                const isActive = animation === preset.id;
+
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => handleAnimationSelect(preset)}
+                    className={`${styles.ratioBtn} ${isActive ? styles.active : ""}`}
+                    style={{ position: "relative", padding: "12px 8px" }}
+                  >
+                    {preset.label}
+                    {isLocked && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: "4px",
+                          right: "4px",
+                          fontSize: "10px",
+                        }}
+                      >
+                        🔒
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </Section>
 
           {/* ── 2. Browser Mockup ───────────────────── */}

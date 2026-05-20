@@ -1,0 +1,320 @@
+/* ============================================================
+   ExportModal/ExportModal.module.css
+   ============================================================ */
+
+/* ── Overlay ────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+/* ── Modal shell ────────────────────────────────────────── */
+.modal {
+  background: var(--bg-sidebar);
+  border: 0.5px solid var(--border-medium);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 460px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  border-bottom: 0.5px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.closeBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 0.5px solid var(--border-medium);
+  background: var(--bg-app);
+  color: var(--text-light);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 140ms ease;
+  font-family: var(--font-sans);
+}
+
+.closeBtn:hover {
+  color: var(--text-main);
+  border-color: var(--border-active);
+}
+
+/* ── Body ────────────────────────────────────────────────── */
+.body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-medium) transparent;
+}
+
+.body::-webkit-scrollbar {
+  width: 3px;
+}
+.body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.body::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 99px;
+}
+
+/* ── Group label ─────────────────────────────────────────── */
+.groupLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--border-active);
+  padding: 4px 2px 2px;
+  display: block;
+}
+
+/* ── Divider ─────────────────────────────────────────────── */
+.divider {
+  height: 0.5px;
+  background: var(--border-light);
+  margin: 6px 0 4px;
+}
+
+/* ── Option card ─────────────────────────────────────────── */
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 0.5px solid var(--border-light);
+  border-radius: 6px;
+  background: var(--bg-app);
+  cursor: pointer;
+  transition: all 140ms ease;
+  position: relative;
+  text-align: left;
+  width: 100%;
+  font-family: var(--font-sans);
+}
+
+.card:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-hover);
+}
+
+.card.selected {
+  border-color: var(--accent-main);
+  background: var(--accent-soft);
+}
+
+.card.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.card.disabled:hover {
+  border-color: var(--border-light);
+  background: var(--bg-app);
+}
+
+/* ── Icon box ────────────────────────────────────────────── */
+.icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  background: var(--bg-sidebar);
+  border: 0.5px solid var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 15px;
+  color: var(--text-light);
+  transition: all 140ms ease;
+}
+
+.card.selected .icon {
+  background: var(--accent-soft);
+  border-color: var(--border-active);
+  color: var(--accent-main);
+}
+
+/* ── Text ────────────────────────────────────────────────── */
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+
+.desc {
+  font-size: 10px;
+  color: var(--text-light);
+  margin-top: 3px;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+/* ── Badges ──────────────────────────────────────────────── */
+.badge {
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.badge_free {
+  background: var(--bg-hover);
+  color: var(--text-light);
+  border: 0.5px solid var(--border-medium);
+}
+
+.badge_new {
+  background: rgba(52, 211, 153, 0.1);
+  color: #34d399;
+  border: 0.5px solid rgba(52, 211, 153, 0.25);
+}
+
+.badge_pro {
+  background: var(--accent-soft);
+  color: var(--accent-main);
+  border: 0.5px solid var(--border-active);
+}
+
+/* ── Radio dot ───────────────────────────────────────────── */
+.radio {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 0.5px solid var(--border-medium);
+  background: var(--bg-sidebar);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 140ms ease;
+}
+
+.radioDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-main);
+  opacity: 0;
+  transform: scale(0.3);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.card.selected .radio {
+  border-color: var(--accent-main);
+}
+
+.card.selected .radioDot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Pro lock icon ───────────────────────────────────────── */
+.lock {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+.footer {
+  padding: 10px 12px;
+  border-top: 0.5px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cancelBtn {
+  padding: 8px 14px;
+  border-radius: 5px;
+  border: 0.5px solid var(--border-medium);
+  background: var(--bg-app);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.cancelBtn:hover {
+  border-color: var(--border-active);
+  color: var(--text-main);
+}
+
+.exportBtn {
+  flex: 1;
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: none;
+  background: var(--accent-main);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.exportBtn:hover {
+  filter: brightness(1.1);
+}
+
+.exportBtn:active {
+  transform: scale(0.98);
+}

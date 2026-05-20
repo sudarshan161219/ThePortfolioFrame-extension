@@ -25,7 +25,9 @@
   backface-visibility: hidden;
   overflow: visible;
 
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); */
+  transition: transform var(--anim-speed, 0.3s) cubic-bezier(0.4, 0, 0.2, 1);
+
   isolation: isolate;
   border-radius: var(--border-radius);
 }
@@ -130,4 +132,194 @@
   image-rendering: -webkit-optimize-contrast;
   -webkit-font-smoothing: subpixel-antialiased;
   transform: translateZ(0);
+}
+
+/* Add this to the bottom of index.module.css */
+
+/* ==========================================
+   ANIMATION PRESETS
+========================================== */
+
+/* 1. Breathe (Free) */
+.anim-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(var(--zoom));
+  }
+  50% {
+    transform: scale(calc(var(--zoom) + 0.05));
+  }
+}
+
+/* 2. Float (Pro) */
+.anim-float {
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) scale(var(--zoom)) rotateX(15deg) rotateY(-15deg);
+  }
+  50% {
+    transform: translateY(-20px) scale(var(--zoom)) rotateX(20deg)
+      rotateY(-10deg);
+  }
+}
+
+/* 3. Reveal (Pro) */
+.anim-reveal {
+  animation: reveal 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes reveal {
+  0% {
+    transform: scale(0.8) rotateX(0deg) rotateY(0deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(var(--zoom)) rotateX(15deg) rotateY(-15deg);
+    opacity: 1;
+  }
+}
+/* ==========================================
+   NEW ANIMATION PRESETS
+========================================== */
+
+/* 4. Hover Tilt (Pro) - Simulates smooth mouse movement across the frame */
+.anim-hoverTilt {
+  animation: hoverTilt 6s ease-in-out infinite;
+}
+@keyframes hoverTilt {
+  0%,
+  100% {
+    transform: scale(var(--zoom)) rotateX(5deg) rotateY(-5deg);
+  }
+  25% {
+    transform: scale(var(--zoom)) rotateX(-5deg) rotateY(-5deg);
+  }
+  50% {
+    transform: scale(var(--zoom)) rotateX(-5deg) rotateY(5deg);
+  }
+  75% {
+    transform: scale(var(--zoom)) rotateX(5deg) rotateY(5deg);
+  }
+}
+
+/* 5. Ambient Pulse (Free) - A very gentle, 2D float upward (No harsh 3D) */
+.anim-ambientPulse {
+  animation: ambientPulse 4s ease-in-out infinite alternate;
+}
+@keyframes ambientPulse {
+  0% {
+    transform: scale(var(--zoom)) translateY(0);
+  }
+  100% {
+    transform: scale(calc(var(--zoom) + 0.03)) translateY(-12px);
+  }
+}
+
+/* 6. Glitch Shift (Pro) - Cyberpunk twitch effect (Great for dark themes) */
+.anim-glitchShift {
+  animation: glitchShift 3s infinite;
+}
+@keyframes glitchShift {
+  0%,
+  92%,
+  100% {
+    transform: scale(var(--zoom)) skew(0deg) translate(0, 0);
+  }
+  93% {
+    transform: scale(var(--zoom)) skew(2deg, -2deg) translate(4px, -2px);
+  }
+  95% {
+    transform: scale(var(--zoom)) skew(-4deg, 1deg) translate(-6px, 4px);
+  }
+  97% {
+    transform: scale(var(--zoom)) skew(1deg, -1deg) translate(2px, -1px);
+  }
+}
+
+/* 7. Orbital Drift (Pro) - A smooth, circular panning motion */
+.anim-orbitalDrift {
+  animation: orbitalDrift 8s linear infinite;
+}
+@keyframes orbitalDrift {
+  0% {
+    transform: scale(var(--zoom)) translate(0px, 0px) rotateZ(0deg);
+  }
+  25% {
+    transform: scale(var(--zoom)) translate(15px, 15px) rotateZ(1deg);
+  }
+  50% {
+    transform: scale(var(--zoom)) translate(0px, 30px) rotateZ(0deg);
+  }
+  75% {
+    transform: scale(var(--zoom)) translate(-15px, 15px) rotateZ(-1deg);
+  }
+  100% {
+    transform: scale(var(--zoom)) translate(0px, 0px) rotateZ(0deg);
+  }
+}
+
+/* 8. Parallax Lift (Pro) - Flat start, lifts up, tilts back, and settles */
+.anim-parallaxLift {
+  animation: parallaxLift 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes parallaxLift {
+  0%,
+  100% {
+    transform: scale(var(--zoom)) rotateX(0deg) translateY(0);
+  }
+  40%,
+  60% {
+    transform: scale(calc(var(--zoom) + 0.1)) rotateX(20deg) translateY(-25px);
+  }
+}
+
+/* 9. Focus Zoom (Free) - Slow, cinematic camera push in */
+.anim-focusZoom {
+  animation: focusZoom 8s ease-in-out infinite alternate;
+}
+@keyframes focusZoom {
+  0% {
+    transform: scale(var(--zoom));
+  }
+  100% {
+    transform: scale(calc(var(--zoom) + 0.2));
+  }
+}
+
+/* 10. Screen Jitter (Pro) - Fast, chaotic camera shake */
+.anim-screenJitter {
+  animation: screenJitter 0.2s infinite;
+}
+@keyframes screenJitter {
+  0%,
+  100% {
+    transform: scale(var(--zoom)) translate(0, 0);
+  }
+  25% {
+    transform: scale(calc(var(--zoom) + 0.01)) translate(1px, -1px);
+  }
+  50% {
+    transform: scale(var(--zoom)) translate(-1px, 2px);
+  }
+  75% {
+    transform: scale(calc(var(--zoom) - 0.01)) translate(2px, 1px);
+  }
+}
+
+/* 11. Slow Spin (Pro) - A turntable product-display spin (Using Z-axis to keep UI readable) */
+.anim-slowSpin {
+  animation: slowSpin 12s linear infinite;
+}
+@keyframes slowSpin {
+  0% {
+    transform: scale(var(--zoom)) rotateX(15deg) rotateZ(0deg);
+  }
+  100% {
+    transform: scale(var(--zoom)) rotateX(15deg) rotateZ(360deg);
+  }
 }

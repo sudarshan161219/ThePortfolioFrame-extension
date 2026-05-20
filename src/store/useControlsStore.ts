@@ -74,6 +74,8 @@ interface AppState {
   shadowVariant: number;
   shadowOpacity: number;
 
+  animation: string;
+
   // Setter Actions
   setIsPro: (status: boolean) => void;
   setBrowserFrame: (status: boolean) => void;
@@ -107,6 +109,8 @@ interface AppState {
   setBorderWidth: (width: number) => void;
   setBorderColor: (color: string) => void;
   setIsGlassBorder: (isGlass: boolean) => void;
+
+  setAnimation: (anim: string) => void;
 }
 
 // 2. The Chrome Storage Engine
@@ -174,6 +178,8 @@ export const useControlsStore = create<AppState>()(
       borderColor: "rgba(255, 255, 255, 0.2)",
       isGlassBorder: false,
 
+      animation: "none",
+
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
       setBrowserFrame: (status) => set({ showBrowserFrame: status }),
@@ -205,6 +211,8 @@ export const useControlsStore = create<AppState>()(
       setBorderWidth: (width) => set({ borderWidth: width }),
       setBorderColor: (color) => set({ borderColor: color }),
       setIsGlassBorder: (isGlass) => set({ isGlassBorder: isGlass }),
+
+      setAnimation: (anim) => set({ animation: anim }),
     }),
     {
       name: "portfolio-frame-storage", // The key used in chrome.storage.local

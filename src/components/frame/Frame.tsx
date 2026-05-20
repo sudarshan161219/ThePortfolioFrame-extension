@@ -15,6 +15,7 @@ export const Frame = () => {
     tiltZ,
     imageSource,
     zoom,
+    animation,
     borderRadius,
     shadowVariant,
     shadowOpacity,
@@ -48,13 +49,17 @@ export const Frame = () => {
   const innerRadius =
     borderWidth > 0 ? Math.max(0, borderRadius - borderWidth) : borderRadius;
 
+  const animationClass =
+    animation !== "none" ? styles[`anim-${animation}`] : "";
+
   return (
     <div className={styles.canvasWrapper}>
       <div
-        className={`${styles.windowWrapper} ${!isGlassBorder ? styles.noGlass : ""}`}
+        className={`${styles.windowWrapper} ${animationClass} ${!isGlassBorder ? styles.noGlass : ""}`}
         style={
           {
-            transform: combinedTransform,
+            transform: animation === "none" ? combinedTransform : undefined,
+            "--zoom": zoom,
             borderRadius: `${borderRadius}px`,
             boxShadow: dynamicShadow,
             border:
