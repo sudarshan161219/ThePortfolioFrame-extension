@@ -1,17 +1,9 @@
 import { useState, useEffect } from "react";
+import { useModalStore } from "../../../store/modalStore/useModalStore";
 import styles from "./index.module.css";
 
-interface SettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-}
-
-export const SettingsModal = ({
-  isOpen,
-  onClose,
-  onSuccess,
-}: SettingsModalProps) => {
+export const SettingsModal = () => {
+  const { isOpen, type, closeModal } = useModalStore();
   const [licenseKey, setLicenseKey] = useState("");
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
@@ -29,22 +21,7 @@ export const SettingsModal = ({
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (status === "success") {
-      const timer = setTimeout(() => {
-        onSuccess();
-        onClose();
-
-        // Reset the modal state behind the scenes after it closes
-        setTimeout(() => setStatus("idle"), 500);
-      }, 1500);
-
-      // Cleanup function prevents memory leaks if the user manually closes the modal early
-      return () => clearTimeout(timer);
-    }
-  }, [status, onSuccess, onClose]);
-
-  if (!isOpen) return null;
+  if (!isOpen || type !== "SETTINGS") return null;
 
   const verifyLicense = async (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -70,8 +47,7 @@ export const SettingsModal = ({
         }
 
         setTimeout(() => {
-          onSuccess();
-          onClose();
+          closeModal();
         }, 1500);
       }, 800);
 
@@ -106,8 +82,7 @@ export const SettingsModal = ({
         }
 
         setTimeout(() => {
-          onSuccess();
-          onClose();
+          closeModal();
         }, 1500);
       } else {
         setStatus("error");
@@ -125,7 +100,7 @@ export const SettingsModal = ({
       <div className={styles.modal}>
         <div className={styles.header}>
           <h2>[ UPGRADE_TO_PRO ]</h2>
-          <button onClick={onClose} className={styles.closeBtn}>
+          <button onClick={closeModal} className={styles.closeBtn}>
             X
           </button>
         </div>

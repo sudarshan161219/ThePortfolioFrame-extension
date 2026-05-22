@@ -318,3 +318,32 @@
 .exportBtn:active {
   transform: scale(0.98);
 }
+
+/* ── Progress bar (gif / video encoding) ────────────────── */
+.progressTrack {
+  height: 2px;
+  background: var(--border-light);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent-main);
+  transition: width 100ms linear;
+}
+
+/* ── Exporting state on export button ───────────────────── */
+.exportBtn.exporting {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background: var(--accent-main);
+}
+
+.exportBtn:disabled {
+  cursor: not-allowed;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

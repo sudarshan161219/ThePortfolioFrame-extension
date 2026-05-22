@@ -38,10 +38,25 @@ export type BrowserMockup =
   | "safari-mac-light"
   | "safari-mac-dark";
 
+export type DeviceMockup =
+  | "dell-ultrasharp-27"
+  | "dell-ultrasharp-5k-monitor-27"
+  | "apple-thunderbolt-display"
+  | "apple-pro-display-xdr"
+  | "microsoft-surface-book"
+  | "dell-xps-15"
+  | "dell-xps-13"
+  | "macbook-pro-15-silver"
+  | "macbook-air-13-silver"
+  | "apple-macbook-space-grey"
+  | "apple-macbook-gold"
+  | "imac-retina";
+
 // 1. Define the TypeScript types for your state and actions
 interface AppState {
   isPro: boolean;
   showBrowserFrame: boolean;
+  showDeviceFrame: boolean;
   titleBarTheme: titleBar;
   tilt: boolean;
   frameType: "browser" | "terminal";
@@ -66,6 +81,7 @@ interface AppState {
   aspectRatio: AspectRatio;
   zoom: number;
   browserMockup: BrowserMockup;
+  deviceMockup: DeviceMockup;
   borderRadius: number;
   borderWidth: number;
   borderColor: string;
@@ -79,6 +95,7 @@ interface AppState {
   // Setter Actions
   setIsPro: (status: boolean) => void;
   setBrowserFrame: (status: boolean) => void;
+  setDeviceFrame: (status: boolean) => void;
   setOsStyle: (type: "mac" | "windows") => void;
   settitleBarTheme: (val: titleBar) => void;
   setTilt: (val: boolean) => void;
@@ -103,6 +120,7 @@ interface AppState {
   setAspectRatio: (ratio: AspectRatio) => void;
   setZoom: (val: number) => void;
   setBrowserMockup: (mockup: BrowserMockup) => void;
+  setDeviceMockup: (mockup: DeviceMockup) => void;
   setBorderRadius: (radius: number) => void;
   setShadowVariant: (index: number) => void;
   setShadowOpacity: (opacity: number) => void;
@@ -145,6 +163,7 @@ export const useControlsStore = create<AppState>()(
       // Default Values
       isPro: false,
       showBrowserFrame: true,
+      showDeviceFrame: true,
       titleBarTheme: {
         bg: "#fdfdfb",
         borderColor: "",
@@ -171,6 +190,7 @@ export const useControlsStore = create<AppState>()(
       aspectRatio: "auto",
       zoom: 0.5,
       browserMockup: "safari-mac-light",
+      deviceMockup: "macbook-pro-15-silver",
       borderRadius: 12,
       shadowVariant: 4,
       shadowOpacity: 0.4,
@@ -183,6 +203,7 @@ export const useControlsStore = create<AppState>()(
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
       setBrowserFrame: (status) => set({ showBrowserFrame: status }),
+      setDeviceFrame: (status) => set({ showDeviceFrame: status }),
       settitleBarTheme: (color) => set({ titleBarTheme: color }),
       setOsStyle: (type) => set({ osStyle: type }),
       setTilt: (val) => set({ tilt: val }),
@@ -205,6 +226,7 @@ export const useControlsStore = create<AppState>()(
       setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
       setZoom: (val) => set({ zoom: val }),
       setBrowserMockup: (mockup) => set({ browserMockup: mockup }),
+      setDeviceMockup: (mockup) => set({ deviceMockup: mockup }),
       setBorderRadius: (radius) => set({ borderRadius: radius }),
       setShadowVariant: (index) => set({ shadowVariant: index }),
       setShadowOpacity: (opacity) => set({ shadowOpacity: opacity }),

@@ -14,9 +14,18 @@ type MockupConfig = {
   overlays: TextOverlay[];
 };
 
-export const MOCKUP_CONFIG: Record<string, MockupConfig> = {
+export const BROWSER_MOCKUPS = [
+  { id: "safari-mac-light", label: "Safari (Light)", os: "mac" },
+  { id: "safari-mac-dark", label: "Safari (Dark)", os: "mac" },
+  { id: "chrome-mac-light", label: "Chrome (Light)", os: "mac" },
+  { id: "chrome-mac-dark", label: "Chrome (Dark)", os: "mac" },
+  { id: "chrome-win-light", label: "Chrome (Light)", os: "win" },
+  { id: "chrome-win-dark", label: "Chrome (Dark)", os: "win" },
+] as const;
+
+export const BROWSER_MOCKUP_CONFIG: Record<string, MockupConfig> = {
   "chrome-win-light": {
-    src: "/chrome-win-light.png",
+    src: "/mockups/browser/chrome-win-light.png",
     overlays: [
       {
         type: "title",
@@ -39,7 +48,7 @@ export const MOCKUP_CONFIG: Record<string, MockupConfig> = {
     ],
   },
   "chrome-win-dark": {
-    src: "/chrome-win-dark.png",
+    src: "/mockups/browser/chrome-win-dark.png",
     overlays: [
       {
         type: "title",
@@ -62,7 +71,7 @@ export const MOCKUP_CONFIG: Record<string, MockupConfig> = {
     ],
   },
   "chrome-mac-light": {
-    src: "/chrome-mac-light.png",
+    src: "/mockups/browser/chrome-mac-light.png",
     overlays: [
       {
         type: "title",
@@ -85,7 +94,7 @@ export const MOCKUP_CONFIG: Record<string, MockupConfig> = {
     ],
   },
   "chrome-mac-dark": {
-    src: "/chrome-mac-dark.png",
+    src: "/mockups/browser/chrome-mac-dark.png",
     overlays: [
       {
         type: "title",
@@ -108,7 +117,7 @@ export const MOCKUP_CONFIG: Record<string, MockupConfig> = {
     ],
   },
   "safari-mac-light": {
-    src: "/safari-mac-light.png",
+    src: "/mockups/browser/safari-mac-light.png",
     overlays: [
       {
         type: "url",
@@ -123,7 +132,7 @@ export const MOCKUP_CONFIG: Record<string, MockupConfig> = {
     ],
   },
   "safari-mac-dark": {
-    src: "/safari-mac-dark.png",
+    src: "/mockups/browser/safari-mac-dark.png",
     overlays: [
       {
         type: "url",

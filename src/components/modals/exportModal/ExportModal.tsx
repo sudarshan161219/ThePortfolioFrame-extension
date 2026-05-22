@@ -1,5 +1,8 @@
 import { useState } from "react";
-import styles from "./ExportModal.module.css";
+import { useModalStore } from "../../../store/modalStore/useModalStore";
+import { useNavActionsStore } from "../../../store/useNavActionsStore";
+import { useControlsStore } from "../../../store/useControlsStore";
+import styles from "./index.module.css";
 
 type ExportFormat =
   | "clipboard"
@@ -57,34 +60,6 @@ const OPTIONS: Option[] = [
     icon: "ti-photo-scan",
     group: "image",
   },
-  {
-    value: "gif",
-    label: ".gif",
-    ext: "gif",
-    desc: "Animated export — plays anywhere, limited palette",
-    tier: "free",
-    icon: "ti-player-record",
-    group: "motion",
-  },
-  {
-    value: "mp4",
-    label: ".mp4",
-    ext: "mp4",
-    desc: "High-quality video loop — great for Twitter / X posts",
-    tier: "free",
-    icon: "ti-player-play",
-    group: "motion",
-  },
-  {
-    value: "webm",
-    label: ".webm",
-    ext: "webm",
-    desc: "Smallest file size, alpha channel support",
-    tier: "pro",
-    icon: "ti-player-record",
-    group: "motion",
-    isPro: true,
-  },
 ];
 
 const GROUPS: { key: Option["group"]; label: string }[] = [
@@ -93,53 +68,64 @@ const GROUPS: { key: Option["group"]; label: string }[] = [
   { key: "motion", label: "Motion" },
 ];
 
-interface ExportModalProps {
-  isOpen: boolean;
-  isPro: boolean;
-  onClose: () => void;
-  onExport: (format: ExportFormat) => void;
-  onUpgrade: () => void;
-}
-
-export const ExportModal = ({
-  isOpen,
-  isPro,
-  onClose,
-  onExport,
-  onUpgrade,
-}: ExportModalProps) => {
+export const ExportModal = () => {
+  const { isPro } = useControlsStore();
+  const { triggerExport, isExporting, exportProgress } = useNavActionsStore();
+  const { isOpen, type, closeModal, openModal } = useModalStore();
   const [selected, setSelected] = useState<ExportFormat>("png");
 
-  if (!isOpen) return null;
+  if (!isOpen || type !== "EXPORT") return null;
 
   const selectedOption = OPTIONS.find((o) => o.value === selected)!;
-  const exportLabel =
-    selected === "clipboard"
+  const isMotion =
+    selected === "gif" || selected === "mp4" || selected === "webm";
+
+  const exportLabel = () => {
+    if (isExporting) {
+      return isMotion
+        ? `Encoding… ${Math.round(exportProgress * 100)}%`
+        : "Exporting…";
+    }
+    return selected === "clipboard"
       ? "Copy to clipboard"
       : `Export .${selectedOption.ext}`;
+  };
 
   const handleSelect = (opt: Option) => {
+    if (isExporting) return;
     if (opt.isPro && !isPro) {
-      onUpgrade();
+      openModal("SETTINGS");
       return;
     }
     setSelected(opt.value);
   };
 
+  const handleExport = async () => {
+    if (isExporting) return;
+    await triggerExport(selected);
+    if (selected === "clipboard") closeModal();
+  };
+
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div
+      className={styles.overlay}
+      onClick={!isExporting ? closeModal : undefined}
+    >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
         <div className={styles.header}>
           <span className={styles.title}>Export</span>
           <button
             className={styles.closeBtn}
-            onClick={onClose}
+            onClick={closeModal}
+            disabled={isExporting}
             aria-label="Close"
           >
             ✕
           </button>
         </div>
 
+        {/* Options */}
         <div className={styles.body}>
           {GROUPS.map((group, gi) => {
             const opts = OPTIONS.filter((o) => o.group === group.key);
@@ -152,7 +138,7 @@ export const ExportModal = ({
                   return (
                     <button
                       key={opt.value}
-                      className={`${styles.card} ${selected === opt.value ? styles.selected : ""} ${locked ? styles.disabled : ""}`}
+                      className={`${styles.card} ${selected === opt.value ? styles.selected : ""} ${locked ? styles.disabled : ""} ${isExporting ? styles.disabled : ""}`}
                       onClick={() => handleSelect(opt)}
                     >
                       <div className={styles.icon}>
@@ -185,15 +171,31 @@ export const ExportModal = ({
           })}
         </div>
 
+        {/* Progress bar — only visible during motion exports */}
+        {isExporting && isMotion && (
+          <div className={styles.progressTrack}>
+            <div
+              className={styles.progressFill}
+              style={{ width: `${Math.round(exportProgress * 100)}%` }}
+            />
+          </div>
+        )}
+
+        {/* Footer */}
         <div className={styles.footer}>
-          <button className={styles.cancelBtn} onClick={onClose}>
+          <button
+            className={styles.cancelBtn}
+            onClick={closeModal}
+            disabled={isExporting}
+          >
             Cancel
           </button>
           <button
-            className={styles.exportBtn}
-            onClick={() => onExport(selected)}
+            className={`${styles.exportBtn} ${isExporting ? styles.exporting : ""}`}
+            onClick={handleExport}
+            disabled={isExporting}
           >
-            {exportLabel}
+            {exportLabel()}
           </button>
         </div>
       </div>

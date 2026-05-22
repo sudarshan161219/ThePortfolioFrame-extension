@@ -4,14 +4,15 @@ import {
   useControlsStore,
   type AspectRatio,
   type BrowserMockup,
+  type DeviceMockup,
 } from "../../store/useControlsStore";
 import { ratios } from "../../constants/ratios";
 import { BACKGROUNDS } from "../../constants/backgrounds";
-import { BROWSER_MOCKUPS } from "../../constants/browser_mockups";
+import { BROWSER_MOCKUPS } from "../../constants/browser_mockup_config";
+import { DEVICE_MOCKUPS } from "../../constants/Device_mockup_config";
 import { RADIUS_PRESETS } from "../../constants/radius_presets";
 import { SHADOW_PRESETS } from "../../constants/shadow_presets";
 import { SOLID_COLORS, GRADIENTS } from "../../constants/palettes";
-import { ANIMATION_PRESETS } from "../../constants/animations";
 import styles from "./index.module.css";
 
 interface SidebarLayoutProps {
@@ -107,6 +108,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     isPro,
     tilt,
     showBrowserFrame,
+    showDeviceFrame,
     pageUrl,
     pageTitle,
     bgImage,
@@ -121,15 +123,17 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     zoom,
     aspectRatio,
     browserMockup,
+    deviceMockup,
     borderRadius,
     shadowVariant,
     shadowOpacity,
     borderWidth,
     borderColor,
     isGlassBorder,
-    animation,
+
     setTilt,
     setBrowserFrame,
+    setDeviceFrame,
     setBgImage,
     setCustomBg,
     setBgBlur,
@@ -144,23 +148,14 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setAspectRatio,
     setZoom,
     setBrowserMockup,
+    setDeviceMockup,
     setBorderRadius,
     setShadowVariant,
     setShadowOpacity,
     setBorderWidth,
     setBorderColor,
     setIsGlassBorder,
-    setAnimation,
   } = useControlsStore();
-
-  const handleAnimationSelect = (preset: (typeof ANIMATION_PRESETS)[0]) => {
-    if (preset.isPro && !isPro) {
-      console.log("Trigger Upsell Modal!");
-      return;
-    }
-    console.log(preset.id);
-    setAnimation(preset.id);
-  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -316,7 +311,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
             )}
           </Section>
 
-          <Section title="VIDEO ANIMATIONS" defaultOpen={true}>
+          {/* <Section title="VIDEO ANIMATIONS" defaultOpen={true}>
             <div
               style={{
                 display: "grid",
@@ -352,7 +347,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                 );
               })}
             </div>
-          </Section>
+          </Section> */}
 
           {/* ── 2. Browser Mockup ───────────────────── */}
           <Section title="Browser Mockup" defaultOpen={false}>
@@ -376,6 +371,56 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                     {BROWSER_MOCKUPS.map((m) => (
                       <option key={m.id} value={m.id}>
                         {m.label} — {m.os}
+                      </option>
+                    ))}
+                  </select>
+                </ControlRow>
+
+                <ControlRow label="Browser URL">
+                  <input
+                    type="text"
+                    placeholder="yourdomain.com"
+                    value={pageUrl}
+                    onChange={(e) => setPageUrl(e.target.value)}
+                    className={styles.input}
+                  />
+                </ControlRow>
+
+                <ControlRow label="Tab Title">
+                  <input
+                    type="text"
+                    placeholder="Leave blank to auto-generate…"
+                    value={pageTitle}
+                    onChange={(e) => setPageTitle(e.target.value)}
+                    className={styles.input}
+                  />
+                </ControlRow>
+              </>
+            )}
+          </Section>
+
+          {/* ── 2. Device Mockup ───────────────────── */}
+          <Section title="Device Mockup" defaultOpen={false}>
+            <ToggleRow
+              id="showMockupToggle"
+              label="Show Device Frame"
+              checked={showDeviceFrame}
+              onChange={setDeviceFrame}
+            />
+
+            {showDeviceFrame && (
+              <>
+                <ControlRow label="Mockup Style">
+                  <select
+                    className={styles.select}
+                    value={deviceMockup}
+                    onChange={(e) =>
+                      setDeviceMockup(e.target.value as DeviceMockup)
+                    }
+                  >
+                    {DEVICE_MOCKUPS.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.label}
                       </option>
                     ))}
                   </select>

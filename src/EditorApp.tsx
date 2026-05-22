@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Frame } from "./components/frame/Frame.tsx";
 import { useControlsStore } from "./store/useControlsStore.ts";
-import { SettingsModal } from "./components/settingsModal/SettingsModal.tsx";
 import { ratios } from "./constants/ratios";
 import styles from "./EditorApp.module.css";
 
@@ -15,11 +14,9 @@ export const EditorApp = () => {
     bgBlur,
     bgSize,
     handle,
-    setIsPro,
     setPageUrl,
     setImageSource,
   } = useControlsStore();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     chrome.storage.local.get(
@@ -92,6 +89,7 @@ export const EditorApp = () => {
               usePreset ? styles[activeBg?.bgKey as keyof typeof styles] : ""
             }`}
             style={!usePreset ? dynamicBgStyle : {}}
+            data-bg="true"
           />
 
           <Frame />
@@ -103,12 +101,6 @@ export const EditorApp = () => {
           )}
         </div>
       </div>
-
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        onSuccess={() => setIsPro(true)}
-      />
     </div>
   );
 };

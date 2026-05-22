@@ -1,12 +1,12 @@
 import { StarIcon, DownloadIcon } from "lucide-react";
-import { useNavActionsStore } from "../../store/useNavActionsStore";
+import { useModalStore } from "../../store/modalStore/useModalStore";
 import styles from "./index.module.css";
 import { useState } from "react";
 import { useControlsStore } from "../../store/useControlsStore";
 import { useThemeStore } from "../../store/useThemeStore";
 
 export const Nav = () => {
-  const { isExporting, triggerExport } = useNavActionsStore();
+  const { openModal } = useModalStore();
   const { theme, toggleTheme } = useThemeStore();
   const { isPro } = useControlsStore();
 
@@ -47,21 +47,12 @@ export const Nav = () => {
         <div className={styles.sep} />
 
         <button
-          className={`${styles.exportBtn} ${isExporting ? styles.exporting : ""}`}
-          onClick={triggerExport}
-          disabled={isExporting}
+          className={styles.exportBtn}
+          onClick={() => openModal("EXPORT")}
         >
-          {isExporting ? (
-            <>
-              <span className={styles.spinner} />
-              Processing...
-            </>
-          ) : (
-            <>
-              <DownloadIcon />
-              Export PNG
-            </>
-          )}
+          {" "}
+          <DownloadIcon />
+          Export PNG
         </button>
       </div>
     </header>

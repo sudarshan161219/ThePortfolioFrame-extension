@@ -1,6 +1,7 @@
 import { useControlsStore } from "../../store/useControlsStore";
 import { SHADOW_PRESETS } from "../../constants/shadow_presets";
-import { MOCKUP_CONFIG } from "../../constants/mockup_config";
+import { BROWSER_MOCKUP_CONFIG } from "../../constants/browser_mockup_config";
+import { DEVICE_MOCKUPS } from "../../constants/Device_mockup_config";
 import styles from "./index.module.css";
 
 export const Frame = () => {
@@ -34,7 +35,7 @@ export const Frame = () => {
   const displayTitle =
     pageTitle.trim() !== "" ? pageTitle : cleanUrl.split("/")[0];
   const activeConfig =
-    MOCKUP_CONFIG[browserMockup as keyof typeof MOCKUP_CONFIG];
+    BROWSER_MOCKUP_CONFIG[browserMockup as keyof typeof BROWSER_MOCKUP_CONFIG];
 
   const currentPreset = SHADOW_PRESETS[shadowVariant] || SHADOW_PRESETS[0];
   let dynamicShadow = currentPreset.value.replace(
