@@ -1,211 +1,81 @@
-// constants/device_mockups.ts
-
 export interface DeviceMockup {
   id: string;
   label: string;
-  src: string; // path to PNG in /public/mockups/
-  aspectRatio: number; // frame width / frame height
-  ScreenW: number;
-  ScreenH: number;
+  src: string;
+  aspectRatio: number; // full PNG width / full PNG height
+  pngW: number; // full PNG width in px
+  pngH: number; // full PNG height in px
   screen: {
-    top: string; // % from top of frame
-    left: string; // % from left of frame
-    width: string; // % of frame width
-    height: string; // % of frame height
+    top: string;
+    left: string;
+    width: string;
+    height: string;
     borderRadius?: string;
   };
 }
 
+// macbook-pro 2021 16"
+
 export const DEVICE_MOCKUPS: DeviceMockup[] = [
   {
-    id: "dell-ultrasharp-27",
-    label: "Dell UltraSharp 27",
-    src: "../mockups/device/Dell-UltraSharp-27.png",
-    aspectRatio: 1.251,
-    ScreenW: 2625,
-    ScreenH: 2098,
+    id: "macbook-pro",
+    label: "MacBook Pro",
+    src: "/mockups/device/Macbook-Pro.png",
+    aspectRatio: 1.573,
+    pngW: 5780.46,
+    pngH: 3675.65,
     screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.96%",
-      height: "99.95%",
+      top: "13.20%",
+      left: "13%",
+      width: "74.43%",
+      height: "73.02%",
       borderRadius: "2px",
     },
   },
 
   {
-    id: "dell-ultrasharp-5k-monitor-27",
-    label: "Dell UltraSharp 5K Monitor 27",
-    src: "../mockups/device/Dell-UltraSharp-5K-Monitor-27.png",
-    aspectRatio: 1.242,
-    ScreenW: 4095,
-    ScreenH: 3297,
+    id: "macbook-pro-2021-16",
+    label: "macbook pro 2021 16",
+    src: "/mockups/device/macbook-pro-2021-16.png",
+    aspectRatio: 1.573,
+    pngW: 5780.46,
+    pngH: 3675.65,
     screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.98%",
-      height: "99.97%",
+      top: "13.20%",
+      left: "13%",
+      width: "74.43%",
+      height: "73.02%",
       borderRadius: "2px",
     },
   },
-
   {
-    id: "apple-thunderbolt-display",
-    label: "Apple Thunderbolt Display",
-    src: "../mockups/device/Apple-Thunderbolt-Display.png",
-    aspectRatio: 1.291,
-    ScreenW: 2783,
-    ScreenH: 2155,
+    id: "iphone-14-pro",
+    label: "iPhone 14 Pro",
+    src: "/mockups/device/iPhone-14-Pro.png",
+    aspectRatio: 0.883,
+    pngW: 4035.38,
+    pngH: 4569.64,
     screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.96%",
-      height: "99.95%",
-      borderRadius: "2px",
+      top: "6.04%", // top looks right
+      left: "27.04%", // need relative x from Figma
+      width: "45.92%", // width looks right
+      height: "88.06%",
+      borderRadius: "40px",
     },
   },
-
   {
-    id: "apple-pro-display-xdr",
-    label: "Apple Pro Display XDR",
-    src: "../mockups/device/Apple-Pro-Display-XDR.png",
-    aspectRatio: 1.326,
-    ScreenW: 4095,
-    ScreenH: 3089,
+    id: "iwatch",
+    label: "iWatch",
+    src: "/mockups/device/iWatch.png",
+    aspectRatio: 0.628,
+    pngW: 2420.73,
+    pngH: 3855.24,
     screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.98%",
-      height: "99.97%",
-      borderRadius: "2px",
-    },
-  },
-
-  {
-    id: "microsoft-surface-book",
-    label: "Microsoft Surface Book",
-    src: "../mockups/device/Microsoft-Surface-Book.png",
-    aspectRatio: 1.687,
-    ScreenW: 4095,
-    ScreenH: 2427,
-    screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.98%",
-      height: "99.96%",
-      borderRadius: "2px",
-    },
-  },
-
-  {
-    id: "dell-xps-15",
-    label: "Dell XPS 15",
-    src: "../mockups/device/Dell-XPS-15.png",
-    aspectRatio: 1.876,
-    ScreenW: 4095,
-    ScreenH: 2182,
-    screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.98%",
-      height: "99.95%",
-      borderRadius: "2px",
-    },
-  },
-
-  {
-    id: "dell-xps-13",
-    label: "Dell XPS 13",
-    src: "../mockups/device/Dell-XPS-13.png",
-    aspectRatio: 1.699,
-    ScreenW: 3833,
-    ScreenH: 2255,
-    screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.97%",
-      height: "99.96%",
-      borderRadius: "2px",
-    },
-  },
-
-  {
-    id: "macbook-pro-15-silver",
-    label: "Macbook Pro 15 Silver",
-    src: "../mockups/device/Macbook-Pro-15-Silver.png",
-    aspectRatio: 1.617,
-    ScreenW: 3879,
-    ScreenH: 2399,
-    screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.97%",
-      height: "99.96%",
-      borderRadius: "2px",
-    },
-  },
-
-  {
-    id: "macbook-air-13-silver",
-    label: "MacBook Air 13 Silver",
-    src: "../mockups/device/MacBook-Air-13-Silver.png",
-    aspectRatio: 1.68,
-    ScreenW: 3459,
-    ScreenH: 2059,
-    screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.97%",
-      height: "99.95%",
-      borderRadius: "2px",
-    },
-  },
-
-  {
-    id: "apple-macbook-space-grey",
-    label: "Apple Macbook Space Grey",
-    src: "../mockups/device/Apple-Macbook-Space-Grey.png",
-    aspectRatio: 1.703,
-    ScreenW: 3063,
-    ScreenH: 1798,
-    screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.97%",
-      height: "99.94%",
-      borderRadius: "2px",
-    },
-  },
-
-  {
-    id: "apple-macbook-gold",
-    label: "Apple Macbook Gold",
-    src: "../mockups/device/Apple-Macbook-Gold.png",
-    aspectRatio: 1.703,
-    ScreenW: 3063,
-    ScreenH: 1798,
-    screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.97%",
-      height: "99.94%",
-      borderRadius: "2px",
-    },
-  },
-
-  {
-    id: "imac-retina",
-    label: "iMac Retina",
-    src: "../mockups/device/iMac-Retina.png",
-    aspectRatio: 1.189,
-    ScreenW: 4095,
-    ScreenH: 3443,
-    screen: {
-      top: "0.00%",
-      left: "0.00%",
-      width: "99.98%",
-      height: "99.97%",
-      borderRadius: "2px",
+      top: "21.97%",
+      left: "13.04%",
+      width: "73.76%",
+      height: "56.46%",
+      borderRadius: "20px",
     },
   },
 ];

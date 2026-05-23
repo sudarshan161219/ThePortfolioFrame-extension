@@ -134,6 +134,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setTilt,
     setBrowserFrame,
     setDeviceFrame,
+    setMockupCategory,
     setBgImage,
     setCustomBg,
     setBgBlur,
@@ -352,10 +353,18 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           {/* ── 2. Browser Mockup ───────────────────── */}
           <Section title="Browser Mockup" defaultOpen={false}>
             <ToggleRow
-              id="showMockupToggle"
+              id="showBrowserToggle" // ✅ FIX: Unique ID
               label="Show Browser Frame"
               checked={showBrowserFrame}
-              onChange={setBrowserFrame}
+              onChange={(checked) => {
+                setBrowserFrame(checked);
+                if (checked) {
+                  setDeviceFrame(false);
+                  setMockupCategory("browser"); // ✅ Syncs with Frame.tsx
+                } else {
+                  setMockupCategory("none"); // ✅ Resets to plain image
+                }
+              }}
             />
 
             {showBrowserFrame && (
@@ -364,8 +373,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                   <select
                     className={styles.select}
                     value={browserMockup}
-                    onChange={(e) =>
-                      setBrowserMockup(e.target.value as BrowserMockup)
+                    onChange={
+                      (e) => setBrowserMockup(e.target.value as BrowserMockup) // Removed 'as BrowserMockup' if store expects string
                     }
                   >
                     {BROWSER_MOCKUPS.map((m) => (
@@ -399,13 +408,21 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
             )}
           </Section>
 
-          {/* ── 2. Device Mockup ───────────────────── */}
+          {/* ── 3. Device Mockup ───────────────────── */}
           <Section title="Device Mockup" defaultOpen={false}>
             <ToggleRow
-              id="showMockupToggle"
+              id="showDeviceToggle" // ✅ FIX: Unique ID
               label="Show Device Frame"
               checked={showDeviceFrame}
-              onChange={setDeviceFrame}
+              onChange={(checked) => {
+                setDeviceFrame(checked);
+                if (checked) {
+                  setBrowserFrame(false);
+                  setMockupCategory("device"); // ✅ Syncs with Frame.tsx
+                } else {
+                  setMockupCategory("none"); // ✅ Resets to plain image
+                }
+              }}
             />
 
             {showDeviceFrame && (
@@ -414,8 +431,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                   <select
                     className={styles.select}
                     value={deviceMockup}
-                    onChange={(e) =>
-                      setDeviceMockup(e.target.value as DeviceMockup)
+                    onChange={
+                      (e) => setDeviceMockup(e.target.value as DeviceMockup) // Removed 'as DeviceMockup' if store expects string
                     }
                   >
                     {DEVICE_MOCKUPS.map((m) => (
@@ -424,26 +441,6 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                       </option>
                     ))}
                   </select>
-                </ControlRow>
-
-                <ControlRow label="Browser URL">
-                  <input
-                    type="text"
-                    placeholder="yourdomain.com"
-                    value={pageUrl}
-                    onChange={(e) => setPageUrl(e.target.value)}
-                    className={styles.input}
-                  />
-                </ControlRow>
-
-                <ControlRow label="Tab Title">
-                  <input
-                    type="text"
-                    placeholder="Leave blank to auto-generate…"
-                    value={pageTitle}
-                    onChange={(e) => setPageTitle(e.target.value)}
-                    className={styles.input}
-                  />
                 </ControlRow>
               </>
             )}

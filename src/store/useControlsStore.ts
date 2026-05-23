@@ -60,6 +60,7 @@ interface AppState {
   titleBarTheme: titleBar;
   tilt: boolean;
   frameType: "browser" | "terminal";
+  mockupCategory: "browser" | "device" | "none";
   osStyle: "mac" | "windows";
   pageUrl: string;
   pageTitle: string;
@@ -100,6 +101,7 @@ interface AppState {
   settitleBarTheme: (val: titleBar) => void;
   setTilt: (val: boolean) => void;
   setFrameType: (type: "browser" | "terminal") => void;
+  setMockupCategory: (category: "browser" | "device" | "none") => void;
   setPageUrl: (url: string) => void;
   setPageTitle: (title: string) => void;
   setImageSource: (src: string | null) => void;
@@ -173,6 +175,7 @@ export const useControlsStore = create<AppState>()(
       tilt: false,
       osStyle: "mac",
       frameType: "browser",
+      mockupCategory: "browser",
       pageUrl: "localhost:5173",
       pageTitle: "",
       imageSource: null,
@@ -208,6 +211,7 @@ export const useControlsStore = create<AppState>()(
       setOsStyle: (type) => set({ osStyle: type }),
       setTilt: (val) => set({ tilt: val }),
       setFrameType: (type) => set({ frameType: type }),
+      setMockupCategory: (category) => set({ mockupCategory: category }),
       setPageUrl: (url) => set({ pageUrl: url }),
       setPageTitle: (title) => set({ pageTitle: title }),
       setImageSource: (src) => set({ imageSource: src }),
