@@ -130,6 +130,10 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     borderWidth,
     borderColor,
     isGlassBorder,
+    screenLeft,
+    screenTop,
+    screenWidth,
+    screenHeight,
 
     setTilt,
     setBrowserFrame,
@@ -156,6 +160,11 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setBorderWidth,
     setBorderColor,
     setIsGlassBorder,
+
+    setScreenLeft,
+    setScreenTop,
+    setScreenWidth,
+    setScreenHeight,
   } = useControlsStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -431,8 +440,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                   <select
                     className={styles.select}
                     value={deviceMockup}
-                    onChange={
-                      (e) => setDeviceMockup(e.target.value as DeviceMockup) // Removed 'as DeviceMockup' if store expects string
+                    onChange={(e) =>
+                      setDeviceMockup(e.target.value as DeviceMockup)
                     }
                   >
                     {DEVICE_MOCKUPS.map((m) => (
@@ -442,6 +451,86 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                     ))}
                   </select>
                 </ControlRow>
+
+                <ControlRow label="Position X">
+                  <div className={styles.arrowSliderRow}>
+                    <span className={styles.arrowLabel}>Left</span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={50}
+                      step={0.1}
+                      value={screenLeft}
+                      onChange={(e) => setScreenLeft(Number(e.target.value))}
+                      className={styles.slider}
+                    />
+                    <span className={styles.arrowLabel}>Right</span>
+                  </div>
+                </ControlRow>
+
+                <ControlRow label="Position Y">
+                  <div className={styles.arrowSliderRow}>
+                    <span className={styles.arrowLabel}>Top</span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={50}
+                      step={0.1}
+                      value={screenTop}
+                      onChange={(e) => setScreenTop(Number(e.target.value))}
+                      className={styles.slider}
+                    />
+                    <span className={styles.arrowLabel}>Bottom</span>
+                  </div>
+                </ControlRow>
+
+                <ControlRow label="Width">
+                  <div className={styles.arrowSliderRow}>
+                    <span className={styles.arrowLabel}>Narrow</span>
+                    <input
+                      type="range"
+                      min={10}
+                      max={100}
+                      step={0.1}
+                      value={screenWidth}
+                      onChange={(e) => setScreenWidth(Number(e.target.value))}
+                      className={styles.slider}
+                    />
+                    <span className={styles.arrowLabel}>Wide</span>
+                  </div>
+                </ControlRow>
+
+                <ControlRow label="Height">
+                  <div className={styles.arrowSliderRow}>
+                    <span className={styles.arrowLabel}>Short</span>
+                    <input
+                      type="range"
+                      min={10}
+                      max={100}
+                      step={0.1}
+                      value={screenHeight}
+                      onChange={(e) => setScreenHeight(Number(e.target.value))}
+                      className={styles.slider}
+                    />
+                    <span className={styles.arrowLabel}>Tall</span>
+                  </div>
+                </ControlRow>
+
+                <button
+                  onClick={() => {
+                    const active = DEVICE_MOCKUPS.find(
+                      (m) => m.id === deviceMockup,
+                    );
+                    if (!active) return;
+                    setScreenLeft(parseFloat(active.screen.left));
+                    setScreenTop(parseFloat(active.screen.top));
+                    setScreenWidth(parseFloat(active.screen.width));
+                    setScreenHeight(parseFloat(active.screen.height));
+                  }}
+                  className={styles.resetBtn}
+                >
+                  Reset to defaults
+                </button>
               </>
             )}
           </Section>

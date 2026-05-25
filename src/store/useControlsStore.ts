@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-
+import { DEVICE_MOCKUPS } from "../constants/Device_mockup_config";
 // const [activeBg, setActiveBg] = useState(BACKGROUNDS[0]);
+
+const firstDevice = DEVICE_MOCKUPS[0];
 
 type Background = {
   id: string;
@@ -46,7 +48,10 @@ export type DeviceMockup =
   | "microsoft-surface-book"
   | "dell-xps-15"
   | "dell-xps-13"
-  | "macbook-pro-15-silver"
+  | "macbook-pro"
+  | "macbook-pro-16"
+  | "iphone-14-pro"
+  | "iwatch"
   | "macbook-air-13-silver"
   | "apple-macbook-space-grey"
   | "apple-macbook-gold"
@@ -93,6 +98,11 @@ interface AppState {
 
   animation: string;
 
+  screenLeft: number;
+  screenTop: number;
+  screenWidth: number;
+  screenHeight: number;
+
   // Setter Actions
   setIsPro: (status: boolean) => void;
   setBrowserFrame: (status: boolean) => void;
@@ -131,6 +141,10 @@ interface AppState {
   setIsGlassBorder: (isGlass: boolean) => void;
 
   setAnimation: (anim: string) => void;
+  setScreenLeft: (v: number) => void;
+  setScreenTop: (v: number) => void;
+  setScreenWidth: (v: number) => void;
+  setScreenHeight: (v: number) => void;
 }
 
 // 2. The Chrome Storage Engine
@@ -156,6 +170,17 @@ const chromeStorage = {
       });
     });
   },
+};
+
+const getDefaultScreenConfig = (id: string) => {
+  const device = DEVICE_MOCKUPS.find((m) => m.id === id);
+  if (!device) return null;
+  return {
+    screenLeft: parseFloat(device.screen.left),
+    screenTop: parseFloat(device.screen.top),
+    screenWidth: parseFloat(device.screen.width),
+    screenHeight: parseFloat(device.screen.height),
+  };
 };
 
 // 3. Create the store
@@ -193,15 +218,18 @@ export const useControlsStore = create<AppState>()(
       aspectRatio: "auto",
       zoom: 0.5,
       browserMockup: "safari-mac-light",
-      deviceMockup: "macbook-pro-15-silver",
+      deviceMockup: "macbook-pro",
       borderRadius: 12,
       shadowVariant: 4,
       shadowOpacity: 0.4,
       borderWidth: 0,
       borderColor: "rgba(255, 255, 255, 0.2)",
       isGlassBorder: false,
-
       animation: "none",
+      screenLeft: parseFloat(firstDevice.screen.left),
+      screenTop: parseFloat(firstDevice.screen.top),
+      screenWidth: parseFloat(firstDevice.screen.width),
+      screenHeight: parseFloat(firstDevice.screen.height),
 
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
@@ -230,7 +258,13 @@ export const useControlsStore = create<AppState>()(
       setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
       setZoom: (val) => set({ zoom: val }),
       setBrowserMockup: (mockup) => set({ browserMockup: mockup }),
-      setDeviceMockup: (mockup) => set({ deviceMockup: mockup }),
+      setDeviceMockup: (mockup) => {
+        const defaults = getDefaultScreenConfig(mockup);
+        set({
+          deviceMockup: mockup,
+          ...(defaults ?? {}),
+        });
+      },
       setBorderRadius: (radius) => set({ borderRadius: radius }),
       setShadowVariant: (index) => set({ shadowVariant: index }),
       setShadowOpacity: (opacity) => set({ shadowOpacity: opacity }),
@@ -239,6 +273,11 @@ export const useControlsStore = create<AppState>()(
       setIsGlassBorder: (isGlass) => set({ isGlassBorder: isGlass }),
 
       setAnimation: (anim) => set({ animation: anim }),
+
+      setScreenLeft: (v: number) => set({ screenLeft: v }),
+      setScreenTop: (v: number) => set({ screenTop: v }),
+      setScreenWidth: (v: number) => set({ screenWidth: v }),
+      setScreenHeight: (v: number) => set({ screenHeight: v }),
     }),
     {
       name: "portfolio-frame-storage", // The key used in chrome.storage.local

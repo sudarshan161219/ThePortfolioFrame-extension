@@ -7,6 +7,10 @@ import styles from "./index.module.css";
 export const Frame = () => {
   const {
     // showBrowserFrame,
+    screenTop,
+    screenLeft,
+    screenWidth,
+    screenHeight,
     mockupCategory,
     browserMockup,
     deviceMockup,
@@ -136,10 +140,10 @@ export const Frame = () => {
               <div
                 className={styles.deviceScreenArea}
                 style={{
-                  top: activeDeviceConfig.screen.top,
-                  left: activeDeviceConfig.screen.left,
-                  width: activeDeviceConfig.screen.width,
-                  height: activeDeviceConfig.screen.height,
+                  top: `${screenTop}%`,
+                  left: `${screenLeft}%`,
+                  width: `${screenWidth}%`,
+                  height: `${screenHeight}%`,
                   borderRadius: activeDeviceConfig.screen.borderRadius ?? "0px",
                 }}
               >
