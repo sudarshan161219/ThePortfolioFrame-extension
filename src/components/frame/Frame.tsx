@@ -2,6 +2,7 @@ import { useControlsStore } from "../../store/useControlsStore";
 import { SHADOW_PRESETS } from "../../constants/shadow_presets";
 import { BROWSER_MOCKUP_CONFIG } from "../../constants/browser_mockup_config";
 import { DEVICE_MOCKUPS } from "../../constants/Device_mockup_config";
+import { AnnotationLayer } from "../annotationLayer/AnnotationLayer";
 import styles from "./index.module.css";
 
 export const Frame = () => {
@@ -125,6 +126,8 @@ export const Frame = () => {
                   className={styles.screenshot}
                 />
               </div>
+
+              <AnnotationLayer />
             </>
           )}
 
@@ -148,6 +151,8 @@ export const Frame = () => {
                 }}
               >
                 <img src={imageSource!} alt="Captured tab" />
+
+                <AnnotationLayer />
               </div>
 
               {/* 2. Device frame on top */}
@@ -169,6 +174,8 @@ export const Frame = () => {
                 alt="Captured tab"
                 className={styles.screenshot}
               />
+
+              <AnnotationLayer />
             </div>
           )}
         </div>

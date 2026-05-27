@@ -134,6 +134,11 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     screenTop,
     screenWidth,
     screenHeight,
+    annotationColor,
+    annotations,
+    addAnnotation,
+    activeAnnotationTool,
+    removeAnnotation,
 
     setTilt,
     setBrowserFrame,
@@ -165,6 +170,9 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setScreenTop,
     setScreenWidth,
     setScreenHeight,
+
+    setActiveAnnotationTool,
+    setAnnotationColor,
   } = useControlsStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -427,9 +435,9 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                 setDeviceFrame(checked);
                 if (checked) {
                   setBrowserFrame(false);
-                  setMockupCategory("device"); // ✅ Syncs with Frame.tsx
+                  setMockupCategory("device");
                 } else {
-                  setMockupCategory("none"); // ✅ Resets to plain image
+                  setMockupCategory("none");
                 }
               }}
             />
@@ -535,7 +543,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
             )}
           </Section>
 
-          {/* ── 3. Frame Styles ─────────────────────── */}
+          {/* ── 4. Frame Styles ─────────────────────── */}
           <Section title="Frame Styles" defaultOpen={false}>
             {/* Border radius */}
             <ControlRow label="Border Radius" value={`${borderRadius}px`}>
@@ -655,7 +663,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
             </ControlRow>
           </Section>
 
-          {/* ── 4. Backgrounds ──────────────────────── */}
+          {/* ── 5. Backgrounds ──────────────────────── */}
           <Section title="Backgrounds">
             {/* Solid colors */}
             <ControlRow label="Solid Colors">
@@ -793,7 +801,140 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
             )}
           </Section>
 
-          {/* ── 5. Watermark ────────────────────────── */}
+          {/* ── 6. Annotations ──────────────────────── */}
+          <Section title="Annotations" defaultOpen={false}>
+            {/* Add annotation buttons */}
+            <ControlRow label="Add">
+              <div className={styles.btnGrid3}>
+                <button
+                  className={`${styles.presetBtn} ${activeAnnotationTool === "text" ? styles.active : ""}`}
+                  onClick={() => {
+                    if (activeAnnotationTool === "text") {
+                      setActiveAnnotationTool(null);
+                    } else {
+                      setActiveAnnotationTool("text");
+                      addAnnotation("text");
+                      setActiveAnnotationTool(null);
+                    }
+                  }}
+                >
+                  Text
+                </button>
+
+                <button
+                  className={`${styles.presetBtn} ${activeAnnotationTool === "box" ? styles.active : ""}`}
+                  onClick={() => {
+                    if (activeAnnotationTool === "box") {
+                      setActiveAnnotationTool(null);
+                    } else {
+                      setActiveAnnotationTool("box");
+                      addAnnotation("box");
+                      setActiveAnnotationTool(null);
+                    }
+                  }}
+                >
+                  Box
+                </button>
+
+                <button
+                  className={`${styles.presetBtn} ${activeAnnotationTool === "arrow" ? styles.active : ""}`}
+                  onClick={() =>
+                    setActiveAnnotationTool(
+                      activeAnnotationTool === "arrow" ? null : "arrow",
+                    )
+                  }
+                >
+                  {activeAnnotationTool === "arrow" ? "Drawing…" : "Arrow"}
+                </button>
+              </div>
+            </ControlRow>
+
+            {/* Arrow hint */}
+            {activeAnnotationTool === "arrow" && (
+              <div className={styles.controlRow}>
+                <p className={styles.hint}>
+                  Click and drag on the canvas to draw an arrow. Press Esc to
+                  cancel.
+                </p>
+              </div>
+            )}
+
+            {/* Color picker */}
+            <ControlRow label="Color">
+              <div className={styles.btnRow}>
+                {[
+                  "#ffffff",
+                  "#e24b4a",
+                  "#4ade80",
+                  "#facc15",
+                  "#60a5fa",
+                  "#a78bfa",
+                ].map((color) => (
+                  <button
+                    key={color}
+                    className={`${styles.colorSwatch} ${annotationColor === color ? styles.swatchActive : ""}`}
+                    style={{ background: color }}
+                    onClick={() => setAnnotationColor(color)}
+                  />
+                ))}
+              </div>
+              <input
+                type="text"
+                placeholder="#hex or rgba(…)"
+                value={annotationColor}
+                onChange={(e) => setAnnotationColor(e.target.value)}
+                className={styles.input}
+              />
+            </ControlRow>
+
+            {/* Annotations list */}
+            {annotations.length > 0 && (
+              <ControlRow label="Layers">
+                <div className={styles.annotationList}>
+                  {annotations.map((ann, i) => (
+                    <div key={ann.id} className={styles.annotationItem}>
+                      <span className={styles.annotationIcon}>
+                        {ann.type === "text"
+                          ? "T"
+                          : ann.type === "box"
+                            ? "□"
+                            : "↗"}
+                      </span>
+                      <span className={styles.annotationLabel}>
+                        {ann.type === "text"
+                          ? ann.text?.slice(0, 20) || "Text"
+                          : ann.type === "box"
+                            ? `Box ${i + 1}`
+                            : `Arrow ${i + 1}`}
+                      </span>
+                      <button
+                        className={styles.annotationDelete}
+                        onClick={() => removeAnnotation(ann.id)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </ControlRow>
+            )}
+
+            {/* Clear all */}
+            {annotations.length > 0 && (
+              <div className={styles.controlRow}>
+                <button
+                  className={styles.ghostBtn}
+                  onClick={() =>
+                    annotations.forEach((a) => removeAnnotation(a.id))
+                  }
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+          </Section>
+
+          {/* ── 7. Watermark ────────────────────────── */}
           <Section title="Watermark" defaultOpen={false}>
             <ControlRow label="Social Handle">
               <input

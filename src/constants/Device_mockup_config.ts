@@ -64,6 +64,21 @@ export const DEVICE_MOCKUPS: DeviceMockup[] = [
     },
   },
   {
+    id: "iphone-14",
+    label: "iPhone 14",
+    src: "/mockups/device/iPhone-14.png",
+    aspectRatio: 1.573,
+    pngW: 4000,
+    pngH: 2667,
+    screen: {
+      top: "11",
+      left: "38%",
+      width: "24%",
+      height: "78%",
+      borderRadius: "10px",
+    },
+  },
+  {
     id: "iwatch",
     label: "iWatch",
     src: "/mockups/device/iWatch.png",
@@ -75,7 +90,7 @@ export const DEVICE_MOCKUPS: DeviceMockup[] = [
       left: "35.7%",
       width: "29.5%",
       height: "46.4%",
-      borderRadius: "20px",
+      borderRadius: "35px",
     },
   },
 ];

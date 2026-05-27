@@ -868,8 +868,6 @@
   pointer-events: none;
 }
 
-
-
 /* // */
 .arrowSliderRow {
   display: flex;
@@ -896,4 +894,65 @@
 
 .arrowLabel:last-child {
   text-align: left;
+}
+
+/* Annotation list */
+.annotationList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.annotationItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--color-bg-secondary, rgba(255, 255, 255, 0.04));
+  border: 0.5px solid var(--border-hairline);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.annotationIcon {
+  font-size: 11px;
+  color: var(--text-muted);
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.annotationLabel {
+  flex: 1;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.annotationDelete {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.annotationDelete:hover {
+  color: #e24b4a;
+}
+
+/* Arrow hint text */
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+  font-style: italic;
 }

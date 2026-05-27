@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { DEVICE_MOCKUPS } from "../constants/Device_mockup_config";
-// const [activeBg, setActiveBg] = useState(BACKGROUNDS[0]);
 
 const firstDevice = DEVICE_MOCKUPS[0];
 
@@ -18,6 +17,19 @@ type titleBar = {
   urlpathBg: string;
   urlpathText: string;
 };
+
+export type AnnotationType = "text" | "box" | "arrow";
+
+export interface Annotation {
+  id: string;
+  type: AnnotationType;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  text?: string;
+  color: string;
+}
 
 export type AspectRatio =
   | "auto"
@@ -102,6 +114,9 @@ interface AppState {
   screenTop: number;
   screenWidth: number;
   screenHeight: number;
+  annotationColor: string;
+  annotations: Annotation[];
+  activeAnnotationTool: AnnotationType | null;
 
   // Setter Actions
   setIsPro: (status: boolean) => void;
@@ -145,6 +160,14 @@ interface AppState {
   setScreenTop: (v: number) => void;
   setScreenWidth: (v: number) => void;
   setScreenHeight: (v: number) => void;
+  setAnnotationColor: (color: string) => void;
+  setActiveAnnotationTool: (tool: AnnotationType | null) => void;
+  addAnnotation: (
+    type: AnnotationType,
+    overrides?: Partial<Annotation>,
+  ) => void;
+  updateAnnotation: (id: string, updates: Partial<Annotation>) => void;
+  removeAnnotation: (id: string) => void;
 }
 
 // 2. The Chrome Storage Engine
@@ -230,7 +253,9 @@ export const useControlsStore = create<AppState>()(
       screenTop: parseFloat(firstDevice.screen.top),
       screenWidth: parseFloat(firstDevice.screen.width),
       screenHeight: parseFloat(firstDevice.screen.height),
-
+      annotationColor: "#ffffff",
+      annotations: [],
+      activeAnnotationTool: "text",
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
       setBrowserFrame: (status) => set({ showBrowserFrame: status }),
@@ -278,6 +303,38 @@ export const useControlsStore = create<AppState>()(
       setScreenTop: (v: number) => set({ screenTop: v }),
       setScreenWidth: (v: number) => set({ screenWidth: v }),
       setScreenHeight: (v: number) => set({ screenHeight: v }),
+      setAnnotationColor: (color) => set({ annotationColor: color }),
+      setActiveAnnotationTool: (tool: AnnotationType | null) =>
+        set({ activeAnnotationTool: tool }),
+      addAnnotation: (type, overrides = {}) =>
+        set((state) => ({
+          annotations: [
+            ...state.annotations,
+            {
+              id: crypto.randomUUID(),
+              type,
+              x: 50,
+              y: 50,
+              width: type === "text" ? 150 : type === "arrow" ? 100 : 100,
+              height: type === "text" ? 50 : type === "arrow" ? 60 : 100,
+              text: type === "text" ? "" : "",
+              color: state.annotationColor,
+              ...overrides, // arrow passes x,y,width,height from draw gesture
+            },
+          ],
+        })),
+
+      updateAnnotation: (id, updates) =>
+        set((state) => ({
+          annotations: state.annotations.map((ann) =>
+            ann.id === id ? { ...ann, ...updates } : ann,
+          ),
+        })),
+
+      removeAnnotation: (id) =>
+        set((state) => ({
+          annotations: state.annotations.filter((ann) => ann.id !== id),
+        })),
     }),
     {
       name: "portfolio-frame-storage", // The key used in chrome.storage.local
