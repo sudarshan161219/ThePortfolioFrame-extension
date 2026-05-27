@@ -18,7 +18,13 @@ type titleBar = {
   urlpathText: string;
 };
 
-export type AnnotationType = "text" | "box" | "arrow";
+export type AnnotationType =
+  | "text"
+  | "box"
+  | "arrow"
+  | "number"
+  | "highlight"
+  | "redact";
 
 export interface Annotation {
   id: string;
@@ -29,6 +35,9 @@ export interface Annotation {
   height: number;
   text?: string;
   color: string;
+  fontSize?: number;
+  fontFamily?: string;
+  number?: number;
 }
 
 export type AspectRatio =
@@ -114,9 +123,13 @@ interface AppState {
   screenTop: number;
   screenWidth: number;
   screenHeight: number;
-  annotationColor: string;
+
   annotations: Annotation[];
   activeAnnotationTool: AnnotationType | null;
+  annotationColor: string;
+  annotationFontSize: number;
+  annotationFontFamily: string;
+  selectedAnnotationId: string | null;
 
   // Setter Actions
   setIsPro: (status: boolean) => void;
@@ -160,14 +173,18 @@ interface AppState {
   setScreenTop: (v: number) => void;
   setScreenWidth: (v: number) => void;
   setScreenHeight: (v: number) => void;
-  setAnnotationColor: (color: string) => void;
-  setActiveAnnotationTool: (tool: AnnotationType | null) => void;
+
   addAnnotation: (
     type: AnnotationType,
     overrides?: Partial<Annotation>,
   ) => void;
   updateAnnotation: (id: string, updates: Partial<Annotation>) => void;
   removeAnnotation: (id: string) => void;
+  setActiveAnnotationTool: (tool: AnnotationType | null) => void;
+  setAnnotationColor: (color: string) => void;
+  setAnnotationFontSize: (size: number) => void;
+  setAnnotationFontFamily: (family: string) => void;
+  setSelectedAnnotationId: (id: string | null) => void;
 }
 
 // 2. The Chrome Storage Engine
@@ -253,9 +270,14 @@ export const useControlsStore = create<AppState>()(
       screenTop: parseFloat(firstDevice.screen.top),
       screenWidth: parseFloat(firstDevice.screen.width),
       screenHeight: parseFloat(firstDevice.screen.height),
-      annotationColor: "#ffffff",
+
       annotations: [],
       activeAnnotationTool: "text",
+      annotationColor: "#ffffff",
+      annotationFontSize: 14,
+      annotationFontFamily: "DM Sans, sans-serif",
+      selectedAnnotationId: null,
+
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
       setBrowserFrame: (status) => set({ showBrowserFrame: status }),
@@ -303,9 +325,7 @@ export const useControlsStore = create<AppState>()(
       setScreenTop: (v: number) => set({ screenTop: v }),
       setScreenWidth: (v: number) => set({ screenWidth: v }),
       setScreenHeight: (v: number) => set({ screenHeight: v }),
-      setAnnotationColor: (color) => set({ annotationColor: color }),
-      setActiveAnnotationTool: (tool: AnnotationType | null) =>
-        set({ activeAnnotationTool: tool }),
+
       addAnnotation: (type, overrides = {}) =>
         set((state) => ({
           annotations: [
@@ -315,10 +335,26 @@ export const useControlsStore = create<AppState>()(
               type,
               x: 50,
               y: 50,
-              width: type === "text" ? 150 : type === "arrow" ? 100 : 100,
-              height: type === "text" ? 50 : type === "arrow" ? 60 : 100,
+              width:
+                type === "text"
+                  ? 160
+                  : type === "number"
+                    ? 36
+                    : type === "arrow"
+                      ? 100
+                      : 120,
+              height:
+                type === "text"
+                  ? 56
+                  : type === "number"
+                    ? 36
+                    : type === "arrow"
+                      ? 60
+                      : 80,
               text: type === "text" ? "" : "",
               color: state.annotationColor,
+              fontSize: state.annotationFontSize,
+              fontFamily: state.annotationFontFamily,
               ...overrides, // arrow passes x,y,width,height from draw gesture
             },
           ],
@@ -335,7 +371,18 @@ export const useControlsStore = create<AppState>()(
         set((state) => ({
           annotations: state.annotations.filter((ann) => ann.id !== id),
         })),
+
+      setActiveAnnotationTool: (tool: AnnotationType | null) =>
+        set({ activeAnnotationTool: tool }),
+
+      setAnnotationColor: (color) => set({ annotationColor: color }),
+
+      setAnnotationFontSize: (size) => set({ annotationFontSize: size }),
+      setAnnotationFontFamily: (family) =>
+        set({ annotationFontFamily: family }),
+      setSelectedAnnotationId: (id) => set({ selectedAnnotationId: id }),
     }),
+
     {
       name: "portfolio-frame-storage", // The key used in chrome.storage.local
       storage: createJSONStorage(() => chromeStorage),

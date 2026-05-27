@@ -910,12 +910,18 @@
   gap: 8px;
   padding: 6px 8px;
   background: var(--color-bg-secondary, rgba(255, 255, 255, 0.04));
-  border: 0.5px solid var(--border-hairline);
+  border: 0.5px solid var(--border-medium);
   border-radius: 6px;
   font-size: 12px;
+  cursor: pointer;
+  transition: all 150ms ease;
 }
 
-.annotationIcon {
+.annotationItem:hover {
+  border-color: var(--border-active);
+}
+
+.annotationItem .annotationIcon {
   font-size: 11px;
   color: var(--text-muted);
   width: 14px;

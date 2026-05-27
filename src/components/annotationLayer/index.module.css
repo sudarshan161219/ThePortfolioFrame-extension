@@ -5,8 +5,6 @@
   pointer-events: none;
   z-index: 10;
 }
-
-/* When drawing arrow, layer captures mouse events */
 .layerDrawing {
   pointer-events: all;
   cursor: crosshair;
@@ -19,12 +17,11 @@
   cursor: pointer;
   overflow: visible;
 }
-
 .arrowSelected line {
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4));
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
 }
 
-/* ── Drawing preview ────────────────────────────────────── */
+/* ── Draw previews ──────────────────────────────────────── */
 .drawingPreview {
   position: absolute;
   inset: 0;
@@ -33,25 +30,41 @@
   pointer-events: none;
   overflow: visible;
 }
+.drawPreview {
+  position: absolute;
+  pointer-events: none;
+}
+.drawPreviewBox {
+  border: 2.5px dashed rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+}
+.drawPreviewHighlight {
+  background: rgba(250, 204, 21, 0.25);
+  border: 1.5px dashed rgba(250, 204, 21, 0.8);
+  border-radius: 4px;
+}
+.drawPreviewRedact {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1.5px dashed rgba(255, 255, 255, 0.3);
+}
 
-/* ── Rnd wrapper ────────────────────────────────────────── */
+/* ── Rnd ────────────────────────────────────────────────── */
 .rnd {
   pointer-events: all !important;
   cursor: move;
 }
-
 .rndSelected {
   z-index: 15 !important;
 }
 
-/* ── Inner container ────────────────────────────────────── */
+/* ── Inner ──────────────────────────────────────────────── */
 .annInner {
   width: 100%;
   height: 100%;
   position: relative;
 }
 
-/* ── Delete button ──────────────────────────────────────── */
+/* ── Delete btn ─────────────────────────────────────────── */
 .deleteBtn {
   position: absolute;
   top: -9px;
@@ -72,46 +85,38 @@
   padding: 0;
   transition: background 0.15s;
 }
-
 .deleteBtn:hover {
   background: #c73a39;
 }
 
-/* ── Text annotation ────────────────────────────────────── */
+/* ── Text ───────────────────────────────────────────────── */
 .textDisplay {
   width: 100%;
   height: 100%;
   padding: 8px 10px;
-  font-size: 13px;
   line-height: 1.5;
   border: 1.5px dashed transparent;
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.55);
-  color: #fff;
   backdrop-filter: blur(4px);
   white-space: pre-wrap;
   word-break: break-word;
-  transition:
-    border-color 0.15s,
-    background 0.15s;
+  transition: border-color 0.15s;
   cursor: text;
+  box-sizing: border-box;
 }
-
 .textDisplaySelected {
   background: rgba(0, 0, 0, 0.65);
   border-style: solid;
 }
-
 .placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
   font-style: italic;
 }
-
 .textArea {
   width: 100%;
   height: 100%;
   padding: 8px 10px;
-  font-size: 13px;
   line-height: 1.5;
   border: 1.5px solid;
   border-radius: 6px;
@@ -124,7 +129,7 @@
   box-sizing: border-box;
 }
 
-/* ── Box annotation ─────────────────────────────────────── */
+/* ── Box ────────────────────────────────────────────────── */
 .box {
   width: 100%;
   height: 100%;
@@ -132,4 +137,92 @@
   border-radius: 6px;
   background: transparent;
   pointer-events: none;
+}
+
+/* ── Highlight ──────────────────────────────────────────── */
+.highlight {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ── Redact ─────────────────────────────────────────────── */
+.redact {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  border-radius: 4px;
+  /* Pixelated blur effect via layered box-shadows */
+  backdrop-filter: blur(8px) saturate(0);
+  -webkit-backdrop-filter: blur(8px) saturate(0);
+  pointer-events: none;
+}
+
+/* ── Number marker ──────────────────────────────────────── */
+.numberMarker {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: move;
+  user-select: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Annotation list in sidebar ─────────────────────────── */
+.annotationList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.annotationItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid var(--border-hairline);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.annotationIcon {
+  font-size: 11px;
+  color: var(--text-muted);
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.annotationLabel {
+  flex: 1;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.annotationDelete {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 0 2px;
+  transition: color 0.15s;
+}
+.annotationDelete:hover {
+  color: #e24b4a;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+  font-style: italic;
 }

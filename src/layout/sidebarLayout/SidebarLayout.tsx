@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Nav } from "../../components/nav/Nav";
 import {
   useControlsStore,
   type AspectRatio,
   type BrowserMockup,
   type DeviceMockup,
+
 } from "../../store/useControlsStore";
 import { ratios } from "../../constants/ratios";
 import { BACKGROUNDS } from "../../constants/backgrounds";
@@ -13,6 +14,14 @@ import { DEVICE_MOCKUPS } from "../../constants/Device_mockup_config";
 import { RADIUS_PRESETS } from "../../constants/radius_presets";
 import { SHADOW_PRESETS } from "../../constants/shadow_presets";
 import { SOLID_COLORS, GRADIENTS } from "../../constants/palettes";
+import { TOOL_BUTTONS } from "../../constants/annotation_tools_buttons";
+import { DRAW_TOOLS } from "../../constants/annotation_draw_tools";
+import { ANNOTATION_LABEL } from "../../utils/annatation_label";
+import {
+  ANNOTATION_FONTS,
+  ANNOTATION_SIZES,
+  ANNOTATION_COLORS,
+} from "../../constants/annotation_fonts";
 import styles from "./index.module.css";
 
 interface SidebarLayoutProps {
@@ -134,11 +143,14 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     screenTop,
     screenWidth,
     screenHeight,
-    annotationColor,
     annotations,
     addAnnotation,
-    activeAnnotationTool,
     removeAnnotation,
+    annotationColor,
+    annotationFontSize,
+    annotationFontFamily,
+    activeAnnotationTool,
+    selectedAnnotationId,
 
     setTilt,
     setBrowserFrame,
@@ -173,7 +185,51 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
 
     setActiveAnnotationTool,
     setAnnotationColor,
+    setAnnotationFontSize,
+    setAnnotationFontFamily,
+    updateAnnotation,
   } = useControlsStore();
+
+  const annotationsRef = useRef(annotations);
+  useEffect(() => {
+    annotationsRef.current = annotations;
+  }, [annotations]);
+
+  // When selection changes → pull that annotation's values into sidebar controls
+  useEffect(() => {
+    if (!selectedAnnotationId) return;
+    const ann = annotationsRef.current.find(
+      (a) => a.id === selectedAnnotationId,
+    );
+    if (!ann) return;
+
+    if (ann.color) setAnnotationColor(ann.color);
+    if (ann.fontSize) setAnnotationFontSize(ann.fontSize);
+    if (ann.fontFamily) setAnnotationFontFamily(ann.fontFamily);
+  }, [
+    selectedAnnotationId,
+    setAnnotationColor,
+    setAnnotationFontFamily,
+    setAnnotationFontSize,
+  ]);
+
+  // When sidebar controls change → push to selected annotation
+  // useEffect(() => {
+  //   if (!selectedAnnotationId) return;
+  //   updateAnnotation(selectedAnnotationId, {
+  //     color: annotationColor,
+  //     fontSize: annotationFontSize,
+  //     fontFamily: annotationFontFamily,
+  //   });
+  // }, [
+  //   annotationColor,
+  //   annotationFontSize,
+  //   annotationFontFamily,
+  //   selectedAnnotationId,
+  //   updateAnnotation,
+  // ]);
+
+  console.log(selectedAnnotationId);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -802,79 +858,88 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           </Section>
 
           {/* ── 6. Annotations ──────────────────────── */}
+
           <Section title="Annotations" defaultOpen={false}>
-            {/* Add annotation buttons */}
+            {/* ── Tool buttons ──────────────────────────── */}
             <ControlRow label="Add">
               <div className={styles.btnGrid3}>
-                <button
-                  className={`${styles.presetBtn} ${activeAnnotationTool === "text" ? styles.active : ""}`}
-                  onClick={() => {
-                    if (activeAnnotationTool === "text") {
-                      setActiveAnnotationTool(null);
-                    } else {
-                      setActiveAnnotationTool("text");
-                      addAnnotation("text");
-                      setActiveAnnotationTool(null);
-                    }
-                  }}
-                >
-                  Text
-                </button>
-
-                <button
-                  className={`${styles.presetBtn} ${activeAnnotationTool === "box" ? styles.active : ""}`}
-                  onClick={() => {
-                    if (activeAnnotationTool === "box") {
-                      setActiveAnnotationTool(null);
-                    } else {
-                      setActiveAnnotationTool("box");
-                      addAnnotation("box");
-                      setActiveAnnotationTool(null);
-                    }
-                  }}
-                >
-                  Box
-                </button>
-
-                <button
-                  className={`${styles.presetBtn} ${activeAnnotationTool === "arrow" ? styles.active : ""}`}
-                  onClick={() =>
-                    setActiveAnnotationTool(
-                      activeAnnotationTool === "arrow" ? null : "arrow",
-                    )
-                  }
-                >
-                  {activeAnnotationTool === "arrow" ? "Drawing…" : "Arrow"}
-                </button>
+                {TOOL_BUTTONS.map(({ type, icon, label }) => {
+                  const isActive = activeAnnotationTool === type;
+                  const isDrawTool = DRAW_TOOLS.includes(type);
+                  return (
+                    <button
+                      key={type}
+                      className={`${styles.presetBtn} ${isActive ? styles.active : ""}`}
+                      title={
+                        isDrawTool
+                          ? `Click then drag on canvas`
+                          : `Add ${label}`
+                      }
+                      onClick={() => {
+                        if (isActive) {
+                          setActiveAnnotationTool(null);
+                          return;
+                        }
+                        if (isDrawTool) {
+                          // Draw tools: activate draw mode, user drags on canvas
+                          setActiveAnnotationTool(type);
+                        } else if (type === "text") {
+                          addAnnotation("text");
+                        } else if (type === "number") {
+                          // Auto-increment number
+                          const existingNumbers = annotations
+                            .filter((a) => a.type === "number")
+                            .map((a) => a.number ?? 1);
+                          const next =
+                            existingNumbers.length > 0
+                              ? Math.max(...existingNumbers) + 1
+                              : 1;
+                          addAnnotation("number", { number: next });
+                        }
+                      }}
+                    >
+                      <span style={{ marginRight: 4, opacity: 0.7 }}>
+                        {icon}
+                      </span>
+                      {isActive && isDrawTool ? "Drawing…" : label}
+                    </button>
+                  );
+                })}
               </div>
             </ControlRow>
 
-            {/* Arrow hint */}
-            {activeAnnotationTool === "arrow" && (
-              <div className={styles.controlRow}>
-                <p className={styles.hint}>
-                  Click and drag on the canvas to draw an arrow. Press Esc to
-                  cancel.
-                </p>
-              </div>
-            )}
+            {/* Draw mode hint */}
+            {activeAnnotationTool &&
+              DRAW_TOOLS.includes(activeAnnotationTool) && (
+                <div className={styles.controlRow}>
+                  <p className={styles.hint}>
+                    Click and drag on the canvas · <kbd>Esc</kbd> to cancel
+                  </p>
+                </div>
+              )}
 
-            {/* Color picker */}
+            {/* ── Color ─────────────────────────────────── */}
             <ControlRow label="Color">
-              <div className={styles.btnRow}>
-                {[
-                  "#ffffff",
-                  "#e24b4a",
-                  "#4ade80",
-                  "#facc15",
-                  "#60a5fa",
-                  "#a78bfa",
-                ].map((color) => (
+              <div className={styles.swatchGrid}>
+                {ANNOTATION_COLORS.map((color) => (
                   <button
                     key={color}
                     className={`${styles.colorSwatch} ${annotationColor === color ? styles.swatchActive : ""}`}
-                    style={{ background: color }}
-                    onClick={() => setAnnotationColor(color)}
+                    style={{
+                      background: color,
+                      outline:
+                        color === "#ffffff"
+                          ? "0.5px solid rgba(255,255,255,0.2)"
+                          : "none",
+                    }}
+                    onClick={() => {
+                      setAnnotationColor(color);
+                      if (selectedAnnotationId) {
+                        updateAnnotation(selectedAnnotationId, {
+                          color: color,
+                        });
+                      }
+                    }}
                   />
                 ))}
               </div>
@@ -882,30 +947,114 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                 type="text"
                 placeholder="#hex or rgba(…)"
                 value={annotationColor}
-                onChange={(e) => setAnnotationColor(e.target.value)}
+                onChange={(e) => {
+                  setAnnotationColor(e.target.value);
+
+                  if (selectedAnnotationId) {
+                    updateAnnotation(selectedAnnotationId, {
+                      color: e.target.value,
+                    });
+                  }
+                }}
                 className={styles.input}
               />
             </ControlRow>
 
-            {/* Annotations list */}
+            {/* ── Font (text only) ──────────────────────── */}
+            <ControlRow label="Font">
+              <select
+                className={styles.select}
+                value={annotationFontFamily}
+                onChange={(e) => {
+                  setAnnotationFontFamily(e.target.value);
+                  if (selectedAnnotationId) {
+                    updateAnnotation(selectedAnnotationId, {
+                      fontFamily: e.target.value,
+                    });
+                  }
+                }}
+              >
+                {ANNOTATION_FONTS.map((f) => (
+                  <option
+                    key={f.value}
+                    value={f.value}
+                    style={{ fontFamily: f.value }}
+                  >
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+            </ControlRow>
+
+            {/* ── Font size ─────────────────────────────── */}
+            <ControlRow label="Size" value={`${annotationFontSize}px`}>
+              <input
+                type="range"
+                min={10}
+                max={48}
+                step={1}
+                value={annotationFontSize}
+                onChange={(e) => {
+                  setAnnotationFontSize(Number(e.target.value));
+                  if (selectedAnnotationId) {
+                    updateAnnotation(selectedAnnotationId, {
+                      fontSize: Number(e.target.value),
+                    });
+                  }
+                }}
+                className={styles.slider}
+              />
+              <div className={styles.btnGrid4}>
+                {ANNOTATION_SIZES.filter((_, i) => i % 2 === 0).map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => {
+                      setAnnotationFontSize(size);
+                      if (selectedAnnotationId) {
+                        updateAnnotation(selectedAnnotationId, {
+                          fontSize: size,
+                        });
+                      }
+                    }}
+                    className={`${styles.presetBtn} ${annotationFontSize === size ? styles.active : ""}`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </ControlRow>
+
+            {/* ── Layers list ───────────────────────────── */}
             {annotations.length > 0 && (
               <ControlRow label="Layers">
                 <div className={styles.annotationList}>
-                  {annotations.map((ann, i) => (
+                  {[...annotations].reverse().map((ann, i) => (
                     <div key={ann.id} className={styles.annotationItem}>
                       <span className={styles.annotationIcon}>
                         {ann.type === "text"
                           ? "T"
                           : ann.type === "box"
                             ? "□"
-                            : "↗"}
+                            : ann.type === "arrow"
+                              ? "↗"
+                              : ann.type === "number"
+                                ? "①"
+                                : ann.type === "highlight"
+                                  ? "▬"
+                                  : "▪"}
                       </span>
+                      <span
+                        className={styles.annotationIcon}
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: ann.color,
+                          flexShrink: 0,
+                        }}
+                      />
                       <span className={styles.annotationLabel}>
-                        {ann.type === "text"
-                          ? ann.text?.slice(0, 20) || "Text"
-                          : ann.type === "box"
-                            ? `Box ${i + 1}`
-                            : `Arrow ${i + 1}`}
+                        {ANNOTATION_LABEL(ann, annotations.length - 1 - i)}
                       </span>
                       <button
                         className={styles.annotationDelete}
@@ -919,13 +1068,13 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               </ControlRow>
             )}
 
-            {/* Clear all */}
+            {/* ── Clear all ─────────────────────────────── */}
             {annotations.length > 0 && (
               <div className={styles.controlRow}>
                 <button
                   className={styles.ghostBtn}
                   onClick={() =>
-                    annotations.forEach((a) => removeAnnotation(a.id))
+                    [...annotations].forEach((a) => removeAnnotation(a.id))
                   }
                 >
                   Clear all

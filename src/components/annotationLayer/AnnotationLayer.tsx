@@ -4,18 +4,23 @@ import { useControlsStore } from "../../store/useControlsStore";
 import type { Annotation } from "../../store/useControlsStore";
 import styles from "./index.module.css";
 
-// ── Arrow renderer (SVG, no Rnd — drawn by drag) ─────────
-interface ArrowProps {
+// ── Arrow ─────────────────────────────────────────────────
+function ArrowAnnotation({
+  ann,
+  isSelected,
+  onSelect,
+  onRemove,
+  onUpdate,
+}: {
   ann: Annotation;
   isSelected: boolean;
   onSelect: () => void;
   onRemove: () => void;
-}
-
-function ArrowAnnotation({ ann, isSelected, onSelect, onRemove }: ArrowProps) {
+  onUpdate: (updates: Partial<Annotation>) => void;
+}) {
   const x2 = ann.x + ann.width;
   const y2 = ann.y + ann.height;
-  const pad = 12;
+  const pad = 16;
   const minX = Math.min(ann.x, x2) - pad;
   const minY = Math.min(ann.y, y2) - pad;
   const svgW = Math.abs(ann.width) + pad * 2;
@@ -26,37 +31,124 @@ function ArrowAnnotation({ ann, isSelected, onSelect, onRemove }: ArrowProps) {
   const ly2 = y2 - minY;
 
   return (
-    <svg
-      className={`${styles.arrowSvg} ${isSelected ? styles.arrowSelected : ""}`}
-      style={{ left: minX, top: minY, width: svgW, height: svgH }}
-      onClick={onSelect}
+    <Rnd
+      className={`${styles.rnd} ${isSelected ? styles.rndSelected : ""}`}
+      bounds="parent"
+      position={{ x: minX, y: minY }}
+      size={{ width: svgW, height: svgH }}
+      enableResizing={false}
+      onMouseDown={(e: MouseEvent) => {
+        e.stopPropagation();
+        onSelect();
+      }}
+      onDragStop={(_e: unknown, d: { x: number; y: number }) => {
+        // Calculate exactly how many pixels the user dragged the box
+        const dragDeltaX = d.x - minX;
+        const dragDeltaY = d.y - minY;
+
+        // Apply that movement to the arrow's true anchor coordinates
+        onUpdate({
+          x: ann.x + dragDeltaX,
+          y: ann.y + dragDeltaY,
+        });
+      }}
     >
-      <defs>
-        <marker
-          id={`arrowhead-${ann.id}`}
-          markerWidth="8"
-          markerHeight="8"
-          refX="6"
-          refY="3"
-          orient="auto"
+      <div className={styles.annInner}>
+        {isSelected && (
+          <foreignObject x={lx2 - 10} y={ly2 - 10} width="20" height="20">
+            <button
+              className={styles.deleteBtn}
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+            >
+              ×
+            </button>
+          </foreignObject>
+        )}
+
+        <svg
+          className={styles.arrowSvg}
+          style={{ width: "100%", height: "100%" }}
         >
-          <path d="M0,0 L0,6 L8,3 z" fill={ann.color} />
-        </marker>
-      </defs>
-      <line
-        x1={lx1}
-        y1={ly1}
-        x2={lx2}
-        y2={ly2}
-        stroke={ann.color}
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        markerEnd={`url(#arrowhead-${ann.id})`}
-      />
-      {isSelected && (
-        <foreignObject x={lx2 - 8} y={ly2 - 8} width="16" height="16">
+          <defs>
+            <marker
+              id={`ah-${ann.id}`}
+              markerWidth="8"
+              markerHeight="8"
+              refX="6"
+              refY="3"
+              orient="auto"
+            >
+              <path d="M0,0 L0,6 L8,3 z" fill={ann.color} />
+            </marker>
+          </defs>
+          <line
+            x1={lx1}
+            y1={ly1}
+            x2={lx2}
+            y2={ly2}
+            stroke={ann.color}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            markerEnd={`url(#ah-${ann.id})`}
+          />
+        </svg>
+      </div>
+    </Rnd>
+  );
+}
+
+// ── Number marker ─────────────────────────────────────────
+function NumberAnnotation({
+  ann,
+  isSelected,
+  onSelect,
+  onRemove,
+  onUpdate,
+}: {
+  ann: Annotation;
+  isSelected: boolean;
+  onSelect: () => void;
+  onRemove: () => void;
+  onUpdate: (updates: Partial<Annotation>) => void;
+}) {
+  return (
+    <Rnd
+      className={`${styles.rnd} ${isSelected ? styles.rndSelected : ""}`}
+      bounds="parent"
+      position={{ x: ann.x, y: ann.y }}
+      size={{ width: ann.width, height: ann.height }}
+      lockAspectRatio
+      onMouseDown={(e: MouseEvent) => {
+        e.stopPropagation();
+        onSelect();
+      }}
+      onDragStop={(_e: unknown, d: { x: number; y: number }) =>
+        onUpdate({ x: d.x, y: d.y })
+      }
+      onResizeStop={(
+        _e: unknown,
+        _dir: unknown,
+        ref: HTMLElement,
+        _delta: unknown,
+        pos: { x: number; y: number },
+      ) =>
+        onUpdate({
+          width: parseFloat(ref.style.width),
+          height: parseFloat(ref.style.height),
+          x: pos.x,
+          y: pos.y,
+        })
+      }
+    >
+      <div className={styles.annInner}>
+        {isSelected && (
           <button
             className={styles.deleteBtn}
+            onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
               onRemove();
@@ -64,70 +156,94 @@ function ArrowAnnotation({ ann, isSelected, onSelect, onRemove }: ArrowProps) {
           >
             ×
           </button>
-        </foreignObject>
-      )}
-    </svg>
+        )}
+        <div
+          className={styles.numberMarker}
+          style={{ background: ann.color, fontSize: ann.fontSize ?? 14 }}
+        >
+          {ann.number ?? 1}
+        </div>
+      </div>
+    </Rnd>
   );
 }
 
-// ── Arrow drawing overlay ─────────────────────────────────
-interface DrawingArrow {
+// ── Main ──────────────────────────────────────────────────
+interface DrawingState {
   startX: number;
   startY: number;
   endX: number;
   endY: number;
 }
 
-// ── Main component ────────────────────────────────────────
 export const AnnotationLayer = () => {
   const {
     annotations,
+    addAnnotation,
     updateAnnotation,
     removeAnnotation,
-    addAnnotation,
     activeAnnotationTool,
+    selectedAnnotationId,
     setActiveAnnotationTool,
+    setSelectedAnnotationId,
   } = useControlsStore();
-
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [drawing, setDrawing] = useState<DrawingArrow | null>(null);
+  const [drawing, setDrawing] = useState<DrawingState | null>(null);
   const layerRef = useRef<HTMLDivElement>(null);
-  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Deselect on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (layerRef.current && !layerRef.current.contains(e.target as Node)) {
-        setSelectedId(null);
-        setEditingId(null);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
+  // Esc cancels draw mode
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActiveAnnotationTool(null);
+      if (e.key === "Escape") {
+        setActiveAnnotationTool(null);
+        setDrawing(null);
+      }
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (selectedAnnotationId && editingId !== selectedAnnotationId) {
+          removeAnnotation(selectedAnnotationId);
+          setSelectedAnnotationId(null);
+        }
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [setActiveAnnotationTool]);
+  }, [
+    selectedAnnotationId,
+    editingId,
+    setActiveAnnotationTool,
+    removeAnnotation,
+    setSelectedAnnotationId,
+  ]);
 
-  // ── Arrow drawing handlers ────────────────────────────
-  const handleLayerMouseDown = useCallback(
+  // Click outside → deselect
+  // useEffect(() => {
+  //   const handler = (e: MouseEvent) => {
+  //     if (layerRef.current && !layerRef.current.contains(e.target as Node)) {
+  //       setSelectedAnnotationId(null);
+  //       setEditingId(null);
+  //     }
+  //   };
+  //   document.addEventListener("mousedown", handler);
+  //   return () => document.removeEventListener("mousedown", handler);
+  // }, [setSelectedAnnotationId]);
+
+  // Draw handlers (arrow + box + highlight + redact use drag-to-draw)
+  const isDrawMode = ["arrow", "box", "highlight", "redact"].includes(
+    activeAnnotationTool ?? "",
+  );
+
+  const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if (activeAnnotationTool !== "arrow") return;
+      if (!isDrawMode) return;
       const rect = layerRef.current!.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       setDrawing({ startX: x, startY: y, endX: x, endY: y });
     },
-    [activeAnnotationTool],
+    [isDrawMode],
   );
 
-  const handleLayerMouseMove = useCallback(
+  const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
       if (!drawing) return;
       const rect = layerRef.current!.getBoundingClientRect();
@@ -140,45 +256,72 @@ export const AnnotationLayer = () => {
     [drawing],
   );
 
-  const handleLayerMouseUp = useCallback(() => {
-    if (!drawing) return;
+  const handleMouseUp = useCallback(() => {
+    if (!drawing || !activeAnnotationTool) return;
     const dx = drawing.endX - drawing.startX;
     const dy = drawing.endY - drawing.startY;
-    // Ignore tiny accidental clicks
-    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
-      addAnnotation("arrow", {
-        x: drawing.startX,
-        y: drawing.startY,
-        width: dx,
-        height: dy,
-      });
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+      if (activeAnnotationTool === "arrow") {
+        addAnnotation("arrow", {
+          x: drawing.startX,
+          y: drawing.startY,
+          width: dx,
+          height: dy,
+        });
+      } else {
+        const x = Math.min(drawing.startX, drawing.endX);
+        const y = Math.min(drawing.startY, drawing.endY);
+        addAnnotation(activeAnnotationTool as any, {
+          x,
+          y,
+          width: Math.abs(dx),
+          height: Math.abs(dy),
+        });
+      }
+      setActiveAnnotationTool(null);
     }
     setDrawing(null);
-    setActiveAnnotationTool(null);
-  }, [drawing, addAnnotation, setActiveAnnotationTool]);
+  }, [drawing, activeAnnotationTool, addAnnotation, setActiveAnnotationTool]);
 
-  // ── Click outside annotation to deselect ─────────────
-  const handleLayerClick = (e: React.MouseEvent) => {
-    if (e.target === layerRef.current) {
-      setSelectedId(null);
-      setEditingId(null);
-    }
-  };
+  const previewStyle = drawing
+    ? {
+        left: Math.min(drawing.startX, drawing.endX),
+        top: Math.min(drawing.startY, drawing.endY),
+        width: Math.abs(drawing.endX - drawing.startX),
+        height: Math.abs(drawing.endY - drawing.startY),
+      }
+    : null;
 
-  if (annotations.length === 0 && !drawing && activeAnnotationTool !== "arrow")
-    return null;
+  if (annotations.length === 0 && !drawing && !isDrawMode) return null;
 
   return (
     <div
       ref={layerRef}
-      className={`${styles.layer} ${activeAnnotationTool === "arrow" ? styles.layerDrawing : ""}`}
-      onMouseDown={handleLayerMouseDown}
-      onMouseMove={handleLayerMouseMove}
-      onMouseUp={handleLayerMouseUp}
-      onClick={handleLayerClick}
+      className={`${styles.layer} ${isDrawMode ? styles.layerDrawing : ""}`}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onClick={(e) => {
+        if (e.target === layerRef.current) {
+          setSelectedAnnotationId(null);
+          setEditingId(null);
+        }
+      }}
     >
-      {/* Live arrow preview while drawing */}
-      {drawing && (
+      {/* Draw preview */}
+      {drawing && activeAnnotationTool !== "arrow" && previewStyle && (
+        <div
+          className={`${styles.drawPreview} ${
+            activeAnnotationTool === "highlight"
+              ? styles.drawPreviewHighlight
+              : activeAnnotationTool === "redact"
+                ? styles.drawPreviewRedact
+                : styles.drawPreviewBox
+          }`}
+          style={previewStyle}
+        />
+      )}
+      {drawing && activeAnnotationTool === "arrow" && (
         <svg className={styles.drawingPreview}>
           <defs>
             <marker
@@ -207,23 +350,44 @@ export const AnnotationLayer = () => {
       )}
 
       {annotations.map((ann) => {
-        const isSelected = selectedId === ann.id;
+        const isSelected = selectedAnnotationId === ann.id;
         const isEditing = editingId === ann.id;
+        const update = (u: Partial<Annotation>) => updateAnnotation(ann.id, u);
+        const remove = () => {
+          removeAnnotation(ann.id);
+          setSelectedAnnotationId(null);
+        };
+        const select = () => setSelectedAnnotationId(ann.id);
 
-        // ── Arrow ───────────────────────────────────────
+        // ── Arrow ─────────────────────────────────────
         if (ann.type === "arrow") {
           return (
             <ArrowAnnotation
               key={ann.id}
               ann={ann}
               isSelected={isSelected}
-              onSelect={() => setSelectedId(ann.id)}
-              onRemove={() => removeAnnotation(ann.id)}
+              onSelect={select}
+              onRemove={remove}
+              onUpdate={update}
             />
           );
         }
 
-        // ── Text + Box (Rnd) ────────────────────────────
+        // ── Number marker ─────────────────────────────
+        if (ann.type === "number") {
+          return (
+            <NumberAnnotation
+              key={ann.id}
+              ann={ann}
+              isSelected={isSelected}
+              onSelect={select}
+              onRemove={remove}
+              onUpdate={update}
+            />
+          );
+        }
+
+        // ── Rnd-based: text, box, highlight, redact ───
         return (
           <Rnd
             key={ann.id}
@@ -234,10 +398,10 @@ export const AnnotationLayer = () => {
             disableDragging={isEditing}
             onMouseDown={(e: MouseEvent) => {
               e.stopPropagation();
-              setSelectedId(ann.id);
+              select();
             }}
             onDragStop={(_e: unknown, d: { x: number; y: number }) =>
-              updateAnnotation(ann.id, { x: d.x, y: d.y })
+              update({ x: d.x, y: d.y })
             }
             onResizeStop={(
               _e: unknown,
@@ -246,7 +410,7 @@ export const AnnotationLayer = () => {
               _delta: unknown,
               pos: { x: number; y: number },
             ) =>
-              updateAnnotation(ann.id, {
+              update({
                 width: parseFloat(ref.style.width),
                 height: parseFloat(ref.style.height),
                 x: pos.x,
@@ -255,15 +419,13 @@ export const AnnotationLayer = () => {
             }
           >
             <div className={styles.annInner}>
-              {/* Delete */}
               {isSelected && (
                 <button
                   className={styles.deleteBtn}
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation();
-                    removeAnnotation(ann.id);
-                    setSelectedId(null);
+                    remove();
                   }}
                 >
                   ×
@@ -271,41 +433,39 @@ export const AnnotationLayer = () => {
               )}
 
               {/* Text */}
-              {ann.type === "text" && (
-                <>
-                  {isEditing ? (
-                    <textarea
-                      autoFocus
-                      className={styles.textArea}
-                      style={{ borderColor: ann.color }}
-                      value={ann.text ?? ""}
-                      onChange={(e) =>
-                        updateAnnotation(ann.id, { text: e.target.value })
-                      }
-                      onBlur={() => setEditingId(null)}
-                      onMouseDown={(e) => e.stopPropagation()}
-                    />
-                  ) : (
-                    <div
-                      className={`${styles.textDisplay} ${isSelected ? styles.textDisplaySelected : ""}`}
-                      style={{
-                        borderColor: isSelected ? ann.color : "transparent",
-                      }}
-                      onDoubleClick={() => {
-                        if (clickTimer.current)
-                          clearTimeout(clickTimer.current);
-                        setEditingId(ann.id);
-                      }}
-                    >
-                      {ann.text || (
-                        <span className={styles.placeholder}>
-                          Double-click to edit
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
+              {ann.type === "text" &&
+                (isEditing ? (
+                  <textarea
+                    autoFocus
+                    className={styles.textArea}
+                    style={{
+                      borderColor: ann.color,
+                      fontSize: ann.fontSize ?? 14,
+                      fontFamily: ann.fontFamily ?? "DM Sans, sans-serif",
+                    }}
+                    value={ann.text ?? ""}
+                    onChange={(e) => update({ text: e.target.value })}
+                    onBlur={() => setEditingId(null)}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <div
+                    className={`${styles.textDisplay} ${isSelected ? styles.textDisplaySelected : ""}`}
+                    style={{
+                      borderColor: isSelected ? ann.color : "transparent",
+                      fontSize: ann.fontSize ?? 14,
+                      fontFamily: ann.fontFamily ?? "DM Sans, sans-serif",
+                      color: ann.color,
+                    }}
+                    onDoubleClick={() => setEditingId(ann.id)}
+                  >
+                    {ann.text || (
+                      <span className={styles.placeholder}>
+                        Double-click to edit
+                      </span>
+                    )}
+                  </div>
+                ))}
 
               {/* Box */}
               {ann.type === "box" && (
@@ -314,6 +474,17 @@ export const AnnotationLayer = () => {
                   style={{ borderColor: ann.color }}
                 />
               )}
+
+              {/* Highlight */}
+              {ann.type === "highlight" && (
+                <div
+                  className={styles.highlight}
+                  style={{ background: ann.color }}
+                />
+              )}
+
+              {/* Redact */}
+              {ann.type === "redact" && <div className={styles.redact} />}
             </div>
           </Rnd>
         );
