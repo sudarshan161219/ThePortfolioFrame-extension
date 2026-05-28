@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@remotion/gif": "^4.0.464",
+    "@remotion/web-renderer": "^4.0.464",
     "@skyra/gifenc": "^1.0.1",
     "dom-to-image-more": "^3.7.2",
     "gifenc": "^1.0.3",
@@ -21,6 +23,7 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-rnd": "^10.5.3",
+    "remotion": "^4.0.464",
     "zustand": "^5.0.13"
   },
   "devDependencies": {

@@ -5,7 +5,6 @@ import {
   type AspectRatio,
   type BrowserMockup,
   type DeviceMockup,
-
 } from "../../store/useControlsStore";
 import { ratios } from "../../constants/ratios";
 import { BACKGROUNDS } from "../../constants/backgrounds";
@@ -17,6 +16,7 @@ import { SOLID_COLORS, GRADIENTS } from "../../constants/palettes";
 import { TOOL_BUTTONS } from "../../constants/annotation_tools_buttons";
 import { DRAW_TOOLS } from "../../constants/annotation_draw_tools";
 import { ANNOTATION_LABEL } from "../../utils/annatation_label";
+import { ANIMATION_PRESETS } from "../../constants/animations";
 import {
   ANNOTATION_FONTS,
   ANNOTATION_SIZES,
@@ -130,6 +130,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     tiltY,
     tiltZ,
     zoom,
+    animation,
     aspectRatio,
     browserMockup,
     deviceMockup,
@@ -169,6 +170,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setTiltZ,
     setAspectRatio,
     setZoom,
+    setAnimation,
     setBrowserMockup,
     setDeviceMockup,
     setBorderRadius,
@@ -213,28 +215,17 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setAnnotationFontSize,
   ]);
 
-  // When sidebar controls change → push to selected annotation
-  // useEffect(() => {
-  //   if (!selectedAnnotationId) return;
-  //   updateAnnotation(selectedAnnotationId, {
-  //     color: annotationColor,
-  //     fontSize: annotationFontSize,
-  //     fontFamily: annotationFontFamily,
-  //   });
-  // }, [
-  //   annotationColor,
-  //   annotationFontSize,
-  //   annotationFontFamily,
-  //   selectedAnnotationId,
-  //   updateAnnotation,
-  // ]);
-
-  console.log(selectedAnnotationId);
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setBgImage(URL.createObjectURL(file));
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setBgImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // setBgImage(URL.createObjectURL(file));
     setCustomBg("");
     setActiveBg(null);
   };
@@ -253,6 +244,15 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setCustomBg(colorOrGradient);
     setBgImage(null);
     setActiveBg(null);
+  };
+
+  const handleAnimationSelect = (preset: (typeof ANIMATION_PRESETS)[0]) => {
+    if (preset.isPro && !isPro) {
+      console.log("Trigger Upsell Modal!");
+      return;
+    }
+    console.log(preset.id);
+    setAnimation(preset.id);
   };
 
   return (
@@ -385,7 +385,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
             )}
           </Section>
 
-          {/* <Section title="VIDEO ANIMATIONS" defaultOpen={true}>
+          <Section title="VIDEO ANIMATIONS" defaultOpen={true}>
             <div
               style={{
                 display: "grid",
@@ -421,7 +421,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                 );
               })}
             </div>
-          </Section> */}
+          </Section>
 
           {/* ── 2. Browser Mockup ───────────────────── */}
           <Section title="Browser Mockup" defaultOpen={false}>
@@ -858,7 +858,6 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           </Section>
 
           {/* ── 6. Annotations ──────────────────────── */}
-
           <Section title="Annotations" defaultOpen={false}>
             {/* ── Tool buttons ──────────────────────────── */}
             <ControlRow label="Add">

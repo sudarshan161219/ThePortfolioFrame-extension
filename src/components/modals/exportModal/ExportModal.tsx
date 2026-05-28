@@ -60,6 +60,35 @@ const OPTIONS: Option[] = [
     icon: "ti-photo-scan",
     group: "image",
   },
+
+  {
+    value: "gif",
+    label: ".gif",
+    ext: "gif",
+    desc: "Animated export — plays anywhere, limited palette",
+    tier: "free",
+    icon: "ti-player-record",
+    group: "motion",
+  },
+  {
+    value: "mp4",
+    label: ".mp4",
+    ext: "mp4",
+    desc: "High-quality video loop — great for Twitter / X posts",
+    tier: "free",
+    icon: "ti-player-play",
+    group: "motion",
+  },
+  {
+    value: "webm",
+    label: ".webm",
+    ext: "webm",
+    desc: "Smallest file size, alpha channel support",
+    tier: "pro",
+    icon: "ti-player-record",
+    group: "motion",
+    isPro: true,
+  },
 ];
 
 const GROUPS: { key: Option["group"]; label: string }[] = [

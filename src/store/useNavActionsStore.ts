@@ -6,6 +6,9 @@ import {
 } from "zustand/middleware";
 import { toPng, toJpeg, toBlob } from "html-to-image";
 import html2canvas from "html2canvas";
+import { renderMediaOnWeb } from "@remotion/web-renderer";
+import { useControlsStore } from "./useControlsStore";
+import { RemotionFrame } from "../components/remotionFrame/RemotionFrame";
 
 // ── Types ────────────────────────────────────────────────
 
@@ -105,6 +108,80 @@ async function exportImage(
   }
 }
 
+// 🚀 NEW: The Remotion Video Exporter
+async function exportVideo(
+  format: "mp4" | "webm",
+  onProgress: (progress: number) => void,
+): Promise<void> {
+  // 1. Grab the current state from your controls store to feed into Remotion
+  const appState = useControlsStore.getState();
+
+  if (!appState.imageSource) {
+    console.error("Cannot export video: No image source found.");
+    return;
+  }
+
+  let videoHeight = 1080; // Baseline height
+  let videoWidth = 1920; // Default 16:9
+
+  try {
+    if (appState.aspectRatio && appState.aspectRatio !== "auto") {
+      const parts = appState.aspectRatio.split("/");
+
+      // Ensure it actually split into exactly two pieces (e.g., ["16", "9"])
+      if (parts.length === 2) {
+        const ratioW = parseFloat(parts[0].trim());
+        const ratioH = parseFloat(parts[1].trim());
+
+        // Only do the math if both are perfectly valid numbers
+        if (!isNaN(ratioW) && !isNaN(ratioH) && ratioH !== 0) {
+          videoWidth = Math.round(videoHeight * (ratioW / ratioH));
+
+          // H264 Codec Safety: Must be an even number
+          if (videoWidth % 2 !== 0) videoWidth += 1;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to parse aspect ratio, falling back to 16:9");
+  }
+
+  if (isNaN(videoWidth) || videoWidth <= 0) videoWidth = 1920;
+  if (isNaN(videoHeight) || videoHeight <= 0) videoHeight = 1080;
+
+  const serializableProps = Object.fromEntries(
+    Object.entries(appState).filter(
+      ([_, value]) => typeof value !== "function",
+    ),
+  ) as Record<string, unknown>;
+
+  // 2. Trigger the WebCodecs render
+  const { getBlob } = await renderMediaOnWeb({
+    composition: {
+      id: "PortfolioMockup",
+      component: RemotionFrame, // We will build this next!
+      durationInFrames: 120, // 4 seconds at 30fps
+      fps: 30,
+      width: videoWidth,
+      height: videoHeight,
+    } as any,
+    // Remotion components must be pure. Pass the Zustand state as props here!
+    inputProps: serializableProps,
+    container: format,
+    videoCodec: format === "mp4" ? "h264" : "vp8",
+    // 3. Connect Remotion's progress directly to your Zustand store
+    onProgress: ({ progress }) => {
+      onProgress(progress);
+    },
+  });
+
+  // 4. Download the final video
+  const blob = await getBlob();
+  const url = URL.createObjectURL(blob);
+  download(url, FILENAME(format));
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
 // ── Store ────────────────────────────────────────────────
 
 export const useNavActionsStore = create<NavActionsState>()(
@@ -114,22 +191,33 @@ export const useNavActionsStore = create<NavActionsState>()(
       exportProgress: 0,
 
       triggerExport: async (format: ExportFormat) => {
-        const el = getTarget();
-        if (!el) return;
+        // const el = getTarget();
+        // if (!el) return;
 
         // const onProgress = (p: number) => set({ exportProgress: p });
+
+        const needsDOM = ["clipboard", "png", "jpeg", "webp"].includes(format);
+        const el = needsDOM ? getTarget() : null;
+
+        if (needsDOM && !el) return;
+
+        const onProgress = (p: number) => set({ exportProgress: p });
 
         try {
           set({ isExporting: true, exportProgress: 0 });
 
           switch (format) {
             case "clipboard":
-              await exportToClipboard(el);
+              await exportToClipboard(el!);
               break;
             case "png":
             case "jpeg":
             case "webp":
-              await exportImage(el, format);
+              await exportImage(el!, format);
+              break;
+            case "mp4":
+            case "webm":
+              await exportVideo(format, onProgress);
               break;
           }
         } catch (err) {
