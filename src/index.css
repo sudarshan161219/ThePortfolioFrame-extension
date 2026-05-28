@@ -154,3 +154,8 @@ body {
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+body.is-dragging {
+  user-select: none;
+  cursor: move !important;
+}
