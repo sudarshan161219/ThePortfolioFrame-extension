@@ -108,10 +108,11 @@ async function exportImage(
   }
 }
 
-// 🚀 NEW: The Remotion Video Exporter
+// The Remotion Video Exporter
 async function exportVideo(
   format: "mp4" | "webm",
   onProgress: (progress: number) => void,
+  previewContainerWidth: number,
 ): Promise<void> {
   // 1. Grab the current state from your controls store to feed into Remotion
   const appState = useControlsStore.getState();
@@ -121,8 +122,8 @@ async function exportVideo(
     return;
   }
 
-  let videoHeight = 1080; // Baseline height
-  let videoWidth = 1920; // Default 16:9
+  let videoHeight = 1080;
+  let videoWidth = 1920;
 
   try {
     if (appState.aspectRatio && appState.aspectRatio !== "auto") {
@@ -149,11 +150,15 @@ async function exportVideo(
   if (isNaN(videoWidth) || videoWidth <= 0) videoWidth = 1920;
   if (isNaN(videoHeight) || videoHeight <= 0) videoHeight = 1080;
 
+  const previewScale = videoWidth / previewContainerWidth;
+
   const serializableProps = Object.fromEntries(
     Object.entries(appState).filter(
       ([_, value]) => typeof value !== "function",
     ),
   ) as Record<string, unknown>;
+
+  serializableProps.previewScale = previewScale;
 
   // 2. Trigger the WebCodecs render
   const { getBlob } = await renderMediaOnWeb({
@@ -191,14 +196,8 @@ export const useNavActionsStore = create<NavActionsState>()(
       exportProgress: 0,
 
       triggerExport: async (format: ExportFormat) => {
-        // const el = getTarget();
-        // if (!el) return;
-
-        // const onProgress = (p: number) => set({ exportProgress: p });
-
         const needsDOM = ["clipboard", "png", "jpeg", "webp"].includes(format);
         const el = needsDOM ? getTarget() : null;
-
         if (needsDOM && !el) return;
 
         const onProgress = (p: number) => set({ exportProgress: p });
@@ -216,9 +215,14 @@ export const useNavActionsStore = create<NavActionsState>()(
               await exportImage(el!, format);
               break;
             case "mp4":
-            case "webm":
-              await exportVideo(format, onProgress);
+            case "webm": {
+              const previewEl = document.getElementById(
+                "remotion-preview-container",
+              );
+              const previewContainerWidth = previewEl?.clientWidth ?? 1280;
+              await exportVideo(format, onProgress, previewContainerWidth);
               break;
+            }
           }
         } catch (err) {
           console.error(

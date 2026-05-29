@@ -161,18 +161,6 @@ function NumberAnnotation({
       }
     >
       <div className={styles.annInner}>
-        {isSelected && (
-          <button
-            className={styles.deleteBtn}
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove();
-            }}
-          >
-            ×
-          </button>
-        )}
         <div
           className={styles.numberMarker}
           style={{ background: ann.color, fontSize: ann.fontSize ?? 14 }}
@@ -180,6 +168,19 @@ function NumberAnnotation({
           {ann.number ?? 1}
         </div>
       </div>
+
+      {isSelected && (
+        <button
+          className={styles.deleteBtn}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+        >
+          ×
+        </button>
+      )}
     </Rnd>
   );
 }
@@ -207,6 +208,7 @@ export const AnnotationLayer = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [drawing, setDrawing] = useState<DrawingState | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const lastClickTime = useRef<{ [key: string]: number }>({});
   const layerRef = useRef<HTMLDivElement>(null);
 
   // Esc cancels draw mode
@@ -232,6 +234,26 @@ export const AnnotationLayer = () => {
     removeAnnotation,
     setSelectedAnnotationId,
   ]);
+
+  useEffect(() => {
+    if (!editingId) return;
+
+    const handleGlobalMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      // If the user clicks on anything that IS NOT the active textarea...
+      if (!target.closest(".cancel-drag")) {
+        setEditingId(null); // Instantly close the text editor!
+      }
+    };
+
+    // We use "true" (Capture Phase) so this runs BEFORE react-rnd can swallow the click!
+    document.addEventListener("mousedown", handleGlobalMouseDown, true);
+
+    return () => {
+      document.removeEventListener("mousedown", handleGlobalMouseDown, true);
+    };
+  }, [editingId, setEditingId]);
 
   // Draw handlers (arrow + box + highlight + redact use drag-to-draw)
   const isDrawMode = ["arrow", "box", "highlight", "redact"].includes(
@@ -389,6 +411,14 @@ export const AnnotationLayer = () => {
         {annotations.map((ann) => {
           const isSelected = selectedAnnotationId === ann.id;
           const isEditing = editingId === ann.id;
+
+          // This tells us if React actually knows it should be editing
+          if (ann.type === "text") {
+            console.log(
+              `[Render Check] Text Box ${ann.id} | isSelected: ${isSelected} | isEditing: ${isEditing}`,
+            );
+          }
+
           const update = (u: Partial<Annotation>) =>
             updateAnnotation(ann.id, u);
           const remove = () => {
@@ -453,9 +483,7 @@ export const AnnotationLayer = () => {
                 e.stopPropagation();
                 select();
               }}
-              // onDragStop={(_e: unknown, d: { x: number; y: number }) =>
-              //   update({ x: d.x, y: d.y })
-              // }
+              cancel=".cancel-drag"
               onResizeStart={() => setIsDragging(true)}
               onResizeStop={(
                 _e: unknown,
@@ -474,25 +502,12 @@ export const AnnotationLayer = () => {
               }}
             >
               <div className={styles.annInner}>
-                {isSelected && (
-                  <button
-                    className={styles.deleteBtn}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      remove();
-                    }}
-                  >
-                    ×
-                  </button>
-                )}
-
                 {/* Text */}
                 {ann.type === "text" &&
                   (isEditing ? (
                     <textarea
                       autoFocus
-                      className={styles.textArea}
+                      className={`${styles.textArea} cancel-drag`}
                       style={{
                         borderColor: ann.color,
                         fontSize: ann.fontSize ?? 14,
@@ -500,8 +515,17 @@ export const AnnotationLayer = () => {
                       }}
                       value={ann.text ?? ""}
                       onChange={(e) => update({ text: e.target.value })}
-                      onBlur={() => setEditingId(null)}
+                      onBlur={() => {
+                        // 🚀 LOG 2: Blur Check
+                        // If this fires instantly after double-clicking, something else on the screen is stealing focus!
+                        console.warn(
+                          `[Blur Event] Textarea lost focus. Clearing editingId.`,
+                        );
+                        setEditingId(null);
+                      }}
                       onMouseDown={(e) => e.stopPropagation()}
+                      onMouseUp={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   ) : (
                     <div
@@ -512,7 +536,23 @@ export const AnnotationLayer = () => {
                         fontFamily: ann.fontFamily ?? "DM Sans, sans-serif",
                         color: ann.color,
                       }}
-                      onDoubleClick={() => setEditingId(ann.id)}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+
+                        const now = Date.now();
+                        const lastTime = lastClickTime.current[ann.id] || 0;
+
+                        // If clicked twice within 300 milliseconds, it's a double click!
+                        if (now - lastTime < 300) {
+                          setEditingId(ann.id);
+                        } else {
+                          // Otherwise, just select it
+                          setSelectedAnnotationId(ann.id);
+                        }
+
+                        // Save the time of this click for the next comparison
+                        lastClickTime.current[ann.id] = now;
+                      }}
                     >
                       {ann.text || (
                         <span className={styles.placeholder}>
@@ -541,6 +581,18 @@ export const AnnotationLayer = () => {
                 {/* Redact */}
                 {ann.type === "redact" && <div className={styles.redact} />}
               </div>
+              {isSelected && (
+                <button
+                  className={styles.deleteBtn}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    remove();
+                  }}
+                >
+                  ×
+                </button>
+              )}
             </Rnd>
           );
         })}
