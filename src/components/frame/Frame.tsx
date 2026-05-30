@@ -6,31 +6,31 @@ import { AnnotationLayer } from "../annotationLayer/AnnotationLayer";
 import styles from "./index.module.css";
 
 export const Frame = () => {
-  const {
-    // showBrowserFrame,
-    screenTop,
-    screenLeft,
-    screenWidth,
-    screenHeight,
-    mockupCategory,
-    browserMockup,
-    deviceMockup,
-    pageUrl,
-    pageTitle,
-    tilt,
-    tiltX,
-    tiltY,
-    tiltZ,
-    imageSource,
-    zoom,
-    animation,
-    borderRadius,
-    shadowVariant,
-    shadowOpacity,
-    borderWidth,
-    borderColor,
-    isGlassBorder,
-  } = useControlsStore();
+  const zoom = useControlsStore((s) => s.zoom);
+  const tiltX = useControlsStore((s) => s.tiltX);
+  const tiltY = useControlsStore((s) => s.tiltY);
+  const tiltZ = useControlsStore((s) => s.tiltZ);
+  const animation = useControlsStore((s) => s.animation);
+  const borderRadius = useControlsStore((s) => s.borderRadius);
+  const screenTop = useControlsStore((s) => s.screenTop);
+  const screenLeft = useControlsStore((s) => s.screenLeft);
+  const screenWidth = useControlsStore((s) => s.screenWidth);
+  const screenHeight = useControlsStore((s) => s.screenHeight);
+  const mockupCategory = useControlsStore((s) => s.mockupCategory);
+  const browserMockup = useControlsStore((s) => s.browserMockup);
+  const deviceMockup = useControlsStore((s) => s.deviceMockup);
+  const pageUrl = useControlsStore((s) => s.pageUrl);
+  const pageTitle = useControlsStore((s) => s.pageTitle);
+  const tilt = useControlsStore((s) => s.tilt);
+  const imageSource = useControlsStore((s) => s.imageSource);
+  const shadowVariant = useControlsStore((s) => s.shadowVariant);
+  const shadowOpacity = useControlsStore((s) => s.shadowOpacity);
+  const borderWidth = useControlsStore((s) => s.borderWidth);
+  const borderColor = useControlsStore((s) => s.borderColor);
+  const isGlassBorder = useControlsStore((s) => s.isGlassBorder);
+  const updateImageNaturalSize = useControlsStore(
+    (s) => s.updateImageNaturalSize,
+  );
 
   const combinedTransform = tilt
     ? `scale(${zoom}) rotateX(${tiltX}deg) rotateY(${tiltY}deg) rotateZ(${tiltZ}deg)`
@@ -150,7 +150,14 @@ export const Frame = () => {
                   borderRadius: activeDeviceConfig.screen.borderRadius ?? "0px",
                 }}
               >
-                <img src={imageSource!} alt="Captured tab" />
+                <img
+                  src={imageSource!}
+                  onLoad={(e) => {
+                    const img = e.currentTarget;
+                    updateImageNaturalSize(img.naturalWidth, img.naturalHeight);
+                  }}
+                  alt="Captured tab"
+                />
 
                 <AnnotationLayer />
               </div>
@@ -158,6 +165,10 @@ export const Frame = () => {
               {/* 2. Device frame on top */}
               <img
                 src={activeDeviceConfig.src}
+                onLoad={(e) => {
+                  const img = e.currentTarget;
+                  updateImageNaturalSize(img.naturalWidth, img.naturalHeight);
+                }}
                 alt={activeDeviceConfig.label}
                 className={styles.deviceBaseImage}
               />
@@ -171,6 +182,10 @@ export const Frame = () => {
             <div className={styles.windowContent}>
               <img
                 src={imageSource!}
+                onLoad={(e) => {
+                  const img = e.currentTarget;
+                  updateImageNaturalSize(img.naturalWidth, img.naturalHeight);
+                }}
                 alt="Captured tab"
                 className={styles.screenshot}
               />

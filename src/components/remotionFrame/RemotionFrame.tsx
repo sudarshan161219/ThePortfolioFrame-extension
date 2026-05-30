@@ -13,10 +13,11 @@ import { SHADOW_PRESETS } from "../../constants/shadow_presets";
 import { BROWSER_MOCKUP_CONFIG } from "../../constants/browser_mockup_config";
 import { DEVICE_MOCKUPS } from "../../constants/Device_mockup_config";
 import { type Annotation } from "../../store/useControlsStore";
+
 // 1. The Props Interface (Matches your Zustand AppState perfectly)
 export interface RemotionFrameProps {
-  imageSource: string;
-  bgImage: string | null;
+  imageSourceRaw: string;
+  bgImageRaw: string | null;
   customBg: string;
   bgBlur: number;
   bgSize: "cover" | "contain" | "auto";
@@ -48,17 +49,22 @@ export interface RemotionFrameProps {
 
   previewScale: number;
 
+  imageNaturalWidth: number;
+  imageNaturalHeight: number;
+
   animation: string;
   annotations: Annotation[];
 }
 
 export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
   const frame = useCurrentFrame();
-  const { fps, width, height } = useVideoConfig();
+  const { fps, width } = useVideoConfig();
 
-  const PADDING = width * 0.1; // 10% on each side
-  const windowWidth = width - PADDING * 2;
-  const windowHeight = height - PADDING * 2;
+  const PADDING_X = width * 0.1;
+  const windowWidth = width - PADDING_X * 2;
+
+  const imageAspect = props.imageNaturalWidth / props.imageNaturalHeight;
+  const windowHeight = windowWidth / imageAspect;
 
   // ─── 1. Helpers ──────────────────────────────────────────
   const isGif = (url: string | null) => {
@@ -144,7 +150,6 @@ export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        fontStretch: "normal",
         textRendering: "auto",
         WebkitFontSmoothing: "antialiased",
       }}
@@ -164,25 +169,25 @@ export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
         }}
       >
         {/* 🚀 FIX 2: Use Remotion Tags instead of CSS background-image */}
-        {props.bgImage &&
-          (isGif(props.bgImage) ? (
+        {props.bgImageRaw &&
+          (isGif(props.bgImageRaw) ? (
             <Gif
-              src={props.bgImage}
+              src={props.bgImageRaw}
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: props.bgSize === "auto" ? "none" : props.bgSize, // "auto" isn't a valid objectFit
+                objectFit: props.bgSize === "auto" ? "cover" : props.bgSize,
                 filter: `blur(${props.bgBlur}px)`,
                 transform: `scale(${1 + props.bgBlur / 200})`,
               }}
             />
           ) : (
             <Img
-              src={props.bgImage}
+              src={props.bgImageRaw}
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: props.bgSize === "auto" ? "none" : props.bgSize,
+                objectFit: props.bgSize === "auto" ? "cover" : props.bgSize,
                 filter: `blur(${props.bgBlur}px)`,
                 transform: `scale(${1 + props.bgBlur / 200})`,
               }}
@@ -266,11 +271,7 @@ export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
                   ))}
                 </div>
                 <div style={{ width: "100%", position: "relative" }}>
-                  {isGif(props.imageSource) ? (
-                    <Gif src={props.imageSource} style={highResImageStyle} />
-                  ) : (
-                    <Img src={props.imageSource} style={highResImageStyle} />
-                  )}
+                  <Img src={props.imageSourceRaw} style={highResImageStyle} />
                 </div>
               </>
             )}
@@ -298,11 +299,7 @@ export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
                     zIndex: 1,
                   }}
                 >
-                  {isGif(props.imageSource) ? (
-                    <Gif src={props.imageSource} style={highResImageStyle} />
-                  ) : (
-                    <Img src={props.imageSource} style={highResImageStyle} />
-                  )}
+                  <Img src={props.imageSourceRaw} style={highResImageStyle} />
                   {/* Annotations specific to Device Screen */}
                   <AnnotationLayerStatic
                     annotations={props.annotations}
@@ -326,11 +323,7 @@ export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
             {/* RENDER C: NONE */}
             {props.mockupCategory === "none" && (
               <div style={{ position: "relative", width: "100%" }}>
-                {isGif(props.imageSource) ? (
-                  <Gif src={props.imageSource} style={highResImageStyle} />
-                ) : (
-                  <Img src={props.imageSource} style={highResImageStyle} />
-                )}
+                <Img src={props.imageSourceRaw} style={highResImageStyle} />
                 <AnnotationLayerStatic
                   annotations={props.annotations}
                   scale={props.previewScale}

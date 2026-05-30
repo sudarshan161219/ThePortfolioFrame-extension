@@ -1,14 +1,5 @@
 import { create } from "zustand";
-import {
-  persist,
-  createJSONStorage,
-  type StateStorage,
-} from "zustand/middleware";
-import { toPng, toJpeg, toBlob } from "html-to-image";
-import html2canvas from "html2canvas";
-import { renderMediaOnWeb } from "@remotion/web-renderer";
 import { useControlsStore } from "./useControlsStore";
-import { RemotionFrame } from "../components/remotionFrame/RemotionFrame";
 
 // ── Types ────────────────────────────────────────────────
 
@@ -26,25 +17,6 @@ interface NavActionsState {
   exportProgress: number; // 0–1, only used for gif/video
   triggerExport: (format: ExportFormat) => Promise<void>;
 }
-
-// ── Chrome Storage Engine ────────────────────────────────
-
-const chromeStorage: StateStorage = {
-  getItem: async (name) =>
-    new Promise((resolve) => {
-      chrome.storage.local.get(name, (result) => {
-        resolve((result[name] as string) || null);
-      });
-    }),
-  setItem: async (name, value) =>
-    new Promise<void>((resolve) => {
-      chrome.storage.local.set({ [name]: value }, resolve);
-    }),
-  removeItem: async (name) =>
-    new Promise<void>((resolve) => {
-      chrome.storage.local.remove(name, resolve);
-    }),
-};
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -67,6 +39,7 @@ function getTarget(): HTMLElement | null {
 // ── Export functions ─────────────────────────────────────
 
 async function exportToClipboard(el: HTMLElement): Promise<void> {
+  const { toBlob } = await import("html-to-image");
   const blob = await toBlob(el, { pixelRatio: 3 });
   if (!blob) throw new Error("Failed to generate blob for clipboard.");
   await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
@@ -76,24 +49,37 @@ async function exportImage(
   el: HTMLElement,
   format: "png" | "jpeg" | "webp",
 ): Promise<void> {
+  const options = {
+    pixelRatio: 3,
+    width: el.offsetWidth,
+    height: el.offsetHeight,
+    style: {
+      overflow: "hidden",
+    },
+  };
+
   if (format === "png") {
-    const url = await toPng(el, { quality: 1.0, pixelRatio: 3 });
+    const { toPng } = await import("html-to-image");
+    const url = await toPng(el, { ...options, pixelRatio: 3 });
     download(url, FILENAME("png"));
     return;
   }
 
   if (format === "jpeg") {
-    const url = await toJpeg(el, { quality: 0.95, pixelRatio: 3 });
+    const { toJpeg } = await import("html-to-image");
+    const url = await toJpeg(el, { ...options, pixelRatio: 3 });
     download(url, FILENAME("jpg"));
     return;
   }
 
   if (format === "webp") {
+    const { default: html2canvas } = await import("html2canvas");
     const canvas = await html2canvas(el, {
       useCORS: true,
       allowTaint: true,
       backgroundColor: null,
       scale: 3,
+      ...options,
     });
     canvas.toBlob(
       (blob) => {
@@ -114,6 +100,11 @@ async function exportVideo(
   onProgress: (progress: number) => void,
   previewContainerWidth: number,
 ): Promise<void> {
+  const [{ renderMediaOnWeb }, { RemotionFrame }] = await Promise.all([
+    import("@remotion/web-renderer"),
+    import("../components/remotionFrame/RemotionFrame"),
+  ]);
+
   // 1. Grab the current state from your controls store to feed into Remotion
   const appState = useControlsStore.getState();
 
@@ -144,7 +135,7 @@ async function exportVideo(
       }
     }
   } catch (err) {
-    console.warn("Failed to parse aspect ratio, falling back to 16:9");
+    console.warn("Failed to parse aspect ratio, falling back to 16:9", err);
   }
 
   if (isNaN(videoWidth) || videoWidth <= 0) videoWidth = 1920;
@@ -160,12 +151,22 @@ async function exportVideo(
 
   serializableProps.previewScale = previewScale;
 
+  if (appState.bgImageRaw) {
+    serializableProps.bgImageRaw = appState.bgImageRaw;
+  }
+
+  if (appState.imageSourceRaw) {
+    serializableProps.imageSourceRaw = appState.imageSourceRaw;
+  }
+
+  const isGif = appState.bgImageRaw?.startsWith("data:image/gif");
+
   // 2. Trigger the WebCodecs render
   const { getBlob } = await renderMediaOnWeb({
     composition: {
       id: "PortfolioMockup",
       component: RemotionFrame, // We will build this next!
-      durationInFrames: 120, // 4 seconds at 30fps
+      durationInFrames: isGif ? 180 : 120, // 4 seconds at 30fps
       fps: 30,
       width: videoWidth,
       height: videoHeight,
@@ -174,6 +175,8 @@ async function exportVideo(
     inputProps: serializableProps,
     container: format,
     videoCodec: format === "mp4" ? "h264" : "vp8",
+    audioCodec: "opus", // explicit — stops the AAC fallback warning
+    muted: true,
     // 3. Connect Remotion's progress directly to your Zustand store
     onProgress: ({ progress }) => {
       onProgress(progress);
@@ -189,55 +192,43 @@ async function exportVideo(
 
 // ── Store ────────────────────────────────────────────────
 
-export const useNavActionsStore = create<NavActionsState>()(
-  persist(
-    (set) => ({
-      isExporting: false,
-      exportProgress: 0,
+export const useNavActionsStore = create<NavActionsState>()((set) => ({
+  isExporting: false,
+  exportProgress: 0,
 
-      triggerExport: async (format: ExportFormat) => {
-        const needsDOM = ["clipboard", "png", "jpeg", "webp"].includes(format);
-        const el = needsDOM ? getTarget() : null;
-        if (needsDOM && !el) return;
+  triggerExport: async (format: ExportFormat) => {
+    const needsDOM = ["clipboard", "png", "jpeg", "webp"].includes(format);
+    const el = needsDOM ? getTarget() : null;
+    if (needsDOM && !el) return;
 
-        const onProgress = (p: number) => set({ exportProgress: p });
+    const onProgress = (p: number) => set({ exportProgress: p });
 
-        try {
-          set({ isExporting: true, exportProgress: 0 });
+    try {
+      set({ isExporting: true, exportProgress: 0 });
 
-          switch (format) {
-            case "clipboard":
-              await exportToClipboard(el!);
-              break;
-            case "png":
-            case "jpeg":
-            case "webp":
-              await exportImage(el!, format);
-              break;
-            case "mp4":
-            case "webm": {
-              const previewEl = document.getElementById(
-                "remotion-preview-container",
-              );
-              const previewContainerWidth = previewEl?.clientWidth ?? 1280;
-              await exportVideo(format, onProgress, previewContainerWidth);
-              break;
-            }
-          }
-        } catch (err) {
-          console.error(
-            `[The Portfolio Frame] Export (${format}) failed:`,
-            err,
+      switch (format) {
+        case "clipboard":
+          await exportToClipboard(el!);
+          break;
+        case "png":
+        case "jpeg":
+        case "webp":
+          await exportImage(el!, format);
+          break;
+        case "mp4":
+        case "webm": {
+          const previewEl = document.getElementById(
+            "remotion-preview-container",
           );
-        } finally {
-          set({ isExporting: false, exportProgress: 0 });
+          const previewContainerWidth = previewEl?.clientWidth ?? 1280;
+          await exportVideo(format, onProgress, previewContainerWidth);
+          break;
         }
-      },
-    }),
-    {
-      name: "portfolio-nav-storage",
-      storage: createJSONStorage(() => chromeStorage),
-      partialize: ({ isExporting, exportProgress, ...rest }) => rest,
-    },
-  ),
-);
+      }
+    } catch (err) {
+      console.error(`[The Portfolio Frame] Export (${format}) failed:`, err);
+    } finally {
+      set({ isExporting: false, exportProgress: 0 });
+    }
+  },
+}));

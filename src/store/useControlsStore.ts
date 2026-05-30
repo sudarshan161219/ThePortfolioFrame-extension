@@ -90,8 +90,10 @@ interface AppState {
   osStyle: "mac" | "windows";
   pageUrl: string;
   pageTitle: string;
-  imageSource: string | null;
-  bgImage: string | null;
+  imageSource: string | null; // ObjectURL — used in DOM/Frame.tsx
+  imageSourceRaw: string | null; // base64 — used only in exportVideo()
+  bgImage: string | null; // ObjectURL
+  bgImageRaw: string | null; // base64
   activeBg: Background | null;
 
   customBg: string;
@@ -124,6 +126,9 @@ interface AppState {
   screenWidth: number;
   screenHeight: number;
 
+  imageNaturalWidth: number;
+  imageNaturalHeight: number;
+
   annotations: Annotation[];
   activeAnnotationTool: AnnotationType | null;
   annotationColor: string;
@@ -143,7 +148,9 @@ interface AppState {
   setPageUrl: (url: string) => void;
   setPageTitle: (title: string) => void;
   setImageSource: (src: string | null) => void;
+  setImageSourceRaw: (src: string | null) => void;
   setBgImage: (src: string | null) => void;
+  setBgImageRaw: (src: string | null) => void;
 
   setActiveBg: (background: Background | null) => void;
 
@@ -173,6 +180,8 @@ interface AppState {
   setScreenTop: (v: number) => void;
   setScreenWidth: (v: number) => void;
   setScreenHeight: (v: number) => void;
+
+  updateImageNaturalSize: (w: number, h: number) => void;
 
   addAnnotation: (
     type: AnnotationType,
@@ -244,7 +253,9 @@ export const useControlsStore = create<AppState>()(
       pageUrl: "localhost:5173",
       pageTitle: "",
       imageSource: null,
+      imageSourceRaw: null,
       bgImage: null,
+      bgImageRaw: null,
       customBg: "",
       bgBlur: 0,
       bgSize: "cover",
@@ -271,6 +282,9 @@ export const useControlsStore = create<AppState>()(
       screenWidth: parseFloat(firstDevice.screen.width),
       screenHeight: parseFloat(firstDevice.screen.height),
 
+      imageNaturalWidth: 0,
+      imageNaturalHeight: 0,
+
       annotations: [],
       activeAnnotationTool: "text",
       annotationColor: "#ffffff",
@@ -290,7 +304,9 @@ export const useControlsStore = create<AppState>()(
       setPageUrl: (url) => set({ pageUrl: url }),
       setPageTitle: (title) => set({ pageTitle: title }),
       setImageSource: (src) => set({ imageSource: src }),
+      setImageSourceRaw: (src) => set({ imageSourceRaw: src }),
       setBgImage: (src) => set({ bgImage: src }),
+      setBgImageRaw: (src) => set({ bgImageRaw: src }),
       setCustomBg: (val) => set({ customBg: val }),
       setBgBlur: (val) => set({ bgBlur: val }),
       setBgSize: (val) => set({ bgSize: val }),
@@ -302,6 +318,10 @@ export const useControlsStore = create<AppState>()(
       setTiltX: (val) => set({ tiltX: val }),
       setTiltY: (val) => set({ tiltY: val }),
       setTiltZ: (z) => set({ tiltZ: z }),
+
+      updateImageNaturalSize: (w, h) =>
+        set({ imageNaturalWidth: w, imageNaturalHeight: h }),
+
       setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
       setZoom: (val) => set({ zoom: val }),
       setBrowserMockup: (mockup) => set({ browserMockup: mockup }),

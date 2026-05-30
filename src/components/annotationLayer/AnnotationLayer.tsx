@@ -194,17 +194,20 @@ interface DrawingState {
 }
 
 export const AnnotationLayer = () => {
-  const {
-    zoom,
-    annotations,
-    addAnnotation,
-    updateAnnotation,
-    removeAnnotation,
-    activeAnnotationTool,
-    selectedAnnotationId,
-    setActiveAnnotationTool,
-    setSelectedAnnotationId,
-  } = useControlsStore();
+  const zoom = useControlsStore((s) => s.zoom);
+  const annotations = useControlsStore((s) => s.annotations);
+  const addAnnotation = useControlsStore((s) => s.addAnnotation);
+  const updateAnnotation = useControlsStore((s) => s.updateAnnotation);
+  const removeAnnotation = useControlsStore((s) => s.removeAnnotation);
+  const activeAnnotationTool = useControlsStore((s) => s.activeAnnotationTool);
+  const selectedAnnotationId = useControlsStore((s) => s.selectedAnnotationId);
+  const setActiveAnnotationTool = useControlsStore(
+    (s) => s.setActiveAnnotationTool,
+  );
+  const setSelectedAnnotationId = useControlsStore(
+    (s) => s.setSelectedAnnotationId,
+  );
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [drawing, setDrawing] = useState<DrawingState | null>(null);
   const [isDragging, setIsDragging] = useState(false);

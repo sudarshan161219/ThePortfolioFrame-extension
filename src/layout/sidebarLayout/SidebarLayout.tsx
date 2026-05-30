@@ -113,86 +113,91 @@ function ToggleRow({
 }
 
 export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
-  const {
-    isPro,
-    tilt,
-    showBrowserFrame,
-    showDeviceFrame,
-    pageUrl,
-    pageTitle,
-    bgImage,
-    customBg,
-    bgBlur,
-    bgSize,
-    handle,
-    activeBg,
-    tiltX,
-    tiltY,
-    tiltZ,
-    zoom,
-    animation,
-    aspectRatio,
-    browserMockup,
-    deviceMockup,
-    borderRadius,
-    shadowVariant,
-    shadowOpacity,
-    borderWidth,
-    borderColor,
-    isGlassBorder,
-    screenLeft,
-    screenTop,
-    screenWidth,
-    screenHeight,
-    annotations,
-    addAnnotation,
-    removeAnnotation,
-    annotationColor,
-    annotationFontSize,
-    annotationFontFamily,
-    activeAnnotationTool,
-    selectedAnnotationId,
-
-    setTilt,
-    setBrowserFrame,
-    setDeviceFrame,
-    setMockupCategory,
-    setBgImage,
-    setCustomBg,
-    setBgBlur,
-    setBgSize,
-    setHandle,
-    setPageUrl,
-    setPageTitle,
-    setActiveBg,
-    setTiltX,
-    setTiltY,
-    setTiltZ,
-    setAspectRatio,
-    setZoom,
-    setAnimation,
-    setBrowserMockup,
-    setDeviceMockup,
-    setBorderRadius,
-    setShadowVariant,
-    setShadowOpacity,
-    setBorderWidth,
-    setBorderColor,
-    setIsGlassBorder,
-
-    setScreenLeft,
-    setScreenTop,
-    setScreenWidth,
-    setScreenHeight,
-
-    setActiveAnnotationTool,
-    setAnnotationColor,
-    setAnnotationFontSize,
-    setAnnotationFontFamily,
-    updateAnnotation,
-  } = useControlsStore();
+  const isPro = useControlsStore((s) => s.isPro);
+  const tilt = useControlsStore((s) => s.tilt);
+  const showBrowserFrame = useControlsStore((s) => s.showBrowserFrame);
+  const showDeviceFrame = useControlsStore((s) => s.showDeviceFrame);
+  const pageUrl = useControlsStore((s) => s.pageUrl);
+  const pageTitle = useControlsStore((s) => s.pageTitle);
+  const bgImage = useControlsStore((s) => s.bgImage);
+  const customBg = useControlsStore((s) => s.customBg);
+  const bgBlur = useControlsStore((s) => s.bgBlur);
+  const bgSize = useControlsStore((s) => s.bgSize);
+  const handle = useControlsStore((s) => s.handle);
+  const activeBg = useControlsStore((s) => s.activeBg);
+  const tiltX = useControlsStore((s) => s.tiltX);
+  const tiltY = useControlsStore((s) => s.tiltY);
+  const tiltZ = useControlsStore((s) => s.tiltZ);
+  const zoom = useControlsStore((s) => s.zoom);
+  const animation = useControlsStore((s) => s.animation);
+  const aspectRatio = useControlsStore((s) => s.aspectRatio);
+  const browserMockup = useControlsStore((s) => s.browserMockup);
+  const deviceMockup = useControlsStore((s) => s.deviceMockup);
+  const borderRadius = useControlsStore((s) => s.borderRadius);
+  const shadowVariant = useControlsStore((s) => s.shadowVariant);
+  const shadowOpacity = useControlsStore((s) => s.shadowOpacity);
+  const borderWidth = useControlsStore((s) => s.borderWidth);
+  const borderColor = useControlsStore((s) => s.borderColor);
+  const isGlassBorder = useControlsStore((s) => s.isGlassBorder);
+  const screenLeft = useControlsStore((s) => s.screenLeft);
+  const screenTop = useControlsStore((s) => s.screenTop);
+  const screenWidth = useControlsStore((s) => s.screenWidth);
+  const screenHeight = useControlsStore((s) => s.screenHeight);
+  const annotations = useControlsStore((s) => s.annotations);
+  const addAnnotation = useControlsStore((s) => s.addAnnotation);
+  const removeAnnotation = useControlsStore((s) => s.removeAnnotation);
+  const annotationColor = useControlsStore((s) => s.annotationColor);
+  const annotationFontSize = useControlsStore((s) => s.annotationFontSize);
+  const annotationFontFamily = useControlsStore((s) => s.annotationFontFamily);
+  const activeAnnotationTool = useControlsStore((s) => s.activeAnnotationTool);
+  const selectedAnnotationId = useControlsStore((s) => s.selectedAnnotationId);
+  const setTilt = useControlsStore((s) => s.setTilt);
+  const setBrowserFrame = useControlsStore((s) => s.setBrowserFrame);
+  const setDeviceFrame = useControlsStore((s) => s.setDeviceFrame);
+  const setMockupCategory = useControlsStore((s) => s.setMockupCategory);
+  const setBgImage = useControlsStore((s) => s.setBgImage);
+  const setBgImageRaw = useControlsStore((s) => s.setBgImageRaw);
+  const setCustomBg = useControlsStore((s) => s.setCustomBg);
+  const setBgBlur = useControlsStore((s) => s.setBgBlur);
+  const setBgSize = useControlsStore((s) => s.setBgSize);
+  const setHandle = useControlsStore((s) => s.setHandle);
+  const setPageUrl = useControlsStore((s) => s.setPageUrl);
+  const setPageTitle = useControlsStore((s) => s.setPageTitle);
+  const setActiveBg = useControlsStore((s) => s.setActiveBg);
+  const setTiltX = useControlsStore((s) => s.setTiltX);
+  const setTiltY = useControlsStore((s) => s.setTiltY);
+  const setTiltZ = useControlsStore((s) => s.setTiltZ);
+  const setAspectRatio = useControlsStore((s) => s.setAspectRatio);
+  const setZoom = useControlsStore((s) => s.setZoom);
+  const setAnimation = useControlsStore((s) => s.setAnimation);
+  const setBrowserMockup = useControlsStore((s) => s.setBrowserMockup);
+  const setDeviceMockup = useControlsStore((s) => s.setDeviceMockup);
+  const setBorderRadius = useControlsStore((s) => s.setBorderRadius);
+  const setShadowVariant = useControlsStore((s) => s.setShadowVariant);
+  const setShadowOpacity = useControlsStore((s) => s.setShadowOpacity);
+  const setBorderWidth = useControlsStore((s) => s.setBorderWidth);
+  const setBorderColor = useControlsStore((s) => s.setBorderColor);
+  const setIsGlassBorder = useControlsStore((s) => s.setIsGlassBorder);
+  const setScreenLeft = useControlsStore((s) => s.setScreenLeft);
+  const setScreenTop = useControlsStore((s) => s.setScreenTop);
+  const setScreenWidth = useControlsStore((s) => s.setScreenWidth);
+  const setScreenHeight = useControlsStore((s) => s.setScreenHeight);
+  const setActiveAnnotationTool = useControlsStore(
+    (s) => s.setActiveAnnotationTool,
+  );
+  const setAnnotationColor = useControlsStore((s) => s.setAnnotationColor);
+  const setAnnotationFontSize = useControlsStore(
+    (s) => s.setAnnotationFontSize,
+  );
+  const setAnnotationFontFamily = useControlsStore(
+    (s) => s.setAnnotationFontFamily,
+  );
+  const updateAnnotation = useControlsStore((s) => s.updateAnnotation);
 
   const annotationsRef = useRef(annotations);
+  const prevBgUrl = useRef<string | null>(null);
+  const readerRef = useRef<FileReader | null>(null);
+
   useEffect(() => {
     annotationsRef.current = annotations;
   }, [annotations]);
@@ -218,16 +223,31 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setBgImage(reader.result as string);
-    };
+    // abort in-flight read
+    if (readerRef.current) readerRef.current.abort();
+
+    if (prevBgUrl.current) URL.revokeObjectURL(prevBgUrl.current);
+
+    const objectUrl = URL.createObjectURL(file);
+    setBgImage(objectUrl);
+
+    const reader = new FileReader();
+    readerRef.current = reader;
+    reader.onloadend = () => setBgImageRaw(reader.result as string);
     reader.readAsDataURL(file);
 
-    // setBgImage(URL.createObjectURL(file));
     setCustomBg("");
     setActiveBg(null);
+  };
+
+  const handleBgClear = () => {
+    if (prevBgUrl.current) {
+      URL.revokeObjectURL(prevBgUrl.current);
+      prevBgUrl.current = null;
+    }
+    setBgImage(null);
+    setBgImageRaw(null);
   };
 
   const handleBgSelect = (bg: (typeof BACKGROUNDS)[0]) => {
@@ -818,7 +838,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               </label>
               {bgImage && (
                 <button
-                  onClick={() => setBgImage(null)}
+                  onClick={handleBgClear}
                   className={styles.ghostBtn}
                   style={{ marginTop: 6 }}
                 >

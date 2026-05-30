@@ -1,22 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Frame } from "./components/frame/Frame.tsx";
 import { useControlsStore } from "./store/useControlsStore.ts";
 import { ratios } from "./constants/ratios";
+import { base64ToBlob } from "./helpers/base64ToBlob.ts";
 import styles from "./EditorApp.module.css";
 
 export const EditorApp = () => {
-  const {
-    bgImage,
-    imageSource,
-    customBg,
-    activeBg,
-    aspectRatio,
-    bgBlur,
-    bgSize,
-    handle,
-    setPageUrl,
-    setImageSource,
-  } = useControlsStore();
+  const bgImage = useControlsStore((s) => s.bgImage);
+  const imageSource = useControlsStore((s) => s.imageSource);
+  const customBg = useControlsStore((s) => s.customBg);
+  const activeBg = useControlsStore((s) => s.activeBg);
+  const aspectRatio = useControlsStore((s) => s.aspectRatio);
+  const bgBlur = useControlsStore((s) => s.bgBlur);
+  const bgSize = useControlsStore((s) => s.bgSize);
+  const handle = useControlsStore((s) => s.handle);
+  const setPageUrl = useControlsStore((s) => s.setPageUrl);
+  const setImageSource = useControlsStore((s) => s.setImageSource);
+  const setImageSourceRaw = useControlsStore((s) => s.setImageSourceRaw);
+
+  const prevImageUrl = useRef<string | null>(null);
 
   useEffect(() => {
     chrome.storage.local.get(
@@ -27,7 +29,13 @@ export const EditorApp = () => {
         const finalUrl = result.tempUrlBridge || result.capturedUrl;
 
         if (finalImage && typeof finalImage === "string") {
-          setImageSource(finalImage);
+          if (prevImageUrl.current) URL.revokeObjectURL(prevImageUrl.current);
+
+          const blob = base64ToBlob(finalImage);
+          const objectUrl = URL.createObjectURL(blob);
+          prevImageUrl.current = objectUrl;
+          setImageSource(objectUrl);
+          setImageSourceRaw(finalImage);
         } else {
           console.warn(
             "[The Portfolio Frame] No valid image found in storage.",
@@ -44,7 +52,10 @@ export const EditorApp = () => {
         }
       },
     );
-  }, [setImageSource, setPageUrl]);
+    return () => {
+      if (prevImageUrl.current) URL.revokeObjectURL(prevImageUrl.current);
+    };
+  }, [setImageSource, setImageSourceRaw, setPageUrl]);
 
   const dynamicBgStyle: React.CSSProperties = {
     background: bgImage ? `url(${bgImage})` : customBg,

@@ -15,6 +15,19 @@ export default defineConfig({
         popup: resolve(__dirname, "popup.html"),
         upload: resolve(__dirname, "upload.html"),
       },
+
+      output: {
+        manualChunks(id) {
+          if (id.includes("@remotion/web-renderer")) return "remotion-renderer";
+          if (id.includes("remotion") || id.includes("@remotion"))
+            return "remotion-core";
+          if (id.includes("html-to-image")) return "html-to-image";
+          if (id.includes("html2canvas")) return "html2canvas";
+          if (id.includes("react-dom") || id.includes("react"))
+            return "react-vendor";
+        },
+      },
     },
+    chunkSizeWarningLimit: 600,
   },
 });
