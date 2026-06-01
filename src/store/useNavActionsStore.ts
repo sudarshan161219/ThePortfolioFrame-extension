@@ -161,33 +161,50 @@ async function exportVideo(
 
   const isGif = appState.bgImageRaw?.startsWith("data:image/gif");
 
-  // 2. Trigger the WebCodecs render
-  const { getBlob } = await renderMediaOnWeb({
-    composition: {
-      id: "PortfolioMockup",
-      component: RemotionFrame, // We will build this next!
-      durationInFrames: isGif ? 180 : 120, // 4 seconds at 30fps
-      fps: 30,
-      width: videoWidth,
-      height: videoHeight,
-    } as any,
-    // Remotion components must be pure. Pass the Zustand state as props here!
-    inputProps: serializableProps,
-    container: format,
-    videoCodec: format === "mp4" ? "h264" : "vp8",
-    audioCodec: "opus", // explicit — stops the AAC fallback warning
-    muted: true,
-    // 3. Connect Remotion's progress directly to your Zustand store
-    onProgress: ({ progress }) => {
-      onProgress(progress);
-    },
-  });
+  const abortController = new AbortController();
 
-  // 4. Download the final video
-  const blob = await getBlob();
-  const url = URL.createObjectURL(blob);
-  download(url, FILENAME(format));
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  try {
+    // Trigger the WebCodecs render
+    const { getBlob } = await renderMediaOnWeb({
+      composition: {
+        id: "PortfolioMockup",
+        component: RemotionFrame, // We will build this next!
+        durationInFrames: isGif ? 180 : 120, // 4 seconds at 30fps
+        fps: 30,
+        width: videoWidth,
+        height: videoHeight,
+      } as any,
+      // Remotion components must be pure. Pass the Zustand state as props here!
+      inputProps: serializableProps,
+      container: format,
+      videoCodec: format === "mp4" ? "h264" : "vp8",
+      audioCodec: "opus", // explicit — stops the AAC fallback warning
+      muted: true,
+      // 3. Connect Remotion's progress directly to your Zustand store
+      onProgress: ({ progress }) => {
+        onProgress(progress);
+      },
+    });
+
+    // Download the final video
+    const blob = await getBlob();
+
+    // Release the large base64 strings immediately after render
+    serializableProps.imageSourceRaw = null;
+    serializableProps.bgImageRaw = null;
+
+    const url = URL.createObjectURL(blob);
+    download(url, FILENAME(format));
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error) {
+    if (abortController.signal.aborted) {
+      console.log("[The Portfolio Frame] Render was cancelled.");
+    } else {
+      throw error;
+    }
+  } finally {
+    abortController.abort();
+  }
 }
 
 // ── Store ────────────────────────────────────────────────
