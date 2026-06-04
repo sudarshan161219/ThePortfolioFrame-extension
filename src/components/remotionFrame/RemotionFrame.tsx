@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  AbsoluteFill,
-  useCurrentFrame,
-  spring,
-  useVideoConfig,
-  Img,
-} from "remotion";
+import { AbsoluteFill, Img } from "remotion";
+import styles from "./index.module.css";
 import { Gif } from "@remotion/gif";
+// import { ratios } from "../../constants/ratios";
 
 // Constants (Adjust import paths to match your project)
 import { SHADOW_PRESETS } from "../../constants/shadow_presets";
@@ -48,24 +44,18 @@ export interface RemotionFrameProps {
   screenHeight: number;
 
   previewScale: number;
+  previewWidth: number;
+  previewHeight: number;
 
   imageNaturalWidth: number;
   imageNaturalHeight: number;
 
   animation: string;
+  aspectRatio: string;
   annotations: Annotation[];
 }
 
 export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
-  const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
-
-  const PADDING_X = width * 0.1;
-  const windowWidth = width - PADDING_X * 2;
-
-  const imageAspect = props.imageNaturalWidth / props.imageNaturalHeight;
-  const windowHeight = windowWidth / imageAspect;
-
   // ─── 1. Helpers ──────────────────────────────────────────
   const isGif = (url: string | null) => {
     if (!url) return false;
@@ -102,45 +92,51 @@ export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
   if (props.isGlassBorder && props.borderWidth > 0) {
     dynamicShadow += `, inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1)`;
   }
+
   const innerRadius =
     props.borderWidth > 0
       ? Math.max(0, props.borderRadius - props.borderWidth)
       : props.borderRadius;
 
-  // ─── 3. Remotion Math Animations ─────────────────────────
-  const baseScale = spring({
-    frame,
-    fps,
-    config: { damping: 12 },
-    from: 0.8,
-    to: props.zoom,
-  });
-
-  // Recreate CSS animations using JS Math
-  let animatedScale = baseScale;
-  let floatY = 0;
-
-  if (props.animation === "breathe") {
-    animatedScale = baseScale + Math.sin(frame / 10) * 0.02;
-  } else if (props.animation === "float") {
-    floatY = Math.sin(frame / 15) * 15;
-  }
-
   const combinedTransform = props.tilt
-    ? `scale(${animatedScale}) translateY(${floatY}px) rotateX(${props.tiltX}deg) rotateY(${props.tiltY}deg) rotateZ(${props.tiltZ}deg)`
-    : `scale(${animatedScale}) translateY(${floatY}px)`;
+    ? `scale(${props.zoom}) rotateX(${props.tiltX}deg) rotateY(${props.tiltY}deg) rotateZ(${props.tiltZ}deg)`
+    : `scale(${props.zoom})`;
+
+  // const combinedTransform = props.tilt
+  //   ? `scale(${props.zoom * props.previewScale}) rotateX(${props.tiltX}deg) rotateY(${props.tiltY}deg) rotateZ(${props.tiltZ}deg)`
+  //   : `scale(${props.zoom * props.previewScale})`;
+
+  const animationClass =
+    props.animation !== "none" ? styles[`anim-${props.animation}`] : "";
+
+  const baseStyle = {
+    transform: props.animation === "none" ? combinedTransform : undefined,
+  } as React.CSSProperties;
+
+  const frameStyle =
+    props.mockupCategory === "device"
+      ? baseStyle
+      : ({
+          ...baseStyle,
+          borderRadius: `${props.borderRadius}px`,
+          boxShadow: dynamicShadow,
+          border:
+            props.borderWidth > 0
+              ? `${props.borderWidth}px solid ${props.borderColor}`
+              : "none",
+          "--glass-opacity": 0.12,
+        } as React.CSSProperties);
 
   const highResImageStyle: React.CSSProperties = {
     width: "100%",
     height: "100%",
-    objectFit: "cover",
-    objectPosition: "top center",
     display: "block",
-    imageRendering: "smooth",
-    WebkitFontSmoothing: "antialiased",
-    transform: "translateZ(0)",
-    willChange: "transform",
+    ...(props.tilt ? { transform: "translateZ(0)" } : {}),
   };
+
+  // const ratio = ratios.find((r) => r.value === props.aspectRatio);
+  // const newAspectRatio =
+  //   ratio?.width && ratio?.height ? `${ratio.width} / ${ratio.height}` : "auto";
 
   // ─── 4. Render ───────────────────────────────────────────
   return (
@@ -152,6 +148,7 @@ export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
         alignItems: "center",
         textRendering: "auto",
         WebkitFontSmoothing: "antialiased",
+        position: "relative",
       }}
     >
       {/* ==========================================
@@ -160,48 +157,10 @@ export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
       <div
         style={{
           position: "absolute",
-          inset: -100, // Overscan slightly to prevent edge gaps on blur
+          inset: 0,
           zIndex: 0,
-          background: props.customBg || "#111827", // Base fallback color
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        {/* 🚀 FIX 2: Use Remotion Tags instead of CSS background-image */}
-        {props.bgImageRaw &&
-          (isGif(props.bgImageRaw) ? (
-            <Gif
-              src={props.bgImageRaw}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: props.bgSize === "auto" ? "cover" : props.bgSize,
-                filter: `blur(${props.bgBlur}px)`,
-                transform: `scale(${1 + props.bgBlur / 200})`,
-              }}
-            />
-          ) : (
-            <Img
-              src={props.bgImageRaw}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: props.bgSize === "auto" ? "cover" : props.bgSize,
-                filter: `blur(${props.bgBlur}px)`,
-                transform: `scale(${1 + props.bgBlur / 200})`,
-              }}
-            />
-          ))}
-      </div>
-
-      {/* ==========================================
-          LAYER 2: 3D WINDOW (From Frame.tsx)
-      ========================================== */}
-      <div
-        style={{
-          zIndex: 1,
-          perspective: "1200px",
+          background: props.customBg || "#111827",
+          overflow: "hidden",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -209,135 +168,215 @@ export const RemotionFrame: React.FC<RemotionFrameProps> = (props) => {
           height: "100%",
         }}
       >
+        {/* If we have an image (either GIF or Static) */}
+        {
+          props.bgImageRaw ? (
+            isGif(props.bgImageRaw) ? (
+              // 2. Render GIF using @remotion/gif
+              <Gif
+                src={props.bgImageRaw}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit:
+                    props.bgSize === "auto" ? "none" : (props.bgSize as any),
+                  objectPosition: "center",
+                  filter: `blur(${props.bgBlur}px)`,
+                  transform: `scale(${1 + props.bgBlur / 200}) translate3d(0,0,0)`,
+                }}
+              />
+            ) : (
+              // 3. Render Static Images using Remotion's <Img> for render synchronization
+              <Img
+                src={props.bgImageRaw}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: props.bgSize === "auto" ? "none" : props.bgSize,
+                  objectPosition: "center",
+                  filter: `blur(${props.bgBlur}px)`,
+                  transform: `scale(${1 + props.bgBlur / 200}) translate3d(0,0,0)`,
+                  imageRendering: "-webkit-optimize-contrast",
+                }}
+              />
+            )
+          ) : null /* If no image, the parent div's customBg color/gradient simply shows through */
+        }
+      </div>
+      {/* ==========================================
+          LAYER 2: 3D WINDOW (From Frame.tsx)
+      ========================================== */}
+      <div
+        style={{
+          zIndex: 1,
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          perspective: `${1200}px`,
+          width: "100%",
+          height: "100%",
+        }}
+      >
         <div
           style={{
-            transform: combinedTransform,
-            transformStyle: "preserve-3d",
-            borderRadius:
-              props.mockupCategory !== "device"
-                ? `${props.borderRadius}px`
-                : "0px",
-            boxShadow:
-              props.mockupCategory !== "device" ? dynamicShadow : "none",
-            border:
-              props.mockupCategory !== "device" && props.borderWidth > 0
-                ? `${props.borderWidth}px solid ${props.borderColor}`
-                : "none",
-            backgroundColor:
-              props.mockupCategory !== "none" ? "transparent" : "#fff",
-            position: "relative",
-            width: windowWidth,
-            height: windowHeight,
+            width: `${props.previewWidth}px`,
+            height: `${props.previewHeight}px`,
+            transform: `scale(${props.previewScale})`,
+            transformOrigin: "center center",
             display: "flex",
-            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            willChange: props.animation !== "none" ? "transform" : "auto",
           }}
         >
           <div
-            style={{
-              borderRadius: `${innerRadius}px`,
-              overflow: "hidden",
-              position: "relative",
-              width: "100%",
-              height: "100%",
-            }}
+            style={frameStyle}
+            className={`${styles.windowWrapper} ${animationClass} ${!props.isGlassBorder ? styles.noGlass : ""}`}
           >
-            {/* RENDER A: BROWSER */}
-            {props.mockupCategory === "browser" && activeBrowserConfig && (
-              <>
-                <div style={{ position: "relative", width: "100%" }}>
-                  <Img
-                    src={activeBrowserConfig.src}
-                    style={{ width: "100%", display: "block" }}
-                  />
-                  {activeBrowserConfig.overlays.map((overlay, idx) => (
-                    <div
-                      key={idx}
+            <div
+              style={{
+                borderRadius: `${innerRadius}px`,
+                overflow: "hidden",
+                position: "relative",
+                width: "100%",
+                height: "100%",
+              }}
+            >
+              {/* RENDER A: BROWSER */}
+              {props.mockupCategory === "browser" && activeBrowserConfig && (
+                <>
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <Img
+                      src={activeBrowserConfig.src}
+                      style={{ width: "100%", display: "block" }}
+                    />
+                    {activeBrowserConfig.overlays.map((overlay, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          position: "absolute",
+                          top: overlay.top,
+                          left: overlay.left,
+                          width: overlay.width,
+                          fontSize: overlay.fontSize,
+                          color: overlay.color,
+                          textAlign: overlay.align as any,
+                          fontWeight: overlay.fontWeight || "400",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {overlay.type === "url" ? cleanUrl : displayTitle}
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    style={{
+                      width: "100%",
+                      position: "relative",
+                      flex: 1,
+                      minHeight: 0,
+                    }}
+                  >
+                    <Img
+                      src={props.imageSourceRaw}
                       style={{
-                        position: "absolute",
-                        top: overlay.top,
-                        left: overlay.left,
-                        width: overlay.width,
-                        fontSize: overlay.fontSize,
-                        color: overlay.color,
-                        textAlign: overlay.align as any,
-                        fontWeight: overlay.fontWeight || "400",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        ...highResImageStyle,
+                        imageRendering: "-webkit-optimize-contrast",
+                        WebkitFontSmoothing: "antialiased",
+                        height: "auto",
                       }}
-                    >
-                      {overlay.type === "url" ? cleanUrl : displayTitle}
-                    </div>
-                  ))}
-                </div>
-                <div style={{ width: "100%", position: "relative" }}>
-                  <Img src={props.imageSourceRaw} style={highResImageStyle} />
-                </div>
-              </>
-            )}
+                    />
+                  </div>
+                </>
+              )}
 
-            {/* RENDER B: DEVICE */}
-            {props.mockupCategory === "device" && activeDeviceConfig && (
-              <div
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  aspectRatio: activeDeviceConfig.aspectRatio.toString(),
-                }}
-              >
-                {/* 1. Screen Area (Behind Device) */}
+              {/* RENDER B: DEVICE */}
+              {props.mockupCategory === "device" && activeDeviceConfig && (
                 <div
                   style={{
-                    position: "absolute",
-                    top: `${props.screenTop}%`,
-                    left: `${props.screenLeft}%`,
-                    width: `${props.screenWidth}%`,
-                    height: `${props.screenHeight}%`,
-                    borderRadius:
-                      activeDeviceConfig.screen.borderRadius ?? "0px",
-                    overflow: "hidden",
-                    zIndex: 1,
+                    position: "relative",
+                    width: "100%",
+                    aspectRatio: activeDeviceConfig.aspectRatio.toString(),
                   }}
                 >
-                  <Img src={props.imageSourceRaw} style={highResImageStyle} />
-                  {/* Annotations specific to Device Screen */}
+                  {/* 1. Screen Area (Behind Device) */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: `${props.screenTop}%`,
+                      left: `${props.screenLeft}%`,
+                      width: `${props.screenWidth}%`,
+                      height: `${props.screenHeight}%`,
+                      borderRadius:
+                        activeDeviceConfig.screen.borderRadius ?? "0px",
+                      overflow: "hidden",
+                      zIndex: 1,
+                    }}
+                  >
+                    <Img
+                      src={props.imageSourceRaw}
+                      style={{
+                        ...highResImageStyle,
+                        imageRendering: "-webkit-optimize-contrast",
+                        WebkitFontSmoothing: "antialiased",
+                      }}
+                    />
+                    {/* Annotations specific to Device Screen */}
+                    <AnnotationLayerStatic
+                      annotations={props.annotations}
+                      scale={props.previewScale}
+                    />
+                  </div>
+                  {/* 2. Device Frame (On Top) */}
+                  <Img
+                    src={activeDeviceConfig.src}
+                    style={{
+                      ...highResImageStyle,
+                      position: "absolute",
+                      inset: 0,
+                      zIndex: 2,
+                      pointerEvents: "none",
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* RENDER C: NONE */}
+              {props.mockupCategory === "none" && (
+                <div
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                >
+                  <Img
+                    src={props.imageSourceRaw}
+                    style={{
+                      ...highResImageStyle,
+                      imageRendering: "-webkit-optimize-contrast",
+                      WebkitFontSmoothing: "antialiased",
+                    }}
+                  />
                   <AnnotationLayerStatic
                     annotations={props.annotations}
                     scale={props.previewScale}
                   />
                 </div>
-                {/* 2. Device Frame (On Top) */}
-                <Img
-                  src={activeDeviceConfig.src}
-                  style={{
-                    ...highResImageStyle,
-                    position: "absolute",
-                    inset: 0,
-                    zIndex: 2,
-                    pointerEvents: "none",
-                  }}
-                />
-              </div>
-            )}
+              )}
 
-            {/* RENDER C: NONE */}
-            {props.mockupCategory === "none" && (
-              <div style={{ position: "relative", width: "100%" }}>
-                <Img src={props.imageSourceRaw} style={highResImageStyle} />
+              {/* Browser annotations render over the whole window content */}
+              {props.mockupCategory === "browser" && (
                 <AnnotationLayerStatic
                   annotations={props.annotations}
                   scale={props.previewScale}
                 />
-              </div>
-            )}
-
-            {/* Browser annotations render over the whole window content */}
-            {props.mockupCategory === "browser" && (
-              <AnnotationLayerStatic
-                annotations={props.annotations}
-                scale={props.previewScale}
-              />
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

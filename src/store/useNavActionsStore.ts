@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { useControlsStore } from "./useControlsStore";
+import { ratios } from "../constants/ratios";
+import { HtmlInCanvas } from "remotion";
 
 // ── Types ────────────────────────────────────────────────
 
@@ -98,12 +100,22 @@ async function exportImage(
 async function exportVideo(
   format: "mp4" | "webm",
   onProgress: (progress: number) => void,
-  previewContainerWidth: number,
+  targetWidth: number,
+  targetHeight: number,
 ): Promise<void> {
   const [{ renderMediaOnWeb }, { RemotionFrame }] = await Promise.all([
     import("@remotion/web-renderer"),
     import("../components/remotionFrame/RemotionFrame"),
   ]);
+
+  // Warn user if flag isn't enabled — they'll get fallback rendering
+  const htmlInCanvasSupported = HtmlInCanvas.isSupported();
+  if (!htmlInCanvasSupported) {
+    console.warn(
+      "[Portfolio Frame] For best export quality, enable chrome://flags/#canvas-draw-element",
+    );
+    // don't block — allowHtmlInCanvas auto-falls back, still works
+  }
 
   // 1. Grab the current state from your controls store to feed into Remotion
   const appState = useControlsStore.getState();
@@ -113,35 +125,20 @@ async function exportVideo(
     return;
   }
 
-  let videoHeight = 1080;
-  let videoWidth = 1920;
+  let videoWidth = targetWidth;
+  let videoHeight = targetHeight;
 
-  try {
-    if (appState.aspectRatio && appState.aspectRatio !== "auto") {
-      const parts = appState.aspectRatio.split("/");
+  // H264 safety — must be even
+  if (videoWidth % 2 !== 0) videoWidth += 1;
+  if (videoHeight % 2 !== 0) videoHeight += 1;
 
-      // Ensure it actually split into exactly two pieces (e.g., ["16", "9"])
-      if (parts.length === 2) {
-        const ratioW = parseFloat(parts[0].trim());
-        const ratioH = parseFloat(parts[1].trim());
+  const exportTarget = document.getElementById("portfolio-export-target");
+  const previewWidth = exportTarget?.clientWidth ?? 1280;
+  const previewHeight = exportTarget?.clientHeight ?? 720;
 
-        // Only do the math if both are perfectly valid numbers
-        if (!isNaN(ratioW) && !isNaN(ratioH) && ratioH !== 0) {
-          videoWidth = Math.round(videoHeight * (ratioW / ratioH));
+  const previewScale = videoWidth / previewWidth;
 
-          // H264 Codec Safety: Must be an even number
-          if (videoWidth % 2 !== 0) videoWidth += 1;
-        }
-      }
-    }
-  } catch (err) {
-    console.warn("Failed to parse aspect ratio, falling back to 16:9", err);
-  }
-
-  if (isNaN(videoWidth) || videoWidth <= 0) videoWidth = 1920;
-  if (isNaN(videoHeight) || videoHeight <= 0) videoHeight = 1080;
-
-  const previewScale = videoWidth / previewContainerWidth;
+  const isGif = appState.bgImageRaw?.startsWith("data:image/gif");
 
   const serializableProps = Object.fromEntries(
     Object.entries(appState).filter(
@@ -149,17 +146,9 @@ async function exportVideo(
     ),
   ) as Record<string, unknown>;
 
+  serializableProps.previewWidth = previewWidth;
+  serializableProps.previewHeight = previewHeight;
   serializableProps.previewScale = previewScale;
-
-  if (appState.bgImageRaw) {
-    serializableProps.bgImageRaw = appState.bgImageRaw;
-  }
-
-  if (appState.imageSourceRaw) {
-    serializableProps.imageSourceRaw = appState.imageSourceRaw;
-  }
-
-  const isGif = appState.bgImageRaw?.startsWith("data:image/gif");
 
   const abortController = new AbortController();
 
@@ -168,19 +157,18 @@ async function exportVideo(
     const { getBlob } = await renderMediaOnWeb({
       composition: {
         id: "PortfolioMockup",
-        component: RemotionFrame, // We will build this next!
+        component: RemotionFrame, // component
         durationInFrames: isGif ? 180 : 120, // 4 seconds at 30fps
         fps: 30,
         width: videoWidth,
         height: videoHeight,
       } as any,
-      // Remotion components must be pure. Pass the Zustand state as props here!
       inputProps: serializableProps,
       container: format,
       videoCodec: format === "mp4" ? "h264" : "vp8",
-      audioCodec: "opus", // explicit — stops the AAC fallback warning
+      audioCodec: "opus",
       muted: true,
-      // 3. Connect Remotion's progress directly to your Zustand store
+      allowHtmlInCanvas: true,
       onProgress: ({ progress }) => {
         onProgress(progress);
       },
@@ -234,11 +222,31 @@ export const useNavActionsStore = create<NavActionsState>()((set) => ({
           break;
         case "mp4":
         case "webm": {
-          const previewEl = document.getElementById(
-            "remotion-preview-container",
-          );
-          const previewContainerWidth = previewEl?.clientWidth ?? 1280;
-          await exportVideo(format, onProgress, previewContainerWidth);
+          // Grab state from your central controls store
+          const { aspectRatio, imageNaturalWidth, imageNaturalHeight } =
+            useControlsStore.getState();
+          const ratio = ratios.find((r) => r.value === aspectRatio);
+
+          const TARGET_WIDTH = 1920; // High-res base
+          let TARGET_HEIGHT = 1080; // Default fallback
+
+          if (ratio && ratio.value !== "auto") {
+            // If a standard aspect ratio preset is active (e.g., 16:9, 4:5, 1:1)
+            if (ratio.height && ratio.width) {
+              TARGET_HEIGHT = Math.round(
+                (TARGET_WIDTH * ratio.height) / ratio.width,
+              );
+            }
+          } else {
+            // "auto" mode: Match the exact aspect ratio of the raw captured screenshot
+            const naturalWidth = imageNaturalWidth || 1920;
+            const naturalHeight = imageNaturalHeight || 1080;
+            TARGET_HEIGHT = Math.round(
+              (TARGET_WIDTH * naturalHeight) / naturalWidth,
+            );
+          }
+
+          await exportVideo(format, onProgress, TARGET_WIDTH, TARGET_HEIGHT);
           break;
         }
       }
