@@ -12,7 +12,10 @@ export const EditorApp = () => {
   const activeBg = useControlsStore((s) => s.activeBg);
   const aspectRatio = useControlsStore((s) => s.aspectRatio);
   const bgBlur = useControlsStore((s) => s.bgBlur);
-  const bgSize = useControlsStore((s) => s.bgSize);
+  // const bgSize = useControlsStore((s) => s.bgSize);
+  const bgScale = useControlsStore((s) => s.bgScale);
+  const bgPositionX = useControlsStore((s) => s.bgPositionX);
+  const bgPositionY = useControlsStore((s) => s.bgPositionY);
   const handle = useControlsStore((s) => s.handle);
   const setPageUrl = useControlsStore((s) => s.setPageUrl);
   const setImageSource = useControlsStore((s) => s.setImageSource);
@@ -59,13 +62,13 @@ export const EditorApp = () => {
 
   const dynamicBgStyle: React.CSSProperties = {
     background: bgImage ? `url(${bgImage})` : customBg,
-    backgroundSize: bgSize,
-    backgroundPosition: "center",
+    backgroundSize: `${bgScale * 100}%`,
+    backgroundPosition: `${bgPositionX}% ${bgPositionY}%`,
+    backgroundRepeat: "no-repeat",
     filter: `blur(${bgImage && bgBlur}px)`,
     transform: bgImage ? `scale(${1 + bgBlur / 200})` : undefined,
     transition: "all 0.3s ease",
   };
-
   if (!imageSource) {
     return (
       <div className={styles.loadingState}>
@@ -87,6 +90,7 @@ export const EditorApp = () => {
           id="portfolio-export-target"
           className={styles.exportWrapper}
           data-auto={ratio?.value === "auto"}
+          data-bg={true}
           style={
             {
               "--w": ratio?.width,

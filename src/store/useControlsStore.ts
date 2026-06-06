@@ -42,16 +42,11 @@ export interface Annotation {
 
 export type AspectRatio =
   | "auto"
-  | "1 / 1"
-  | "4 / 5"
-  | "9 / 16"
-  | "2 / 3"
-  | "3 / 4"
-  | "16 / 9"
-  | "4 / 3"
-  | "3 / 2"
-  | "21 / 9"
-  | "1.91 / 1";
+  | "square"
+  | "portrait"
+  | "story"
+  | "landscape"
+  | "slides";
 
 export type BrowserMockup =
   | "chrome-win-light"
@@ -99,6 +94,9 @@ interface AppState {
   customBg: string;
   bgBlur: number;
   bgSize: "cover" | "contain" | "auto";
+  bgScale: number;
+  bgPositionX: number;
+  bgPositionY: number;
 
   handle: string;
   terminalPath: string;
@@ -157,6 +155,9 @@ interface AppState {
   setCustomBg: (val: string) => void;
   setBgBlur: (val: number) => void;
   setBgSize: (val: "cover" | "contain" | "auto") => void;
+  setBgScale: (val: number) => void;
+  setBgPositionX: (val: number) => void;
+  setBgPositionY: (val: number) => void;
   setHandle: (val: string) => void;
   setTerminalPath: (path: string) => void;
 
@@ -259,6 +260,9 @@ export const useControlsStore = create<AppState>()(
       customBg: "",
       bgBlur: 0,
       bgSize: "cover",
+      bgScale: 1.0,
+      bgPositionX: 50,
+      bgPositionY: 50,
 
       handle: "",
       activeBg: null,
@@ -310,7 +314,9 @@ export const useControlsStore = create<AppState>()(
       setCustomBg: (val) => set({ customBg: val }),
       setBgBlur: (val) => set({ bgBlur: val }),
       setBgSize: (val) => set({ bgSize: val }),
-
+      setBgPositionX: (val) => set({ bgPositionX: val }),
+      setBgPositionY: (val) => set({ bgPositionY: val }),
+      setBgScale: (val) => set({ bgScale: val }),
       setHandle: (val) => set({ handle: val }),
       setActiveBg: (val) => set({ activeBg: val }),
       setTerminalPath: (path) => set({ terminalPath: path }),
