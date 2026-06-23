@@ -32,6 +32,22 @@ export const ratios = [
   },
 
   {
+    label: "3:2",
+    value: "blog",
+    subtext: "Blog / Dribbble",
+    width: 1500,
+    height: 1000,
+  },
+
+  {
+    label: "2:1",
+    value: "banner",
+    subtext: "Twitter Banner",
+    width: 1500,
+    height: 750,
+  },
+
+  {
     label: "16:9",
     value: "landscape",
     subtext: "YouTube",
@@ -45,5 +61,20 @@ export const ratios = [
     subtext: "Slides",
     width: 1600,
     height: 1200,
+  },
+
+  {
+    label: "1.91:1",
+    value: "og",
+    subtext: "Open Graph / LinkedIn",
+    width: 1200,
+    height: 630,
+  },
+  {
+    label: "21:9",
+    value: "ultrawide",
+    subtext: "Ultrawide",
+    width: 2560,
+    height: 1080,
   },
 ];

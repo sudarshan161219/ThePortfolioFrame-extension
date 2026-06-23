@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canvas Export Debugger — Portfolio Frame</title>
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141416;
+    --surface2: #1c1c1f;
+    --border: rgba(255,255,255,0.07);
+    --accent: #7743DB;
+    --accent-dim: rgba(119,67,219,0.15);
+    --text: #e8e8ea;
+    --text-dim: #6b6b72;
+    --text-muted: #3a3a40;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: 48px 1fr;
+  }
+
+  /* ── Header ── */
+  header {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+  }
+
+  header .logo {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  header .sep { color: var(--text-muted); }
+
+  header .title {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  header .actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 16px 0;
+  }
+
+  .section {
+    padding: 0 16px 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-top: 12px;
+  }
+
+  .field {
+    margin-bottom: 10px;
+  }
+
+  .field label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .field label span {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 10px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 3px;
+    -webkit-appearance: none;
+    background: var(--surface2);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  input[type="text"], input[type="number"], select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 8px;
+    outline: none;
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    border-color: var(--accent);
+  }
+
+  select option { background: var(--surface2); }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+  }
+
+  .toggle-row span { font-size: 11px; color: var(--text-dim); }
+
+  .toggle {
+    width: 32px;
+    height: 18px;
+    background: var(--surface2);
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+
+  .toggle.on { background: var(--accent); border-color: var(--accent); }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+  }
+
+  .toggle.on::after { transform: translateX(14px); }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    font-size: 11px;
+    font-family: var(--sans);
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s;
+  }
+
+  .btn:hover { opacity: 0.85; }
+  .btn:active { opacity: 0.7; }
+
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .btn-danger { background: var(--red); color: white; }
+  .btn-success { background: var(--green); color: #000; font-weight: 600; }
+
+  .btn-sm { padding: 4px 10px; font-size: 10px; }
+
+  /* ── Main area ── */
+  main {
+    display: grid;
+    grid-template-rows: 1fr 200px;
+    overflow: hidden;
+  }
+
+  /* ── Canvas preview ── */
+  .preview-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .canvas-container {
+    position: relative;
+    box-shadow: 0 0 0 1px var(--border), 0 24px 48px rgba(0,0,0,0.6);
+  }
+
+  canvas {
+    display: block;
+    max-width: 100%;
+    max-height: calc(100vh - 48px - 200px - 40px);
+    object-fit: contain;
+  }
+
+  .canvas-size-badge {
+    position: absolute;
+    bottom: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* ── Layer chips ── */
+  .layer-chips {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .chip {
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-family: var(--mono);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .chip.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+  .chip.done { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.1); }
+  .chip.error { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.1); }
+
+  /* ── Log panel ── */
+  .log-panel {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .log-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .log-header span {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .log-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.8;
+  }
+
+  .log-entry {
+    display: flex;
+    gap: 12px;
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .log-time { color: var(--text-muted); min-width: 60px; }
+
+  .log-tag {
+    min-width: 100px;
+    font-weight: 600;
+  }
+
+  .log-tag.bg { color: #60a5fa; }
+  .log-tag.screenshot { color: #a78bfa; }
+  .log-tag.chrome { color: #34d399; }
+  .log-tag.export { color: var(--accent); }
+  .log-tag.error { color: var(--red); }
+  .log-tag.warn { color: var(--yellow); }
+
+  .log-msg { color: var(--text-dim); flex: 1; }
+
+  /* ── Upload zone ── */
+  .upload-zone {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 11px;
+    transition: border-color 0.15s;
+    position: relative;
+  }
+
+  .upload-zone:hover { border-color: var(--accent); color: var(--text-dim); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-zone.has-file { border-color: var(--green); color: var(--green); }
+
+  /* ── Color input ── */
+  .color-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  input[type="color"] {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: none;
+    cursor: pointer;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    height: 2px;
+    background: var(--surface2);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 1px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  /* ── Stat pills ── */
+  .stats {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .stat {
+    padding: 3px 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .stat strong { color: var(--text); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">Portfolio Frame</span>
+  <span class="sep">/</span>
+  <span class="title">Canvas Export Debugger</span>
+  <div class="actions">
+    <button class="btn btn-ghost btn-sm" onclick="clearLog()">Clear log</button>
+    <button class="btn btn-primary btn-sm" onclick="runExport()">▶ Run Export</button>
+    <button class="btn btn-success btn-sm" onclick="downloadCanvas()">↓ Download</button>
+  </div>
+</header>
+
+<aside>
+
+  <!-- Canvas dimensions -->
+  <div class="section">
+    <div class="section-label">Canvas</div>
+    <div class="field">
+      <label>Preset <span id="presetLabel">1920×1080</span></label>
+      <select id="presetSelect" onchange="applyPreset()">
+        <option value="auto">Auto (from screenshot)</option>
+        <option value="1920x1080" selected>16:9 — 1920×1080</option>
+        <option value="1080x1080">1:1 — 1080×1080</option>
+        <option value="1080x1350">4:5 — 1080×1350</option>
+        <option value="1080x1920">9:16 — 1080×1920</option>
+        <option value="1600x1200">4:3 — 1600×1200</option>
+        <option value="1500x1000">3:2 — 1500×1000</option>
+        <option value="1200x630">OG — 1200×630</option>
+        <option value="3840x2160">4K — 3840×2160</option>
+      </select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Width</label>
+        <input type="number" id="outputW" value="1920" min="100" max="7680" onchange="updateStats()">
+      </div>
+      <div class="field">
+        <label>Height</label>
+        <input type="number" id="outputH" value="1080" min="100" max="7680" onchange="updateStats()">
+      </div>
+    </div>
+    <div class="field">
+      <label>Export Scale <span id="scaleVal">1×</span></label>
+      <input type="range" id="exportScale" min="1" max="4" step="0.5" value="1"
+        oninput="document.getElementById('scaleVal').textContent=this.value+'×'; updateStats()">
+    </div>
+    <div class="field">
+      <label>Format</label>
+      <select id="format">
+        <option value="png">PNG</option>
+        <option value="jpeg">JPEG</option>
+        <option value="webp">WebP</option>
+      </select>
+    </div>
+    <div class="stats" id="canvasStats">
+      <div class="stat">Output: <strong>1920×1080</strong></div>
+    </div>
+  </div>
+
+  <!-- Screenshot -->
+  <div class="section">
+    <div class="section-label">Screenshot (Layer B)</div>
+    <div class="toggle-row">
+      <span>Enable layer</span>
+      <div class="toggle on" id="toggleScreenshot" onclick="toggleLayer(this)"></div>
+    </div>
+    <div class="upload-zone" id="screenshotZone">
+      <input type="file" accept="image/*" onchange="loadScreenshot(event)">
+      Drop screenshot or click
+    </div>
+    <div class="field" style="margin-top:10px">
+      <label>Mockup mode</label>
+      <select id="mockupCategory" onchange="updateStats()">
+        <option value="none">None (plain)</option>
+        <option value="browser">Browser mockup</option>
+        <option value="device">Device mockup</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Zoom <span id="zoomVal">0.50</span></label>
+      <input type="range" id="zoom" min="0.1" max="2" step="0.01" value="0.5"
+        oninput="document.getElementById('zoomVal').textContent=parseFloat(this.value).toFixed(2)">
+    </div>
+    <!-- Browser mode fields -->
+    <div id="browserFields" style="display:none">
+      <div class="field">
+        <label>Header fraction <span id="headerFracVal">0.07</span></label>
+        <input type="range" id="headerFrac" min="0.02" max="0.2" step="0.005" value="0.07"
+          oninput="document.getElementById('headerFracVal').textContent=parseFloat(this.value).toFixed(3)">
+      </div>
+      <div class="field">
+        <label>Content H fraction <span id="contentFracVal">0.93</span></label>
+        <input type="range" id="contentFrac" min="0.5" max="0.98" step="0.005" value="0.93"
+          oninput="document.getElementById('contentFracVal').textContent=parseFloat(this.value).toFixed(3)">
+      </div>
+      <div class="field">
+        <label>Frame aspect ratio (W/H) <span id="frameARVal">2.00</span></label>
+        <input type="range" id="frameAR" min="1" max="3" step="0.01" value="2.0"
+          oninput="document.getElementById('frameARVal').textContent=parseFloat(this.value).toFixed(2)">
+      </div>
+    </div>
+    <!-- Device mode fields -->
+    <div id="deviceFields" style="display:none">
+      <div class="field">
+        <label>Device aspect ratio <span id="deviceARVal">1.573</span></label>
+        <input type="range" id="deviceAR" min="0.5" max="3" step="0.001" value="1.573"
+          oninput="document.getElementById('deviceARVal').textContent=parseFloat(this.value).toFixed(3)">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Screen left % <span id="screenLeftVal">13</span></label>
+          <input type="range" id="screenLeft" min="0" max="50" step="0.1" value="13"
+            oninput="document.getElementById('screenLeftVal').textContent=parseFloat(this.value).toFixed(1)">
+        </div>
+        <div class="field">
+          <label>Screen top % <span id="screenTopVal">13.2</span></label>
+          <input type="range" id="screenTop" min="0" max="50" step="0.1" value="13.2"
+            oninput="document.getElementById('screenTopVal').textContent=parseFloat(this.value).toFixed(1)">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Screen W % <span id="screenWVal">74.43</span></label>
+          <input type="range" id="screenW" min="10" max="100" step="0.1" value="74.43"
+            oninput="document.getElementById('screenWVal').textContent=parseFloat(this.value).toFixed(1)">
+        </div>
+        <div class="field">
+          <label>Screen H % <span id="screenHVal">74</span></label>
+          <input type="range" id="screenH" min="10" max="100" step="0.1" value="74"
+            oninput="document.getElementById('screenHVal').textContent=parseFloat(this.value).toFixed(1)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background -->
+  <div class="section">
+    <div class="section-label">Background (Layer A)</div>
+    <div class="toggle-row">
+      <span>Enable layer</span>
+      <div class="toggle on" id="toggleBg" onclick="toggleLayer(this)"></div>
+    </div>
+    <div class="field">
+      <label>Type</label>
+      <select id="bgType" onchange="updateBgFields()">
+        <option value="gradient">Gradient / Solid color</option>
+        <option value="image">Uploaded image</option>
+        <option value="black">Black (fallback)</option>
+      </select>
+    </div>
+    <!-- Gradient -->
+    <div id="gradientFields">
+      <div class="field">
+        <label>CSS background value</label>
+        <input type="text" id="customBg"
+          value="linear-gradient(135deg, #12c2e9 0%, #c471ed 50%, #f64f59 100%)"
+          placeholder="e.g. linear-gradient(...) or #ff0000">
+      </div>
+    </div>
+    <!-- Image bg -->
+    <div id="imageBgFields" style="display:none">
+      <div class="upload-zone" id="bgImageZone">
+        <input type="file" accept="image/*" onchange="loadBgImage(event)">
+        Drop background image or click
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label>Scale <span id="bgScaleVal">1.00×</span></label>
+        <input type="range" id="bgScale" min="0.5" max="3" step="0.01" value="1"
+          oninput="document.getElementById('bgScaleVal').textContent=parseFloat(this.value).toFixed(2)+'×'">
+      </div>
+      <div class="field">
+        <label>Position X <span id="bgPosXVal">50%</span></label>
+        <input type="range" id="bgPosX" min="0" max="100" step="1" value="50"
+          oninput="document.getElementById('bgPosXVal').textContent=this.value+'%'">
+      </div>
+      <div class="field">
+        <label>Position Y <span id="bgPosYVal">50%</span></label>
+        <input type="range" id="bgPosY" min="0" max="100" step="1" value="50"
+          oninput="document.getElementById('bgPosYVal').textContent=this.value+'%'">
+      </div>
+      <div class="field">
+        <label>Blur <span id="bgBlurVal">0px</span></label>
+        <input type="range" id="bgBlur" min="0" max="40" step="1" value="0"
+          oninput="document.getElementById('bgBlurVal').textContent=this.value+'px'">
+      </div>
+      <div class="field">
+        <label>Container width (el.offsetWidth) <span id="containerWVal">873</span></label>
+        <input type="range" id="containerW" min="200" max="2000" step="1" value="873"
+          oninput="document.getElementById('containerWVal').textContent=this.value">
+      </div>
+      <div class="field">
+        <label>Container height (el.offsetHeight) <span id="containerHVal">582</span></label>
+        <input type="range" id="containerH" min="200" max="2000" step="1" value="582"
+          oninput="document.getElementById('containerHVal').textContent=this.value">
+      </div>
+    </div>
+  </div>
+
+  <!-- Chrome layer -->
+  <div class="section">
+    <div class="section-label">Chrome (Layer C)</div>
+    <div class="toggle-row">
+      <span>Enable layer</span>
+      <div class="toggle" id="toggleChrome" onclick="toggleLayer(this)"></div>
+    </div>
+    <p style="font-size:10px; color:var(--text-muted); margin-top:4px">
+      Layer C uses html-to-image and requires the actual DOM element — not simulatable here. Toggle layers A+B to isolate issues.
+    </p>
+  </div>
+
+</aside>
+
+<main>
+  <div class="preview-area">
+    <div class="layer-chips" id="layerChips">
+      <div class="chip" id="chipA">A: bg</div>
+      <div class="chip" id="chipB">B: screenshot</div>
+      <div class="chip" id="chipC">C: chrome</div>
+    </div>
+    <div class="canvas-container">
+      <canvas id="exportCanvas"></canvas>
+      <div class="canvas-size-badge" id="sizeBadge">1920 × 1080</div>
+    </div>
+  </div>
+
+  <div class="log-panel">
+    <div class="log-header">
+      <span>Output log</span>
+      <div class="progress-bar" style="width:200px">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+    <div class="log-body" id="logBody"></div>
+  </div>
+</main>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let screenshotImg = null;
+let bgImageImg = null;
+
+// ── Logging ────────────────────────────────────────────────────────────────
+function log(tag, msg, type = '') {
+  const body = document.getElementById('logBody');
+  const time = new Date().toLocaleTimeString('en', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `
+    <span class="log-time">${time}</span>
+    <span class="log-tag ${type || tag.toLowerCase()}">[${tag}]</span>
+    <span class="log-msg">${typeof msg === 'object' ? JSON.stringify(msg, null, 0) : msg}</span>
+  `;
+  body.appendChild(entry);
+  body.scrollTop = body.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('logBody').innerHTML = '';
+}
+
+function setProgress(pct) {
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function v(id) { return document.getElementById(id); }
+function fv(id) { return parseFloat(v(id).value); }
+function iv(id) { return parseInt(v(id).value); }
+
+function toggleLayer(el) {
+  el.classList.toggle('on');
+}
+
+function isOn(id) {
+  return v(id).classList.contains('on');
+}
+
+function applyPreset() {
+  const val = v('presetSelect').value;
+  if (val === 'auto') {
+    if (screenshotImg) {
+      v('outputW').value = screenshotImg.naturalWidth;
+      v('outputH').value = screenshotImg.naturalHeight;
+    }
+  } else {
+    const [w, h] = val.split('x').map(Number);
+    v('outputW').value = w;
+    v('outputH').value = h;
+  }
+  updateStats();
+}
+
+function updateStats() {
+  const w = iv('outputW') * fv('exportScale');
+  const h = iv('outputH') * fv('exportScale');
+  v('canvasStats').innerHTML = `
+    <div class="stat">Output: <strong>${Math.round(w)}×${Math.round(h)}</strong></div>
+    <div class="stat">Scale: <strong>${fv('exportScale')}×</strong></div>
+  `;
+  v('presetLabel').textContent = `${iv('outputW')}×${iv('outputH')}`;
+
+  // Show/hide mode fields
+  const mode = v('mockupCategory').value;
+  v('browserFields').style.display = mode === 'browser' ? 'block' : 'none';
+  v('deviceFields').style.display = mode === 'device' ? 'block' : 'none';
+}
+
+function updateBgFields() {
+  const type = v('bgType').value;
+  v('gradientFields').style.display = type === 'gradient' ? 'block' : 'none';
+  v('imageBgFields').style.display = type === 'image' ? 'block' : 'none';
+}
+
+function loadScreenshot(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      screenshotImg = img;
+      v('screenshotZone').classList.add('has-file');
+      v('screenshotZone').textContent = `✓ ${file.name} (${img.naturalWidth}×${img.naturalHeight})`;
+      log('INFO', `Screenshot loaded: ${img.naturalWidth}×${img.naturalHeight}`);
+      // Auto-set auto preset
+      if (v('presetSelect').value === 'auto') applyPreset();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadBgImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      bgImageImg = img;
+      v('bgImageZone').classList.add('has-file');
+      v('bgImageZone').textContent = `✓ ${file.name} (${img.naturalWidth}×${img.naturalHeight})`;
+      log('INFO', `BG image loaded: ${img.naturalWidth}×${img.naturalHeight}`);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Cover crop ─────────────────────────────────────────────────────────────
+function coverCrop(iW, iH, targetW, targetH) {
+  const imgRatio = iW / iH;
+  const targetRatio = targetW / targetH;
+  let sw, sh, sx, sy;
+  if (imgRatio > targetRatio) {
+    sh = iH; sw = sh * targetRatio;
+    sx = (iW - sw) / 2; sy = 0;
+  } else {
+    sw = iW; sh = sw / targetRatio;
+    sx = 0; sy = (iH - sh) / 2;
+  }
+  return { sx, sy, sw, sh };
+}
+
+// ── Draw CSS background ────────────────────────────────────────────────────
+function splitGradientArgs(inner) {
+  const parts = [];
+  let depth = 0, current = '';
+  for (const ch of inner) {
+    if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+    if (ch === ',' && depth === 0) { parts.push(current.trim()); current = ''; }
+    else current += ch;
+  }
+  if (current.trim()) parts.push(current.trim());
+  return parts;
+}
+
+function directionToDeg(dir) {
+  const d = dir.replace('to ', '').trim();
+  const map = { top: 0, 'top right': 45, right: 90, 'bottom right': 135, bottom: 180, 'bottom left': 225, left: 270, 'top left': 315 };
+  return map[d] ?? 180;
+}
+
+function angleToPoints(deg, w, h) {
+  const rad = ((deg - 90) * Math.PI) / 180;
+  const cx = w / 2, cy = h / 2;
+  const len = Math.abs(w * Math.sin(rad)) + Math.abs(h * Math.cos(rad));
+  const half = len / 2;
+  return { x0: cx - Math.cos(rad) * half, y0: cy - Math.sin(rad) * half, x1: cx + Math.cos(rad) * half, y1: cy + Math.sin(rad) * half };
+}
+
+function parseColorStop(part, index, total) {
+  const s = part.trim();
+  const lastSpace = s.lastIndexOf(' ');
+  let color = s, stop = index / Math.max(total - 1, 1);
+  if (lastSpace !== -1) {
+    const maybeStop = s.slice(lastSpace + 1);
+    if (maybeStop.endsWith('%')) { stop = parseFloat(maybeStop) / 100; color = s.slice(0, lastSpace).trim(); }
+  }
+  return { color, stop: Math.min(1, Math.max(0, stop)) };
+}
+
+function drawCssBackground(ctx, bg, w, h) {
+  const s = bg.trim();
+  if (!s.includes('gradient')) { ctx.fillStyle = s; ctx.fillRect(0, 0, w, h); return; }
+
+  if (s.startsWith('linear-gradient')) {
+    const inner = s.slice(s.indexOf('(') + 1, s.lastIndexOf(')'));
+    const parts = splitGradientArgs(inner);
+    let angleDeg = 180, colorStart = 0;
+    const first = parts[0].trim();
+    if (first.endsWith('deg')) { angleDeg = parseFloat(first); colorStart = 1; }
+    else if (first.startsWith('to ')) { angleDeg = directionToDeg(first); colorStart = 1; }
+    const { x0, y0, x1, y1 } = angleToPoints(angleDeg, w, h);
+    const grad = ctx.createLinearGradient(x0, y0, x1, y1);
+    for (let i = colorStart; i < parts.length; i++) {
+      const { color, stop } = parseColorStop(parts[i], i - colorStart, parts.length - colorStart);
+      grad.addColorStop(stop, color);
+    }
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h); return;
+  }
+
+  if (s.startsWith('radial-gradient')) {
+    const inner = s.slice(s.indexOf('(') + 1, s.lastIndexOf(')'));
+    const parts = splitGradientArgs(inner);
+    let colorStart = 0;
+    const first = parts[0].trim();
+    if (first.startsWith('circle') || first.startsWith('ellipse') || first.includes('at ')) colorStart = 1;
+    const cx = w / 2, cy = h / 2;
+    const r = Math.sqrt(cx * cx + cy * cy);
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    for (let i = colorStart; i < parts.length; i++) {
+      const { color, stop } = parseColorStop(parts[i], i - colorStart, parts.length - colorStart);
+      grad.addColorStop(stop, color);
+    }
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h); return;
+  }
+
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
+}
+
+// ── Apply blur and draw ────────────────────────────────────────────────────
+function applyBlurAndDraw(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh, blur) {
+  if (blur > 0) {
+    const pad = blur * 2;
+    ctx.filter = `blur(${blur}px)`;
+    ctx.drawImage(img, sx, sy, sw, sh, dx - pad, dy - pad, dw + pad * 2, dh + pad * 2);
+    ctx.filter = 'none';
+  } else {
+    ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+  }
+}
+
+// ── Main export ────────────────────────────────────────────────────────────
+async function runExport() {
+  clearLog();
+  setProgress(5);
+  log('EXPORT', 'Starting export...');
+
+  const outputW = Math.round(iv('outputW') * fv('exportScale'));
+  const outputH = Math.round(iv('outputH') * fv('exportScale'));
+  const format = v('format').value;
+
+  log('EXPORT', { outputW, outputH, format });
+
+  const canvas = v('exportCanvas');
+  canvas.width = outputW;
+  canvas.height = outputH;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  v('sizeBadge').textContent = `${outputW} × ${outputH}`;
+
+  // Update chip states
+  ['A', 'B', 'C'].forEach(l => {
+    v(`chip${l}`).className = 'chip';
+  });
+
+  setProgress(15);
+
+  // ── Layer A: Background ────────────────────────────────────────────────
+  if (isOn('toggleBg')) {
+    v('chipA').className = 'chip active';
+    const bgType = v('bgType').value;
+
+    try {
+      if (bgType === 'image' && bgImageImg) {
+        const iW = bgImageImg.naturalWidth;
+        const iH = bgImageImg.naturalHeight;
+        const BLEED = 160;
+        const containerW = fv('containerW');
+        const containerH = fv('containerH');
+        const bgElW = containerW + BLEED;
+        const bgElH = containerH + BLEED;
+        const screenToCanvasRatio = outputW / containerW;
+        const scale = fv('bgScale');
+        const dw = bgElW * scale * screenToCanvasRatio;
+        const dh = (iH / iW) * dw;
+        const px = fv('bgPosX') / 100;
+        const py = fv('bgPosY') / 100;
+        const exportBgElW = bgElW * screenToCanvasRatio;
+        const exportBgElH = bgElH * screenToCanvasRatio;
+        const offsetX = (exportBgElW - dw) * px;
+        const offsetY = (exportBgElH - dh) * py;
+        const blur = fv('bgBlur');
+
+        log('BG', { iW, iH, containerW, bgElW, screenToCanvasRatio, scale, dw: Math.round(dw), dh: Math.round(dh), offsetX: Math.round(offsetX), offsetY: Math.round(offsetY), blur });
+        applyBlurAndDraw(ctx, bgImageImg, 0, 0, iW, iH, offsetX, offsetY, dw, dh, blur);
+
+      } else if (bgType === 'gradient') {
+        const customBg = v('customBg').value.trim();
+        log('BG', `Drawing gradient: ${customBg}`);
+        drawCssBackground(ctx, customBg, outputW, outputH);
+
+      } else {
+        log('BG', 'Filling black (fallback)');
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, outputW, outputH);
+      }
+      v('chipA').className = 'chip done';
+      log('BG', '✓ Layer A complete');
+    } catch(e) {
+      v('chipA').className = 'chip error';
+      log('BG', `Error: ${e.message}`, 'error');
+    }
+  }
+
+  setProgress(40);
+
+  // ── Layer B: Screenshot ────────────────────────────────────────────────
+  if (isOn('toggleScreenshot') && screenshotImg) {
+    v('chipB').className = 'chip active';
+    const nativeImgW = screenshotImg.naturalWidth;
+    const nativeImgH = screenshotImg.naturalHeight;
+    const mode = v('mockupCategory').value;
+    const zoom = fv('zoom');
+    const BASE_WIDTH = 1920;
+
+    let destX = 0, destY = 0, destW = outputW, destH = outputH;
+
+    try {
+      if (mode === 'none') {
+        const correctedZoom = zoom * (outputW / BASE_WIDTH);
+        destW = nativeImgW * correctedZoom;
+        destH = nativeImgH * correctedZoom;
+        destX = (outputW - destW) / 2;
+        destY = (outputH - destH) / 2;
+
+      } else if (mode === 'browser') {
+        const frameAR = fv('frameAR');
+        const headerFrac = fv('headerFrac');
+        const contentFrac = fv('contentFrac');
+        const frameH = outputW / frameAR;
+        destX = 0;
+        destY = frameH * headerFrac;
+        destW = outputW;
+        destH = frameH * contentFrac;
+
+      } else if (mode === 'device') {
+        const deviceAR = fv('deviceAR');
+        const frameH = outputW / deviceAR;
+        destX = outputW * (fv('screenLeft') / 100);
+        destY = frameH * (fv('screenTop') / 100);
+        destW = outputW * (fv('screenW') / 100);
+        destH = frameH * (fv('screenH') / 100);
+      }
+
+      log('SCREENSHOT', { mode, nativeImgW, nativeImgH, destX: Math.round(destX), destY: Math.round(destY), destW: Math.round(destW), destH: Math.round(destH) });
+
+      // Source crop — cover + top aligned
+      const imgRatio = nativeImgW / nativeImgH;
+      const destRatio = destW / destH;
+      let srcX, srcY, srcW, srcH;
+
+      if (imgRatio > destRatio) {
+        srcW = nativeImgH * destRatio;
+        srcX = (nativeImgW - srcW) / 2;
+        srcY = 0; srcH = nativeImgH;
+      } else {
+        srcH = nativeImgW / destRatio;
+        srcX = 0; srcY = 0; srcW = nativeImgW;
+      }
+
+      log('SCREENSHOT', { srcX: Math.round(srcX), srcY, srcW: Math.round(srcW), srcH: Math.round(srcH) });
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(destX, destY, destW, destH);
+      ctx.clip();
+      ctx.drawImage(screenshotImg, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
+      ctx.restore();
+
+      v('chipB').className = 'chip done';
+      log('SCREENSHOT', '✓ Layer B complete');
+    } catch(e) {
+      v('chipB').className = 'chip error';
+      log('SCREENSHOT', `Error: ${e.message}`, 'error');
+    }
+  } else if (isOn('toggleScreenshot') && !screenshotImg) {
+    log('SCREENSHOT', 'No screenshot loaded — skipping', 'warn');
+  }
+
+  setProgress(80);
+
+  // ── Layer C placeholder ─────────────────────────────────────────────────
+  if (isOn('toggleChrome')) {
+    v('chipC').className = 'chip active';
+    log('CHROME', 'Layer C requires live DOM — not simulatable here', 'warn');
+    v('chipC').className = 'chip error';
+  }
+
+  setProgress(100);
+  log('EXPORT', `✓ Done — ${outputW}×${outputH} ${format.toUpperCase()}`);
+
+  setTimeout(() => setProgress(0), 2000);
+}
+
+function downloadCanvas() {
+  const canvas = v('exportCanvas');
+  if (!canvas.width) { log('EXPORT', 'Run export first', 'warn'); return; }
+  const format = v('format').value;
+  const mime = format === 'jpeg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `export-debug-${Date.now()}.${format === 'jpeg' ? 'jpg' : format}`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    log('EXPORT', `Downloaded as ${a.download}`);
+  }, mime, format === 'png' ? undefined : 0.95);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+updateStats();
+updateBgFields();
+document.getElementById('mockupCategory').addEventListener('change', updateStats);
+log('EXPORT', 'Debugger ready. Load a screenshot and click Run Export.');
+</script>
+</body>
+</html>

@@ -1,5 +1,14 @@
 import { create } from "zustand";
-import { useControlsStore } from "./useControlsStore";
+import { type AppState, useControlsStore } from "./useControlsStore";
+// import {
+//   resolveCanvasDimensions,
+//   renderBackgroundLayer,
+// } from "../helpers/exportLayers/backgroundLayer";
+// import { generateMockupCanvas } from "../helpers/exportLayers/mockupRenderer";
+// import { DEVICE_MOCKUPS } from "../constants/Device_mockup_config";
+// import { BROWSER_MOCKUP_CONFIG } from "../constants/browser_mockup_config";
+// import { parseBoxShadow } from "../helpers/exportLayers/parseBoxShadow";
+import { toBlob, toJpeg, toSvg } from "html-to-image";
 import { ratios } from "../constants/ratios";
 import { HtmlInCanvas } from "remotion";
 
@@ -10,6 +19,7 @@ type ExportFormat =
   | "png"
   | "jpeg"
   | "webp"
+  | "svg"
   | "gif"
   | "mp4"
   | "webm";
@@ -38,8 +48,6 @@ function getTarget(): HTMLElement | null {
   return el;
 }
 
-// ── Export functions ─────────────────────────────────────
-
 async function exportToClipboard(el: HTMLElement): Promise<void> {
   const { toBlob } = await import("html-to-image");
   const blob = await toBlob(el, { pixelRatio: 3 });
@@ -47,52 +55,96 @@ async function exportToClipboard(el: HTMLElement): Promise<void> {
   await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
 }
 
-async function exportImage(
-  el: HTMLElement,
-  format: "png" | "jpeg" | "webp",
+const BASE_WIDTH = 1920;
+
+const calculatePixelRatio = (appState: AppState, domWidth: number) => {
+  const currentRatio = ratios.find((r) => r.value === appState.aspectRatio);
+  const exportScale = appState.exportQuality || 1;
+
+  // Add `currentRatio.width == null` to catch both null and undefined widths
+  if (
+    !currentRatio ||
+    currentRatio.value === "auto" ||
+    currentRatio.width == null
+  ) {
+    const naturalW = appState.imageNaturalWidth || domWidth;
+    const targetWidth = Math.max(BASE_WIDTH, naturalW);
+    return (targetWidth / domWidth) * exportScale;
+  }
+
+  // TypeScript now knows for a fact that currentRatio.width is a number
+  const isHighDensityPreset = currentRatio.width >= BASE_WIDTH * 1.5;
+  const scale = isHighDensityPreset ? 1 : exportScale;
+
+  return (currentRatio.width / domWidth) * scale;
+};
+
+/**
+ * Handles the creation and cleanup of a temporary anchor tag for downloading.
+ */
+const triggerDownload = (blob: Blob, format: string) => {
+  const downloadUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+
+  anchor.href = downloadUrl;
+  anchor.download = `portfolio-frame.${format === "jpeg" ? "jpg" : format}`;
+  anchor.click();
+
+  // Cleanup memory safely after download initiates
+  setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+};
+
+// export
+export async function exportImage(
+  format: "png" | "jpeg" | "webp" | "svg",
 ): Promise<void> {
-  const options = {
-    pixelRatio: 3,
-    width: el.offsetWidth,
-    height: el.offsetHeight,
-    style: {
-      overflow: "hidden",
-    },
+  // 1. Grab the exact DOM node
+  const targetNode = document.getElementById("portfolio-export-target");
+
+  if (!targetNode) {
+    console.error("Export failed: target node not found in DOM.");
+    // TIP: Add a UI toast notification here so the user knows it failed!
+    return;
+  }
+
+  // 2. Fetch State & Calculate Dimensions
+  const appState = useControlsStore.getState();
+  const finalPixelRatio = calculatePixelRatio(appState, targetNode.offsetWidth);
+  const jpegQuality = appState.jpegQuality || 0.95;
+
+  // 3. Configure Export Options
+  const exportOptions = {
+    pixelRatio: finalPixelRatio,
+    quality: format === "jpeg" || format === "webp" ? jpegQuality : undefined,
+    skipFonts: false,
+    // Safely exclude UI controls from the final image
+    filter: (node: HTMLElement) =>
+      !node?.classList?.contains("ignore-on-export"),
   };
 
-  if (format === "png") {
-    const { toPng } = await import("html-to-image");
-    const url = await toPng(el, { ...options, pixelRatio: 3 });
-    download(url, FILENAME("png"));
-    return;
-  }
+  try {
+    let blob: Blob | null = null;
 
-  if (format === "jpeg") {
-    const { toJpeg } = await import("html-to-image");
-    const url = await toJpeg(el, { ...options, pixelRatio: 3 });
-    download(url, FILENAME("jpg"));
-    return;
-  }
+    // 4. Generate the Image
+    if (format === "jpeg") {
+      const dataUrl = await toJpeg(targetNode, exportOptions);
+      blob = await (await fetch(dataUrl)).blob();
+    } else if (format === "svg") {
+      // html-to-image returns SVGs as a dataUrl string
+      const dataUrl = await toSvg(targetNode, exportOptions);
+      blob = await (await fetch(dataUrl)).blob();
+    } else {
+      blob = await toBlob(targetNode, exportOptions);
+    }
 
-  if (format === "webp") {
-    const { default: html2canvas } = await import("html2canvas");
-    const canvas = await html2canvas(el, {
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: null,
-      scale: 3,
-      ...options,
-    });
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) throw new Error("WebP conversion failed.");
-        const url = URL.createObjectURL(blob);
-        download(url, FILENAME("webp"));
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-      },
-      "image/webp",
-      0.92,
-    );
+    if (!blob) {
+      throw new Error("Blob generation returned null");
+    }
+
+    // 5. Fire Download
+    triggerDownload(blob, format);
+  } catch (error) {
+    console.error("Failed to export image via SVG/DOM capture:", error);
   }
 }
 
@@ -202,7 +254,9 @@ export const useNavActionsStore = create<NavActionsState>()((set) => ({
   exportProgress: 0,
 
   triggerExport: async (format: ExportFormat) => {
-    const needsDOM = ["clipboard", "png", "jpeg", "webp"].includes(format);
+    const needsDOM = ["clipboard", "png", "jpeg", "webp", "svg"].includes(
+      format,
+    );
     const el = needsDOM ? getTarget() : null;
     if (needsDOM && !el) return;
 
@@ -218,7 +272,8 @@ export const useNavActionsStore = create<NavActionsState>()((set) => ({
         case "png":
         case "jpeg":
         case "webp":
-          await exportImage(el!, format);
+        case "svg":
+          await exportImage(format);
           break;
         case "mp4":
         case "webm": {

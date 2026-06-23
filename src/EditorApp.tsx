@@ -3,6 +3,7 @@ import { Frame } from "./components/frame/Frame.tsx";
 import { useControlsStore } from "./store/useControlsStore.ts";
 import { ratios } from "./constants/ratios";
 import { base64ToBlob } from "./helpers/base64ToBlob.ts";
+// import { GlassOverlay } from "./components/glassLayer/GlassLayer.tsx";
 import styles from "./EditorApp.module.css";
 
 export const EditorApp = () => {
@@ -12,14 +13,20 @@ export const EditorApp = () => {
   const activeBg = useControlsStore((s) => s.activeBg);
   const aspectRatio = useControlsStore((s) => s.aspectRatio);
   const bgBlur = useControlsStore((s) => s.bgBlur);
-  // const bgSize = useControlsStore((s) => s.bgSize);
+  const setIsPro = useControlsStore((s) => s.setIsPro);
   const bgScale = useControlsStore((s) => s.bgScale);
   const bgPositionX = useControlsStore((s) => s.bgPositionX);
   const bgPositionY = useControlsStore((s) => s.bgPositionY);
-  const handle = useControlsStore((s) => s.handle);
+  // const handle = useControlsStore((s) => s.handle);
+  const isPro = useControlsStore((s) => s.isPro);
   const setPageUrl = useControlsStore((s) => s.setPageUrl);
   const setImageSource = useControlsStore((s) => s.setImageSource);
   const setImageSourceRaw = useControlsStore((s) => s.setImageSourceRaw);
+  const showWatermark = useControlsStore((s) => s.showWatermark);
+  const watermarkText = useControlsStore((s) => s.watermarkText);
+  const watermarkTheme = useControlsStore((s) => s.watermarkTheme);
+  const watermarkFont = useControlsStore((s) => s.watermarkFont);
+  const watermarkColor = useControlsStore((s) => s.watermarkColor);
 
   const prevImageUrl = useRef<string | null>(null);
 
@@ -27,10 +34,10 @@ export const EditorApp = () => {
     chrome.storage.local.get(
       ["tempImageBridge", "tempUrlBridge", "capturedImage", "capturedUrl"],
       (result) => {
-        // 2. Prioritize the new bridge, fallback to the old capture method
+        // 1. Prioritize the new bridge, fallback to the old capture method
         const finalImage = result.tempImageBridge || result.capturedImage;
         const finalUrl = result.tempUrlBridge || result.capturedUrl;
-
+        setIsPro(true);
         if (finalImage && typeof finalImage === "string") {
           if (prevImageUrl.current) URL.revokeObjectURL(prevImageUrl.current);
 
@@ -49,19 +56,29 @@ export const EditorApp = () => {
           setPageUrl(finalUrl);
         }
 
-        // 3. Destroy ONLY the bridge data so it's fresh for next time
+        // 2. THE FIX: Transfer bridge data to permanent storage before destroying it
         if (result.tempImageBridge) {
-          chrome.storage.local.remove(["tempImageBridge", "tempUrlBridge"]);
+          chrome.storage.local.set(
+            {
+              capturedImage: result.tempImageBridge,
+              capturedUrl: result.tempUrlBridge || result.capturedUrl,
+            },
+            () => {
+              // 3. Now it is safe to destroy the bridge data
+              chrome.storage.local.remove(["tempImageBridge", "tempUrlBridge"]);
+            },
+          );
         }
       },
     );
+
     return () => {
       if (prevImageUrl.current) URL.revokeObjectURL(prevImageUrl.current);
     };
-  }, [setImageSource, setImageSourceRaw, setPageUrl]);
+  }, [setImageSource, setImageSourceRaw, setIsPro, setPageUrl]);
 
   const dynamicBgStyle: React.CSSProperties = {
-    background: bgImage ? `url(${bgImage})` : customBg,
+    background: bgImage ? `url(${bgImage}) no-repeat` : customBg,
     backgroundSize: `${bgScale * 100}%`,
     backgroundPosition: `${bgPositionX}% ${bgPositionY}%`,
     backgroundRepeat: "no-repeat",
@@ -106,12 +123,34 @@ export const EditorApp = () => {
             style={!usePreset ? dynamicBgStyle : {}}
             data-bg="true"
           />
-
+          {/* <GlassOverlay /> */}
           <Frame />
 
-          {handle && (
+          {/* {handle && (
             <div className={styles.watermark}>
               {handle.startsWith("@") ? handle : `@${handle}`}
+            </div>
+          )} */}
+
+          {(!isPro || showWatermark) && (
+            <div
+              className={`${styles.watermark} ${
+                // Force "Glass" theme for Free users, let Pro users pick
+                !isPro
+                  ? styles.watermarkGlass
+                  : styles[
+                      `watermark${watermarkTheme.charAt(0).toUpperCase() + watermarkTheme.slice(1)}`
+                    ]
+              }`}
+              style={{
+                fontFamily: !isPro
+                  ? '"JetBrains Mono", monospace'
+                  : watermarkFont,
+                color: !isPro ? "#ffffff" : watermarkColor,
+                fontWeight: !isPro ? 600 : 500, // Adjust weight as needed
+              }}
+            >
+              {!isPro ? "✨ Made with AppName" : watermarkText}
             </div>
           )}
         </div>

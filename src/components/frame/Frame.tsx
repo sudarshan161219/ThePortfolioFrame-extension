@@ -22,7 +22,9 @@ export const Frame = () => {
   const pageUrl = useControlsStore((s) => s.pageUrl);
   const pageTitle = useControlsStore((s) => s.pageTitle);
   const tilt = useControlsStore((s) => s.tilt);
-  const imageSource = useControlsStore((s) => s.imageSource);
+  // const imageSource = useControlsStore((s) => s.imageSource);
+  const imageSourceRaw = useControlsStore((s) => s.imageSourceRaw);
+
   const shadowVariant = useControlsStore((s) => s.shadowVariant);
   const shadowOpacity = useControlsStore((s) => s.shadowOpacity);
   const borderWidth = useControlsStore((s) => s.borderWidth);
@@ -54,7 +56,7 @@ export const Frame = () => {
   );
 
   if (isGlassBorder && borderWidth > 0) {
-    dynamicShadow += `, inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1)`;
+    dynamicShadow += `inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1)`;
   }
 
   const innerRadius =
@@ -78,6 +80,7 @@ export const Frame = () => {
           border:
             borderWidth > 0 ? `${borderWidth}px solid ${borderColor}` : "none",
           "--glass-opacity": 0.12,
+          "--border-width": `${borderWidth}px`,
         } as React.CSSProperties);
 
   return (
@@ -121,7 +124,7 @@ export const Frame = () => {
               </div>
               <div className={styles.windowContent}>
                 <img
-                  src={imageSource!}
+                  src={imageSourceRaw!}
                   alt="Captured tab"
                   className={styles.screenshot}
                 />
@@ -151,7 +154,7 @@ export const Frame = () => {
                 }}
               >
                 <img
-                  src={imageSource!}
+                  src={imageSourceRaw!}
                   onLoad={(e) => {
                     const img = e.currentTarget;
                     updateImageNaturalSize(img.naturalWidth, img.naturalHeight);
@@ -181,7 +184,7 @@ export const Frame = () => {
           {mockupCategory === "none" && (
             <div className={styles.windowContent}>
               <img
-                src={imageSource!}
+                src={imageSourceRaw!}
                 onLoad={(e) => {
                   const img = e.currentTarget;
                   updateImageNaturalSize(img.naturalWidth, img.naturalHeight);

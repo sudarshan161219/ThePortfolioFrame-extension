@@ -2,6 +2,18 @@ import { useState } from "react";
 import { useModalStore } from "../../../store/modalStore/useModalStore";
 import { useNavActionsStore } from "../../../store/useNavActionsStore";
 import { useControlsStore } from "../../../store/useControlsStore";
+import { HtmlInCanvas } from "remotion";
+import {
+  Image,
+  FileImage,
+  ScanLine,
+  SplinePointer,
+  Clipboard,
+  ImagePlay,
+  Circle,
+  Play,
+  type LucideIcon,
+} from "lucide-react";
 import styles from "./index.module.css";
 
 type ExportFormat =
@@ -9,6 +21,7 @@ type ExportFormat =
   | "png"
   | "jpeg"
   | "webp"
+  | "svg"
   | "gif"
   | "mp4"
   | "webm";
@@ -19,7 +32,7 @@ interface Option {
   ext?: string;
   desc: string;
   tier: "free" | "new" | "pro";
-  icon: string;
+  icon: LucideIcon;
   group: "quick" | "image" | "motion";
   isPro?: boolean;
 }
@@ -30,7 +43,7 @@ const OPTIONS: Option[] = [
     label: "Copy to clipboard",
     desc: "Paste directly into Notion, Figma, Slack, or any app",
     tier: "free",
-    icon: "ti-clipboard",
+    icon: Clipboard,
     group: "quick",
   },
   {
@@ -39,7 +52,7 @@ const OPTIONS: Option[] = [
     ext: "png",
     desc: "Lossless — best for screenshots with sharp text",
     tier: "free",
-    icon: "ti-photo",
+    icon: Image,
     group: "image",
   },
   {
@@ -48,7 +61,7 @@ const OPTIONS: Option[] = [
     ext: "jpg",
     desc: "Smaller file size, slight compression — good for sharing",
     tier: "free",
-    icon: "ti-file-type-jpg",
+    icon: FileImage,
     group: "image",
   },
   {
@@ -57,17 +70,26 @@ const OPTIONS: Option[] = [
     ext: "webp",
     desc: "Modern format — smaller than PNG, better than JPEG",
     tier: "new",
-    icon: "ti-photo-scan",
+    icon: ScanLine,
     group: "image",
   },
-
+  {
+    value: "svg",
+    label: ".svg",
+    ext: "svg",
+    desc: "Browser-ready vector format (not compatible with Figma/Illustrator)",
+    tier: "pro",
+    icon: SplinePointer,
+    group: "image",
+    isPro: true,
+  },
   {
     value: "gif",
     label: ".gif",
     ext: "gif",
     desc: "Animated export — plays anywhere, limited palette",
     tier: "free",
-    icon: "ti-player-record",
+    icon: ImagePlay,
     group: "motion",
   },
   {
@@ -76,7 +98,7 @@ const OPTIONS: Option[] = [
     ext: "mp4",
     desc: "High-quality video loop — great for Twitter / X posts",
     tier: "free",
-    icon: "ti-player-play",
+    icon: Play,
     group: "motion",
   },
   {
@@ -85,7 +107,7 @@ const OPTIONS: Option[] = [
     ext: "webm",
     desc: "Smallest file size, alpha channel support",
     tier: "pro",
-    icon: "ti-player-record",
+    icon: Circle,
     group: "motion",
     isPro: true,
   },
@@ -98,10 +120,17 @@ const GROUPS: { key: Option["group"]; label: string }[] = [
 ];
 
 export const ExportModal = () => {
-  const { isPro } = useControlsStore();
+  const {
+    isPro,
+    exportQuality,
+    setExportQuality,
+    jpegQuality,
+    setJpegQuality,
+  } = useControlsStore();
   const { triggerExport, isExporting, exportProgress } = useNavActionsStore();
   const { isOpen, type, closeModal, openModal } = useModalStore();
   const [selected, setSelected] = useState<ExportFormat>("png");
+  const [isHtmlCanvasSupported] = useState(() => HtmlInCanvas.isSupported());
 
   if (!isOpen || type !== "EXPORT") return null;
 
@@ -117,7 +146,7 @@ export const ExportModal = () => {
     }
     return selected === "clipboard"
       ? "Copy to clipboard"
-      : `Export .${selectedOption.ext}`;
+      : `Export ${selectedOption.ext ? `.${selectedOption.ext}` : ""}`;
   };
 
   const handleSelect = (opt: Option) => {
@@ -135,9 +164,12 @@ export const ExportModal = () => {
     if (selected === "clipboard") closeModal();
   };
 
+  const showQuality = selected !== "svg" && !isMotion;
+  const showSlider = selected === "jpeg" || selected === "webp";
+
   return (
     <div
-      className={styles.overlay}
+      className={`${styles.overlay} ${styles.exportModal}`}
       onClick={!isExporting ? closeModal : undefined}
     >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -154,7 +186,7 @@ export const ExportModal = () => {
           </button>
         </div>
 
-        {/* Options */}
+        {/* Scrollable options list */}
         <div className={styles.body}>
           {GROUPS.map((group, gi) => {
             const opts = OPTIONS.filter((o) => o.group === group.key);
@@ -164,18 +196,25 @@ export const ExportModal = () => {
                 <span className={styles.groupLabel}>{group.label}</span>
                 {opts.map((opt) => {
                   const locked = opt.isPro && !isPro;
+                  const isSelected = selected === opt.value;
                   return (
                     <button
                       key={opt.value}
-                      className={`${styles.card} ${selected === opt.value ? styles.selected : ""} ${locked ? styles.disabled : ""} ${isExporting ? styles.disabled : ""}`}
+                      className={[
+                        styles.card,
+                        isSelected ? styles.selected : "",
+                        locked || isExporting ? styles.disabled : "",
+                      ].join(" ")}
                       onClick={() => handleSelect(opt)}
                     >
                       <div className={styles.icon}>
-                        <i className={`ti ${opt.icon}`} aria-hidden="true" />
+                        {/* <i className={`ti ${opt.icon}`} aria-hidden="true" /> */}
+                        <opt.icon size={14} strokeWidth={1.5} />
                       </div>
+
                       <div className={styles.info}>
-                        <div className={styles.label}>
-                          {opt.label}
+                        <div className={styles.labelRow}>
+                          <span className={styles.label}>{opt.label}</span>
                           <span
                             className={`${styles.badge} ${styles[`badge_${opt.tier}`]}`}
                           >
@@ -186,9 +225,28 @@ export const ExportModal = () => {
                                 : "Pro"}
                           </span>
                         </div>
-                        <div className={styles.desc}>{opt.desc}</div>
+
+                        {/* Description — always rendered, animated via CSS */}
+                        <div
+                          className={`${styles.desc} ${isSelected ? styles.descVisible : ""}`}
+                        >
+                          {opt.value === "mp4" && !isHtmlCanvasSupported ? (
+                            <>
+                              Enable{" "}
+                              <code>chrome://flags/#canvas-draw-element</code>{" "}
+                              for pixel-perfect export
+                            </>
+                          ) : (
+                            opt.desc
+                          )}
+                        </div>
                       </div>
-                      {locked && <span className={styles.lock}>🔒</span>}
+
+                      {locked && (
+                        <span className={styles.lock} aria-hidden="true">
+                          🔒
+                        </span>
+                      )}
                       <div className={styles.radio}>
                         <div className={styles.radioDot} />
                       </div>
@@ -200,7 +258,55 @@ export const ExportModal = () => {
           })}
         </div>
 
-        {/* Progress bar — only visible during motion exports */}
+        {/* Settings panel — anchored below the scroll */}
+        {(showQuality || showSlider) && (
+          <div className={styles.settings}>
+            {showQuality && (
+              <div className={styles.settingsRow}>
+                <span className={styles.settingLabel}>Resolution</span>
+                <div className={styles.qualityToggle}>
+                  <button
+                    className={`${styles.qualityBtn} ${exportQuality === 1 ? styles.active : ""}`}
+                    onClick={() => setExportQuality(1)}
+                    disabled={isExporting}
+                  >
+                    1x <span className={styles.qualitySubtext}>(Standard)</span>
+                  </button>
+                  <button
+                    className={`${styles.qualityBtn} ${exportQuality === 2 ? styles.active : ""}`}
+                    onClick={() => setExportQuality(2)}
+                    disabled={isExporting}
+                  >
+                    2x <span className={styles.qualitySubtext}>(High)</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {showSlider && (
+              <div className={styles.settingsRow}>
+                <span className={styles.settingLabel}>Quality</span>
+                <div className={styles.sliderGroup}>
+                  <span className={styles.sliderValue}>
+                    {Math.round(jpegQuality * 100)}%
+                  </span>
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    value={jpegQuality}
+                    onChange={(e) => setJpegQuality(parseFloat(e.target.value))}
+                    className={styles.rangeSlider}
+                    disabled={isExporting}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Progress bar — motion exports only */}
         {isExporting && isMotion && (
           <div className={styles.progressTrack}>
             <div

@@ -1,0 +1,23 @@
+.glassWrapper {
+  position: absolute;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.glassLens {
+  position: relative;
+  overflow: hidden;
+}
+
+.rimLight {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    transparent 60%
+  );
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}

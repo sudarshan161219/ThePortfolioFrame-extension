@@ -123,7 +123,10 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const customBg = useControlsStore((s) => s.customBg);
   const bgBlur = useControlsStore((s) => s.bgBlur);
   const bgSize = useControlsStore((s) => s.bgSize);
-  const handle = useControlsStore((s) => s.handle);
+  const bgScale = useControlsStore((s) => s.bgScale);
+  const bgPositionX = useControlsStore((s) => s.bgPositionX);
+  const bgPositionY = useControlsStore((s) => s.bgPositionY);
+  // const handle = useControlsStore((s) => s.handle);
   const activeBg = useControlsStore((s) => s.activeBg);
   const tiltX = useControlsStore((s) => s.tiltX);
   const tiltY = useControlsStore((s) => s.tiltY);
@@ -160,7 +163,10 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setCustomBg = useControlsStore((s) => s.setCustomBg);
   const setBgBlur = useControlsStore((s) => s.setBgBlur);
   const setBgSize = useControlsStore((s) => s.setBgSize);
-  const setHandle = useControlsStore((s) => s.setHandle);
+  const setBgScale = useControlsStore((s) => s.setBgScale);
+  const setBgPositionX = useControlsStore((s) => s.setBgPositionX);
+  const setBgPositionY = useControlsStore((s) => s.setBgPositionY);
+  // const setHandle = useControlsStore((s) => s.setHandle);
   const setPageUrl = useControlsStore((s) => s.setPageUrl);
   const setPageTitle = useControlsStore((s) => s.setPageTitle);
   const setActiveBg = useControlsStore((s) => s.setActiveBg);
@@ -193,6 +199,32 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     (s) => s.setAnnotationFontFamily,
   );
   const updateAnnotation = useControlsStore((s) => s.updateAnnotation);
+
+  // glass effect
+  const glassEnabled = useControlsStore((s) => s.glassEnabled);
+  const glassScale = useControlsStore((s) => s.glassScale);
+  const glassRadius = useControlsStore((s) => s.glassRadius);
+  const glassGlow = useControlsStore((s) => s.glassGlow);
+  const glassCurvature = useControlsStore((s) => s.glassCurvature);
+  const glassChroma = useControlsStore((s) => s.glassChroma);
+  const setGlassEnabled = useControlsStore((s) => s.setGlassEnabled);
+  const setGlassScale = useControlsStore((s) => s.setGlassScale);
+  const setGlassRadius = useControlsStore((s) => s.setGlassRadius);
+  const setGlassGlow = useControlsStore((s) => s.setGlassGlow);
+  const setGlassCurvature = useControlsStore((s) => s.setGlassCurvature);
+  const setGlassChroma = useControlsStore((s) => s.setGlassChroma);
+
+  const showWatermark = useControlsStore((s) => s.showWatermark);
+  const watermarkText = useControlsStore((s) => s.watermarkText);
+  const watermarkTheme = useControlsStore((s) => s.watermarkTheme);
+  const watermarkFont = useControlsStore((s) => s.watermarkFont);
+  const watermarkColor = useControlsStore((s) => s.watermarkColor);
+
+  const setShowWatermark = useControlsStore((s) => s.setShowWatermark);
+  const setWatermarkText = useControlsStore((s) => s.setWatermarkText);
+  const setWatermarkTheme = useControlsStore((s) => s.setWatermarkTheme);
+  const setWatermarkFont = useControlsStore((s) => s.setWatermarkFont);
+  const setWatermarkColor = useControlsStore((s) => s.setWatermarkColor);
 
   const annotationsRef = useRef(annotations);
   const prevBgUrl = useRef<string | null>(null);
@@ -232,6 +264,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     const objectUrl = URL.createObjectURL(file);
     setBgImage(objectUrl);
 
+    prevBgUrl.current = objectUrl;
+
     const reader = new FileReader();
     readerRef.current = reader;
     reader.onloadend = () => setBgImageRaw(reader.result as string);
@@ -256,6 +290,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     } else {
       setActiveBg(bg);
       setBgImage(null);
+      setBgImageRaw(null);
       setCustomBg("");
     }
   };
@@ -263,6 +298,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const handleColorSelect = (colorOrGradient: string) => {
     setCustomBg(colorOrGradient);
     setBgImage(null);
+    setBgImageRaw(null);
     setActiveBg(null);
   };
 
@@ -271,7 +307,6 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
       console.log("Trigger Upsell Modal!");
       return;
     }
-    console.log(preset.id);
     setAnimation(preset.id);
   };
 
@@ -741,6 +776,82 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
 
           {/* ── 5. Backgrounds ──────────────────────── */}
           <Section title="Backgrounds">
+            {/* glass effect */}
+            <ControlRow label="Glass Effect">
+              <input
+                type="checkbox"
+                checked={glassEnabled}
+                onChange={(e) => setGlassEnabled(e.target.checked)}
+              />
+            </ControlRow>
+
+            {glassEnabled && (
+              <>
+                <ControlRow label="Refraction" value={glassScale.toFixed(2)}>
+                  <input
+                    type="range"
+                    min={1}
+                    max={30}
+                    step={1}
+                    value={Math.round(glassScale * 100)}
+                    onChange={(e) =>
+                      setGlassScale(Number(e.target.value) / 100)
+                    }
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                <ControlRow label="Curvature" value={glassCurvature}>
+                  <input
+                    type="range"
+                    min={10}
+                    max={80}
+                    step={1}
+                    value={glassCurvature}
+                    onChange={(e) => setGlassCurvature(Number(e.target.value))}
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                <ControlRow label="Radius" value={`${glassRadius}px`}>
+                  <input
+                    type="range"
+                    min={0}
+                    max={80}
+                    step={1}
+                    value={glassRadius}
+                    onChange={(e) => setGlassRadius(Number(e.target.value))}
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                <ControlRow label="Glow" value={glassGlow.toFixed(2)}>
+                  <input
+                    type="range"
+                    min={0}
+                    max={30}
+                    step={1}
+                    value={Math.round(glassGlow * 100)}
+                    onChange={(e) => setGlassGlow(Number(e.target.value) / 100)}
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                <ControlRow label="Chroma" value={glassChroma.toFixed(2)}>
+                  <input
+                    type="range"
+                    min={0}
+                    max={50}
+                    step={1}
+                    value={Math.round(glassChroma * 100)}
+                    onChange={(e) =>
+                      setGlassChroma(Number(e.target.value) / 100)
+                    }
+                    className={styles.slider}
+                  />
+                </ControlRow>
+              </>
+            )}
             {/* Solid colors */}
             <ControlRow label="Solid Colors">
               <div className={styles.swatchGrid}>
@@ -833,6 +944,9 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
+                  onClick={(e) => {
+                    (e.target as HTMLInputElement).value = "";
+                  }}
                 />
                 {bgImage ? "Replace image…" : "Choose image…"}
               </label>
@@ -872,6 +986,39 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                     <option value="contain">Contain</option>
                     <option value="auto">Original</option>
                   </select>
+                </ControlRow>
+
+                <ControlRow label="BG Scale" value={`${bgScale.toFixed(1)}x`}>
+                  <input
+                    type="range"
+                    min={50}
+                    max={200}
+                    value={bgScale * 100}
+                    onChange={(e) => setBgScale(Number(e.target.value) / 100)}
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                <ControlRow label="BG Position X" value={`${bgPositionX}%`}>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={bgPositionX}
+                    onChange={(e) => setBgPositionX(Number(e.target.value))}
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                <ControlRow label="BG Position Y" value={`${bgPositionY}%`}>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={bgPositionY}
+                    onChange={(e) => setBgPositionY(Number(e.target.value))}
+                    className={styles.slider}
+                  />
                 </ControlRow>
               </>
             )}
@@ -1104,15 +1251,162 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
 
           {/* ── 7. Watermark ────────────────────────── */}
           <Section title="Watermark" defaultOpen={false}>
-            <ControlRow label="Social Handle">
-              <input
-                type="text"
-                placeholder="@yourname"
-                value={handle}
-                onChange={(e) => setHandle(e.target.value)}
-                className={styles.input}
-              />
-            </ControlRow>
+            {/* Show / Hide Toggle */}
+            <ToggleRow
+              id="watermarkToggle"
+              label="Show Watermark"
+              checked={showWatermark}
+              onChange={(checked) => {
+                if (!isPro) {
+                  // Replace this alert with openModal("UPGRADE") later!
+                  alert("Upgrade to Pro to remove the watermark!");
+                  return;
+                }
+                setShowWatermark(checked);
+              }}
+            />
+
+            {showWatermark && (
+              <>
+                {/* Custom Text Input */}
+                <ControlRow label="Custom Text">
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type="text"
+                      placeholder="@yourhandle"
+                      value={!isPro ? "✨ Made with AppName" : watermarkText}
+                      onChange={(e) => setWatermarkText(e.target.value)}
+                      disabled={!isPro}
+                      className={styles.input}
+                    />
+                    {!isPro && (
+                      <div
+                        className={styles.lockOverlay}
+                        onClick={() =>
+                          alert("Upgrade to customize watermark text!")
+                        }
+                        style={{
+                          borderRadius: "var(--radius-sm)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        🔒 Upgrade to customize
+                      </div>
+                    )}
+                  </div>
+                </ControlRow>
+
+                {/* Theme Selector (Glass, Dark, Light, Transparent) */}
+                <ControlRow label="Theme">
+                  <div
+                    className={styles.btnGrid4}
+                    style={{ gridTemplateColumns: "1fr 1fr", gap: "5px" }}
+                  >
+                    {(["glass", "dark", "light", "transparent"] as const).map(
+                      (theme) => {
+                        const isActive = watermarkTheme === theme;
+                        return (
+                          <button
+                            key={theme}
+                            onClick={() => {
+                              if (!isPro)
+                                return alert("Upgrade to unlock themes!");
+                              setWatermarkTheme(theme);
+                            }}
+                            className={`${styles.presetBtn} ${isActive ? styles.active : ""}`}
+                            style={{
+                              position: "relative",
+                              textTransform: "capitalize",
+                            }}
+                          >
+                            {theme}
+                            {!isPro && (
+                              <span
+                                style={{
+                                  position: "absolute",
+                                  top: 2,
+                                  right: 3,
+                                  fontSize: 8,
+                                }}
+                              >
+                                🔒
+                              </span>
+                            )}
+                          </button>
+                        );
+                      },
+                    )}
+                  </div>
+                </ControlRow>
+
+                {/* Font and Color Selector (Inline Row) */}
+                <ControlRow label="Font & Color">
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    {/* Font Dropdown */}
+                    <select
+                      className={styles.select}
+                      value={watermarkFont}
+                      onChange={(e) => {
+                        if (!isPro) return alert("Upgrade to unlock fonts!");
+                        setWatermarkFont(e.target.value);
+                      }}
+                      disabled={!isPro}
+                      style={{ flex: 1, padding: "7px 20px 7px 8px" }}
+                    >
+                      <option value="system-ui, sans-serif">System UI</option>
+                      <option value="Inter, sans-serif">Inter</option>
+                      <option value="'JetBrains Mono', monospace">
+                        JetBrains Mono
+                      </option>
+                      <option value="'Playfair Display', serif">
+                        Playfair
+                      </option>
+                    </select>
+
+                    {/* Color Picker Box */}
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "30px",
+                        height: "30px",
+                        flexShrink: 0,
+                        borderRadius: "4px",
+                        overflow: "hidden",
+                        border: "0.5px solid var(--border-medium)",
+                      }}
+                      onClick={() => {
+                        if (!isPro) alert("Upgrade to unlock custom colors!");
+                      }}
+                    >
+                      <input
+                        type="color"
+                        value={!isPro ? "#ffffff" : watermarkColor}
+                        onChange={(e) => {
+                          if (!isPro) return;
+                          setWatermarkColor(e.target.value);
+                        }}
+                        disabled={!isPro}
+                        style={{
+                          position: "absolute",
+                          top: "-10px",
+                          left: "-10px",
+                          width: "50px",
+                          height: "50px",
+                          cursor: isPro ? "pointer" : "not-allowed",
+                        }}
+                      />
+                      {/* Transparent Lock Overlay for the color box */}
+                      {!isPro && (
+                        <div
+                          className={styles.lockOverlay}
+                          style={{ background: "rgba(10,10,12,0.3)" }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </ControlRow>
+              </>
+            )}
           </Section>
         </div>
       </aside>

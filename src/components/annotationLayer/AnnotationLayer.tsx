@@ -415,7 +415,6 @@ export const AnnotationLayer = () => {
           const isSelected = selectedAnnotationId === ann.id;
           const isEditing = editingId === ann.id;
 
-          // This tells us if React actually knows it should be editing
           if (ann.type === "text") {
             console.log(
               `[Render Check] Text Box ${ann.id} | isSelected: ${isSelected} | isEditing: ${isEditing}`,
@@ -586,7 +585,7 @@ export const AnnotationLayer = () => {
               </div>
               {isSelected && (
                 <button
-                  className={styles.deleteBtn}
+                  className={`${styles.deleteBtn} ignore-on-export`}
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation();

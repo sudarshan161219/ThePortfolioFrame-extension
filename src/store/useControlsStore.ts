@@ -74,7 +74,7 @@ export type DeviceMockup =
   | "imac-retina";
 
 // 1. Define the TypeScript types for your state and actions
-interface AppState {
+export interface AppState {
   isPro: boolean;
   showBrowserFrame: boolean;
   showDeviceFrame: boolean;
@@ -133,6 +133,25 @@ interface AppState {
   annotationFontSize: number;
   annotationFontFamily: string;
   selectedAnnotationId: string | null;
+
+  /// glass
+  glassEnabled: boolean;
+  glassScale: number;
+  glassRadius: number;
+  glassGlow: number;
+  glassCurvature: number;
+  glassChroma: number;
+
+  // water mark
+  showWatermark: boolean;
+  watermarkText: string;
+  watermarkTheme: "glass" | "dark" | "light" | "transparent";
+  watermarkFont: string;
+  watermarkColor: string;
+
+  // export quality
+  exportQuality: number;
+  jpegQuality: number;
 
   // Setter Actions
   setIsPro: (status: boolean) => void;
@@ -195,6 +214,27 @@ interface AppState {
   setAnnotationFontSize: (size: number) => void;
   setAnnotationFontFamily: (family: string) => void;
   setSelectedAnnotationId: (id: string | null) => void;
+
+  // glass
+  setGlassEnabled: (val: boolean) => void;
+  setGlassScale: (val: number) => void;
+  setGlassRadius: (val: number) => void;
+  setGlassGlow: (val: number) => void;
+  setGlassCurvature: (val: number) => void;
+  setGlassChroma: (val: number) => void;
+
+  // water mark
+  setShowWatermark: (show: boolean) => void;
+  setWatermarkText: (text: string) => void;
+  setWatermarkTheme: (
+    theme: "glass" | "dark" | "light" | "transparent",
+  ) => void;
+  setWatermarkFont: (font: string) => void;
+  setWatermarkColor: (color: string) => void;
+
+  // export
+  setExportQuality: (quality: number) => void;
+  setJpegQuality: (quality: number) => void;
 }
 
 // 2. The Chrome Storage Engine
@@ -238,7 +278,7 @@ export const useControlsStore = create<AppState>()(
   persist(
     (set) => ({
       // Default Values
-      isPro: false,
+      isPro: true,
       showBrowserFrame: true,
       showDeviceFrame: true,
       titleBarTheme: {
@@ -295,6 +335,25 @@ export const useControlsStore = create<AppState>()(
       annotationFontSize: 14,
       annotationFontFamily: "DM Sans, sans-serif",
       selectedAnnotationId: null,
+
+      // glass
+      glassEnabled: false,
+      glassScale: 0.12,
+      glassRadius: 24,
+      glassGlow: 0.1,
+      glassCurvature: 40,
+      glassChroma: 0.15,
+
+      // default export quality
+      exportQuality: 1,
+      jpegQuality: 0.95,
+
+      // water mark
+      showWatermark: true,
+      watermarkText: "✨ Made with The Portfolio Frame.",
+      watermarkTheme: "glass",
+      watermarkFont: "Inter, sans-serif",
+      watermarkColor: "#ffffff",
 
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
@@ -407,17 +466,30 @@ export const useControlsStore = create<AppState>()(
       setAnnotationFontFamily: (family) =>
         set({ annotationFontFamily: family }),
       setSelectedAnnotationId: (id) => set({ selectedAnnotationId: id }),
+
+      // glass
+      setGlassEnabled: (val) => set({ glassEnabled: val }),
+      setGlassScale: (val) => set({ glassScale: val }),
+      setGlassRadius: (val) => set({ glassRadius: val }),
+      setGlassGlow: (val) => set({ glassGlow: val }),
+      setGlassCurvature: (val) => set({ glassCurvature: val }),
+      setGlassChroma: (val) => set({ glassChroma: val }),
+
+      // image export Quality
+      setExportQuality: (quality) => set({ exportQuality: quality }),
+      setJpegQuality: (quality) => set({ jpegQuality: quality }),
+
+      // water mark
+      setShowWatermark: (show) => set({ showWatermark: show }),
+      setWatermarkText: (text) => set({ watermarkText: text }),
+      setWatermarkTheme: (theme) => set({ watermarkTheme: theme }),
+      setWatermarkFont: (font) => set({ watermarkFont: font }),
+      setWatermarkColor: (color) => set({ watermarkColor: color }),
     }),
 
     {
       name: "portfolio-frame-storage", // The key used in chrome.storage.local
       storage: createJSONStorage(() => chromeStorage),
-      // partialize: (state) => {
-      //   const { imageSource, ...rest } = state;
-      //   return rest;
-      // },
-      // Optional: If you don't want to persist the imageSource across sessions
-      // (to save storage space), you can partiallyize the store like this:
       partialize: (state) => ({ ...state, imageSource: null }),
     },
   ),

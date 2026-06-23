@@ -1,57 +1,31 @@
 :root {
-  /* ==========================================
-     1. BACKGROUNDS (Warm & Clean)
-  ========================================== */
-  --bg-app: #f9fafb; /* Very soft off-white for the main app/body */
-  --bg-sidebar: #ffffff; /* Pure white for the sidebar to pop slightly */
-  --bg-hover: #f3f4f6; /* Gentle gray for hovering over buttons/swatches */
-  --bg-active: #f0fdf4; /* Optional: Soft mint green for success states */
+  --bg-app: #f7f8fa; /* was #f9fafb — cooler tint gives better contrast vs white sidebar */
+  --bg-sidebar: #ffffff;
+  --bg-hover: #f0f1f5; /* was #f3f4f6 */
+  --bg-active: #f0fdf4;
 
-  /* ==========================================
-     2. TYPOGRAPHY (Low Contrast & Readable)
-  ========================================== */
-  --text-main: #374151; /* Soft charcoal for primary text (never #000) */
-  --text-muted: #6b7280; /* Medium slate gray for labels and tiny text */
-  --text-light: #9ca3af; /* Light gray for placeholders */
+  --text-main: #374151;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
 
-  /* ==========================================
-     3. BRAND ACCENTS (Friendly & Vibrant)
-  ========================================== */
-  --accent-main: #8b5cf6; /* A friendly, creative soft purple (Canva/Figma vibe) */
-  --accent-hover: #7c3aed; /* Slightly darker purple for button hovers */
-  --accent-soft: #ede9fe; /* Very pale purple for active toggle buttons */
+  --accent-main: #8b5cf6;
+  --accent-hover: #7c3aed;
+  --accent-soft: #ede9fe;
 
-  /* ==========================================
-     4. BORDERS (Invisible or Faint)
-  ========================================== */
-  --border-light: #f3f4f6; /* Almost invisible dividers */
-  --border-medium: #e5e7eb; /* For input fields and sidebar borders */
-  --border-active: #c4b5fd; /* Soft purple border for focused inputs */
+  --border-light: #e9eaed; /* was #f3f4f6 — was identical to bg-hover, invisible on white */
+  --border-medium: #d1d5db; /* was #e5e7eb — bumped so card outlines are actually visible */
+  --border-active: #c4b5fd;
 
-  /* ==========================================
-     5. RADII (Squishy & Friendly)
-  ========================================== */
-  --radius-sm: 8px; /* For small buttons and inputs */
-  --radius-md: 12px; /* For cards, swatches, and inner panels */
-  --radius-lg: 20px; /* For the main canvas workspace */
-  --radius-pill: 9999px; /* For fully rounded toggle switches */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
 
-  /* ==========================================
-     6. SHADOWS (Diffused & Soft)
-  ========================================== */
-  /* Used for small buttons or dropdowns */
   --shadow-sm: 0 2px 4px rgba(149, 157, 165, 0.1);
-
-  /* Used for the sidebar or floating panels */
   --shadow-md: 0 8px 24px rgba(149, 157, 165, 0.15);
-
-  /* The "Float" shadow - Use this on the Canvas to make it look like paper */
   --shadow-canvas:
     0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
 
-  /* ==========================================
-     7. TRANSITIONS (Smooth & Bouncy)
-  ========================================== */
   --transition-fast: 0.15s ease-in-out;
   --transition-bounce: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
@@ -71,44 +45,28 @@
 }
 
 :root[data-theme="dark"] {
-  /* 1. BACKGROUNDS (Deep Slates, Not Black) */
-  --bg-app: #111827; /* Very deep charcoal for the main canvas area */
-  --bg-sidebar: #1f2937; /* Slightly lighter slate for the sidebar to create depth */
-  --bg-hover: #374151; /* Soft slate for hovering over buttons/swatches */
-  --bg-active: rgba(
-    139,
-    92,
-    246,
-    0.15
-  ); /* A translucent wash of your purple accent */
+  --bg-app: #0f1623; /* was #111827 */
+  --bg-sidebar: #1a2232; /* was #1f2937 */
+  --bg-hover: #2a3447; /* was #374151 — less jarring jump on hover */
+  --bg-active: rgba(139, 92, 246, 0.12);
 
-  /* 2. TYPOGRAPHY (Off-Whites to prevent eye strain) */
-  --text-main: #f9fafb; /* Soft off-white for primary text */
-  --text-muted: #9ca3af; /* Muted slate gray for labels and tiny text */
-  --text-light: #4b5563; /* Darker gray for placeholders */
+  --text-main: #f1f2f4; /* was #f9fafb — pure white was too harsh/overpowering */
+  --text-muted: #9ca3af;
+  --text-light: #8b95a1; /* was #4b5563 — ROOT CAUSE: dark gray on dark bg, unreadable */
 
-  /* 3. BRAND ACCENTS (Brighter for Dark Mode Contrast) */
-  --accent-main: #a78bfa; /* A lighter, brighter soft purple so it pops in dark mode */
-  --accent-hover: #c4b5fd; /* Even lighter purple for hovers */
+  --accent-main: #9b7fe8; /* was #a78bfa — slightly desaturated, less vivid on dark */
+  --accent-hover: #b49df0; /* was #c4b5fd */
   --accent-soft: rgba(
     139,
     92,
     246,
-    0.2
-  ); /* Translucent background for active states */
-
-  /* 4. BORDERS (Translucent Whites) */
-  --border-light: rgba(255, 255, 255, 0.05); /* Almost invisible dividers */
-  --border-medium: rgba(
-    255,
-    255,
-    255,
     0.1
-  ); /* Standard inputs and sidebar borders */
-  --border-active: #a78bfa; /* Matches the main accent */
+  ); /* was 0.20 — selected card wash was too loud */
 
-  /* 5. SHADOWS (Deeper and Darker) 
-     Note: Shadows need to be much darker in Dark Mode to be visible. */
+  --border-light: rgba(255, 255, 255, 0.07); /* was 0.05 */
+  --border-medium: rgba(255, 255, 255, 0.12); /* was 0.10 */
+  --border-active: #9b7fe8; /* was #a78bfa — keeps it consistent with accent-main */
+
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
   --shadow-canvas: 0 20px 40px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2);
