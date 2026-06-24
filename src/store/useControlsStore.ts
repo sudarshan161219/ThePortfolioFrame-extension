@@ -142,12 +142,19 @@ export interface AppState {
   glassCurvature: number;
   glassChroma: number;
 
-  // water mark
+  // Water mark
   showWatermark: boolean;
+  watermarkType: "text" | "logo" | "social";
+  watermarkLogo: string | null;
+  watermarkSocialPlatform: "x" | "github" | "linkedin" | "instagram";
   watermarkText: string;
   watermarkTheme: "glass" | "dark" | "light" | "transparent";
   watermarkFont: string;
   watermarkColor: string;
+
+  // Context Badge
+  showContextBadge: boolean;
+  contextBadgeText: string;
 
   // export quality
   exportQuality: number;
@@ -225,12 +232,21 @@ export interface AppState {
 
   // water mark
   setShowWatermark: (show: boolean) => void;
+  setWatermarkType: (type: "text" | "logo" | "social") => void;
+  setWatermarkLogo: (logo: string | null) => void;
+  setWatermarkSocialPlatform: (
+    platform: "x" | "github" | "linkedin" | "instagram",
+  ) => void;
   setWatermarkText: (text: string) => void;
   setWatermarkTheme: (
     theme: "glass" | "dark" | "light" | "transparent",
   ) => void;
   setWatermarkFont: (font: string) => void;
   setWatermarkColor: (color: string) => void;
+
+  // Context Badge
+  setShowContextBadge: (show: boolean) => void;
+  setContextBadgeText: (text: string) => void;
 
   // export
   setExportQuality: (quality: number) => void;
@@ -344,16 +360,23 @@ export const useControlsStore = create<AppState>()(
       glassCurvature: 40,
       glassChroma: 0.15,
 
-      // default export quality
-      exportQuality: 1,
-      jpegQuality: 0.95,
-
       // water mark
       showWatermark: true,
+      watermarkType: "social",
+      watermarkLogo: null,
+      watermarkSocialPlatform: "x",
       watermarkText: "✨ Made with The Portfolio Frame.",
       watermarkTheme: "glass",
       watermarkFont: "Inter, sans-serif",
       watermarkColor: "#ffffff",
+
+      // Context Badge
+      showContextBadge: false, // Default off
+      contextBadgeText: "Shipped new feature • {date}", // Default template
+
+      // export quality
+      exportQuality: 1,
+      jpegQuality: 0.95,
 
       // Action Implementations
       setIsPro: (status) => set({ isPro: status }),
@@ -475,16 +498,24 @@ export const useControlsStore = create<AppState>()(
       setGlassCurvature: (val) => set({ glassCurvature: val }),
       setGlassChroma: (val) => set({ glassChroma: val }),
 
-      // image export Quality
-      setExportQuality: (quality) => set({ exportQuality: quality }),
-      setJpegQuality: (quality) => set({ jpegQuality: quality }),
-
       // water mark
       setShowWatermark: (show) => set({ showWatermark: show }),
+      setWatermarkType: (type) => set({ watermarkType: type }),
+      setWatermarkLogo: (logo) => set({ watermarkLogo: logo }),
+      setWatermarkSocialPlatform: (platform) =>
+        set({ watermarkSocialPlatform: platform }),
       setWatermarkText: (text) => set({ watermarkText: text }),
       setWatermarkTheme: (theme) => set({ watermarkTheme: theme }),
       setWatermarkFont: (font) => set({ watermarkFont: font }),
       setWatermarkColor: (color) => set({ watermarkColor: color }),
+
+      // Context Badge
+      setShowContextBadge: (show) => set({ showContextBadge: show }),
+      setContextBadgeText: (text) => set({ contextBadgeText: text }),
+
+      // image export Quality
+      setExportQuality: (quality) => set({ exportQuality: quality }),
+      setJpegQuality: (quality) => set({ jpegQuality: quality }),
     }),
 
     {

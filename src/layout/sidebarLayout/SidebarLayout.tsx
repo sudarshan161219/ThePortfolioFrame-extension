@@ -215,16 +215,31 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setGlassChroma = useControlsStore((s) => s.setGlassChroma);
 
   const showWatermark = useControlsStore((s) => s.showWatermark);
+  const watermarkType = useControlsStore((s) => s.watermarkType);
   const watermarkText = useControlsStore((s) => s.watermarkText);
+  const watermarkLogo = useControlsStore((s) => s.watermarkLogo);
+  const watermarkSocialPlatform = useControlsStore(
+    (s) => s.watermarkSocialPlatform,
+  );
   const watermarkTheme = useControlsStore((s) => s.watermarkTheme);
   const watermarkFont = useControlsStore((s) => s.watermarkFont);
   const watermarkColor = useControlsStore((s) => s.watermarkColor);
 
   const setShowWatermark = useControlsStore((s) => s.setShowWatermark);
+  const setWatermarkType = useControlsStore((s) => s.setWatermarkType);
   const setWatermarkText = useControlsStore((s) => s.setWatermarkText);
+  const setWatermarkLogo = useControlsStore((s) => s.setWatermarkLogo);
+  const setWatermarkSocialPlatform = useControlsStore(
+    (s) => s.setWatermarkSocialPlatform,
+  );
   const setWatermarkTheme = useControlsStore((s) => s.setWatermarkTheme);
   const setWatermarkFont = useControlsStore((s) => s.setWatermarkFont);
   const setWatermarkColor = useControlsStore((s) => s.setWatermarkColor);
+
+  const showContextBadge = useControlsStore((s) => s.showContextBadge);
+  const setShowContextBadge = useControlsStore((s) => s.setShowContextBadge);
+  const contextBadgeText = useControlsStore((s) => s.contextBadgeText);
+  const setContextBadgeText = useControlsStore((s) => s.setContextBadgeText);
 
   const annotationsRef = useRef(annotations);
   const prevBgUrl = useRef<string | null>(null);
@@ -1250,52 +1265,257 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           </Section>
 
           {/* ── 7. Watermark ────────────────────────── */}
-          <Section title="Watermark" defaultOpen={false}>
-            {/* Show / Hide Toggle */}
+          {/* ── 7. Brand & Context ────────────────────────── */}
+          <Section title="Brand & Context" defaultOpen={false}>
+            {/* --- 1. BUILD CONTEXT (The Journey Badge) --- */}
+            <ToggleRow
+              id="contextBadgeToggle"
+              label="Build Context Badge"
+              checked={showContextBadge}
+              onChange={(checked) => setShowContextBadge(checked)}
+            />
+
+            {showContextBadge && (
+              <ControlRow label="Context Text">
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="Added new feature • {date}"
+                    value={contextBadgeText}
+                    onChange={(e) => setContextBadgeText(e.target.value)}
+                    className={styles.input}
+                  />
+                  {/* The Variable Chips */}
+                  <div
+                    style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}
+                  >
+                    <button
+                      className={styles.ghostBtn}
+                      style={{
+                        padding: "3px 6px",
+                        fontSize: "8px",
+                        textTransform: "lowercase",
+                        flex: "none",
+                      }}
+                      onClick={() =>
+                        setContextBadgeText(`${contextBadgeText} {url}`.trim())
+                      }
+                    >
+                      + {"{url}"}
+                    </button>
+                    <button
+                      className={styles.ghostBtn}
+                      style={{
+                        padding: "3px 6px",
+                        fontSize: "8px",
+                        textTransform: "lowercase",
+                        flex: "none",
+                      }}
+                      onClick={() =>
+                        setContextBadgeText(`${contextBadgeText} {date}`.trim())
+                      }
+                    >
+                      + {"{date}"}
+                    </button>
+                    <button
+                      className={styles.ghostBtn}
+                      style={{
+                        padding: "3px 6px",
+                        fontSize: "8px",
+                        textTransform: "lowercase",
+                        flex: "none",
+                      }}
+                      onClick={() =>
+                        setContextBadgeText(
+                          `${contextBadgeText} {title}`.trim(),
+                        )
+                      }
+                    >
+                      + {"{title}"}
+                    </button>
+                  </div>
+                </div>
+              </ControlRow>
+            )}
+
+            <div className={styles.divider} style={{ margin: "12px 0" }} />
+
+            {/* --- 2. WATERMARK (The Brand Identity) --- */}
             <ToggleRow
               id="watermarkToggle"
-              label="Show Watermark"
+              label="Brand Watermark"
               checked={showWatermark}
               onChange={(checked) => {
-                if (!isPro) {
-                  // Replace this alert with openModal("UPGRADE") later!
-                  alert("Upgrade to Pro to remove the watermark!");
-                  return;
-                }
+                if (!isPro)
+                  return alert("Upgrade to Pro to remove the watermark!");
                 setShowWatermark(checked);
               }}
             />
 
             {showWatermark && (
               <>
-                {/* Custom Text Input */}
-                <ControlRow label="Custom Text">
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type="text"
-                      placeholder="@yourhandle"
-                      value={!isPro ? "✨ Made with AppName" : watermarkText}
-                      onChange={(e) => setWatermarkText(e.target.value)}
-                      disabled={!isPro}
-                      className={styles.input}
-                    />
-                    {!isPro && (
-                      <div
-                        className={styles.lockOverlay}
-                        onClick={() =>
-                          alert("Upgrade to customize watermark text!")
-                        }
-                        style={{
-                          borderRadius: "var(--radius-sm)",
-                          cursor: "pointer",
-                        }}
-                      >
-                        🔒 Upgrade to customize
-                      </div>
-                    )}
+                <ControlRow label="Type">
+                  <div className={styles.btnRow}>
+                    <button
+                      onClick={() => {
+                        if (!isPro) return alert("Upgrade to unlock modes!");
+                        setWatermarkType("text");
+                      }}
+                      className={`${styles.ghostBtn} ${watermarkType === "text" ? styles.active : ""}`}
+                      style={
+                        watermarkType === "text"
+                          ? {
+                              background: "var(--accent-soft)",
+                              color: "var(--accent-main)",
+                              borderColor: "var(--border-active)",
+                            }
+                          : {}
+                      }
+                    >
+                      Text
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!isPro) return alert("Upgrade to unlock modes!");
+                        setWatermarkType("social");
+                      }}
+                      className={`${styles.ghostBtn} ${watermarkType === "social" ? styles.active : ""}`}
+                      style={
+                        watermarkType === "social"
+                          ? {
+                              background: "var(--accent-soft)",
+                              color: "var(--accent-main)",
+                              borderColor: "var(--border-active)",
+                            }
+                          : {}
+                      }
+                    >
+                      Social
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!isPro) return alert("Upgrade to unlock modes!");
+                        setWatermarkType("logo");
+                      }}
+                      className={`${styles.ghostBtn} ${watermarkType === "logo" ? styles.active : ""}`}
+                      style={
+                        watermarkType === "logo"
+                          ? {
+                              background: "var(--accent-soft)",
+                              color: "var(--accent-main)",
+                              borderColor: "var(--border-active)",
+                            }
+                          : {}
+                      }
+                    >
+                      Logo
+                    </button>
                   </div>
                 </ControlRow>
 
+                {/* Conditional Inputs based on Watermark Mode */}
+                {watermarkType === "text" || watermarkType === "social" ? (
+                  <>
+                    {watermarkType === "social" && (
+                      <ControlRow label="Platform">
+                        <select
+                          className={styles.select}
+                          value={watermarkSocialPlatform}
+                          onChange={(e) =>
+                            setWatermarkSocialPlatform(
+                              e.target.value as
+                                | "x"
+                                | "github"
+                                | "linkedin"
+                                | "instagram",
+                            )
+                          }
+                          disabled={!isPro}
+                        >
+                          <option value="x">X (Twitter)</option>
+                          <option value="github">GitHub</option>
+                          <option value="linkedin">LinkedIn</option>
+                          <option value="instagram">Instagram</option>
+                        </select>
+                      </ControlRow>
+                    )}
+
+                    <ControlRow
+                      label={
+                        watermarkType === "social" ? "Handle" : "Custom Text"
+                      }
+                    >
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type="text"
+                          placeholder={
+                            watermarkType === "social"
+                              ? "@yourhandle"
+                              : "Enter brand name..."
+                          }
+                          value={
+                            !isPro ? "✨ Made with AppName" : watermarkText
+                          }
+                          onChange={(e) => setWatermarkText(e.target.value)}
+                          disabled={!isPro}
+                          className={styles.input}
+                        />
+                        {!isPro && (
+                          <div
+                            className={styles.lockOverlay}
+                            onClick={() =>
+                              alert("Upgrade to customize watermark text!")
+                            }
+                            style={{
+                              borderRadius: "var(--radius-sm)",
+                              cursor: "pointer",
+                            }}
+                          >
+                            🔒 Upgrade to customize
+                          </div>
+                        )}
+                      </div>
+                    </ControlRow>
+                  </>
+                ) : (
+                  <ControlRow label="Upload Logo">
+                    <label
+                      className={styles.fileUpload}
+                      style={{ position: "relative", overflow: "hidden" }}
+                    >
+                      <input
+                        type="file"
+                        accept="image/png, image/svg+xml"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onloadend = () =>
+                            setWatermarkLogo(reader.result as string);
+                          reader.readAsDataURL(file);
+                        }}
+                        disabled={!isPro}
+                      />
+                      {watermarkLogo ? "Replace logo..." : "Choose PNG/SVG..."}
+                      {!isPro && (
+                        <div
+                          className={styles.lockOverlay}
+                          onClick={() => alert("Upgrade to upload logos!")}
+                        >
+                          🔒
+                        </div>
+                      )}
+                    </label>
+                  </ControlRow>
+                )}
+
+                {/* Theme, Font & Color settings for the Brand Watermark */}
                 {/* Theme Selector (Glass, Dark, Light, Transparent) */}
                 <ControlRow label="Theme">
                   <div
