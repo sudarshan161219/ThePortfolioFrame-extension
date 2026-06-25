@@ -68,9 +68,17 @@ export const EditorApp = () => {
   const watermarkTheme = useControlsStore((s) => s.watermarkTheme);
   const watermarkFont = useControlsStore((s) => s.watermarkFont);
   const watermarkColor = useControlsStore((s) => s.watermarkColor);
+  const watermarkRadius = useControlsStore((s) => s.watermarkRadius);
+  const watermarkFontSize = useControlsStore((s) => s.watermarkFontSize);
 
   const showContextBadge = useControlsStore((s) => s.showContextBadge);
   const contextBadgeText = useControlsStore((s) => s.contextBadgeText);
+  const badgePosition = useControlsStore((s) => s.badgePosition);
+  const badgeTheme = useControlsStore((s) => s.badgeTheme);
+  const badgeRadius = useControlsStore((s) => s.badgeRadius);
+  const badgeFontSize = useControlsStore((s) => s.badgeFontSize);
+  const badgeIconType = useControlsStore((s) => s.badgeIconType);
+  const badgeIconValue = useControlsStore((s) => s.badgeIconValue);
 
   const prevImageUrl = useRef<string | null>(null);
 
@@ -164,6 +172,64 @@ export const EditorApp = () => {
       );
   };
 
+  const getBadgePositionStyles = (): React.CSSProperties => {
+    switch (badgePosition) {
+      case "top-left":
+        return { top: "24px", left: "24px" };
+      case "top-right":
+        return { top: "24px", right: "24px" };
+      case "bottom-left":
+        return { bottom: "24px", left: "24px" };
+      case "bottom-right":
+        return { bottom: "24px", right: "24px" };
+      default:
+        return { bottom: "24px", left: "24px" };
+    }
+  };
+
+  const renderBadgeIcon = () => {
+    if (badgeIconType === "none") return null;
+
+    if (badgeIconType === "dot") {
+      return (
+        <span
+          style={{
+            width: "6px",
+            height: "6px",
+            borderRadius: "50%",
+            background: badgeIconValue || "#34D399",
+            display: "inline-block",
+            marginRight: "6px",
+            boxShadow: `0 0 8px ${badgeIconValue || "#34D399"}80`, // Glow effect
+          }}
+        />
+      );
+    }
+    if (badgeIconType === "emoji") {
+      return (
+        <span style={{ marginRight: "6px", fontSize: "1.1em", lineHeight: 1 }}>
+          {badgeIconValue || "🚀"}
+        </span>
+      );
+    }
+    if (badgeIconType === "custom" && badgeIconValue) {
+      return (
+        <img
+          src={badgeIconValue}
+          alt="Custom Icon"
+          style={{
+            width: "16px",
+            height: "16px",
+            borderRadius: "50%",
+            objectFit: "cover",
+            marginRight: "6px",
+          }}
+        />
+      );
+    }
+    return null;
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.exportClipContainer}>
@@ -193,24 +259,21 @@ export const EditorApp = () => {
           {/* --- BUILD CONTEXT BADGE (Bottom Left) --- */}
           {showContextBadge && (
             <div
-              className={styles.contextBadge}
+              // We recycle the awesome watermark theme classes here!
+              className={`${styles.watermark} ${styles[`watermark${badgeTheme.charAt(0).toUpperCase() + badgeTheme.slice(1)}`]}`}
               style={{
+                ...getBadgePositionStyles(),
                 fontFamily: '"JetBrains Mono", monospace',
+                borderRadius: `${badgeRadius}px`,
+                fontSize: `${badgeFontSize}px`,
+                color:
+                  badgeTheme === "light" ? "#111" : "rgba(255, 255, 255, 0.85)",
               }}
             >
-              {/* Optional: A little dot indicator to make it look like a commit/update */}
-              <span
-                style={{
-                  width: "6px",
-                  height: "6px",
-                  borderRadius: "50%",
-                  background: "#34D399",
-                  display: "inline-block",
-                  marginRight: "6px",
-                  boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
-                }}
-              />
-              {parseSmartVariables(contextBadgeText)}
+              {renderBadgeIcon()}
+              <span style={{ transform: "translateY(0.5px)" }}>
+                {parseSmartVariables(contextBadgeText)}
+              </span>
             </div>
           )}
 
@@ -225,11 +288,15 @@ export const EditorApp = () => {
                     ]
               }`}
               style={{
+                bottom: "24px",
+                right: "24px",
                 fontFamily: !isPro
                   ? '"JetBrains Mono", monospace'
                   : watermarkFont,
                 color: !isPro ? "#ffffff" : watermarkColor,
                 fontWeight: !isPro ? 600 : 500,
+                borderRadius: !isPro ? "999px" : `${watermarkRadius}px`,
+                fontSize: !isPro ? "13px" : `${watermarkFontSize}px`,
                 padding:
                   watermarkType === "logo" && watermarkTheme === "transparent"
                     ? 0

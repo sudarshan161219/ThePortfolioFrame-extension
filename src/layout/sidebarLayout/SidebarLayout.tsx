@@ -224,6 +224,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const watermarkTheme = useControlsStore((s) => s.watermarkTheme);
   const watermarkFont = useControlsStore((s) => s.watermarkFont);
   const watermarkColor = useControlsStore((s) => s.watermarkColor);
+  const watermarkRadius = useControlsStore((s) => s.watermarkRadius);
+  const watermarkFontSize = useControlsStore((s) => s.watermarkFontSize);
 
   const setShowWatermark = useControlsStore((s) => s.setShowWatermark);
   const setWatermarkType = useControlsStore((s) => s.setWatermarkType);
@@ -235,11 +237,26 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setWatermarkTheme = useControlsStore((s) => s.setWatermarkTheme);
   const setWatermarkFont = useControlsStore((s) => s.setWatermarkFont);
   const setWatermarkColor = useControlsStore((s) => s.setWatermarkColor);
+  const setWatermarkRadius = useControlsStore((s) => s.setWatermarkRadius);
+  const setWatermarkFontSize = useControlsStore((s) => s.setWatermarkFontSize);
 
   const showContextBadge = useControlsStore((s) => s.showContextBadge);
-  const setShowContextBadge = useControlsStore((s) => s.setShowContextBadge);
   const contextBadgeText = useControlsStore((s) => s.contextBadgeText);
+  const badgePosition = useControlsStore((s) => s.badgePosition);
+  const badgeTheme = useControlsStore((s) => s.badgeTheme);
+  const badgeRadius = useControlsStore((s) => s.badgeRadius);
+  const badgeFontSize = useControlsStore((s) => s.badgeFontSize);
+  const badgeIconType = useControlsStore((s) => s.badgeIconType);
+  const badgeIconValue = useControlsStore((s) => s.badgeIconValue);
+
+  const setShowContextBadge = useControlsStore((s) => s.setShowContextBadge);
   const setContextBadgeText = useControlsStore((s) => s.setContextBadgeText);
+  const setBadgePosition = useControlsStore((s) => s.setBadgePosition);
+  const setBadgeTheme = useControlsStore((s) => s.setBadgeTheme);
+  const setBadgeRadius = useControlsStore((s) => s.setBadgeRadius);
+  const setBadgeFontSize = useControlsStore((s) => s.setBadgeFontSize);
+  const setBadgeIconType = useControlsStore((s) => s.setBadgeIconType);
+  const setBadgeIconValue = useControlsStore((s) => s.setBadgeIconValue);
 
   const annotationsRef = useRef(annotations);
   const prevBgUrl = useRef<string | null>(null);
@@ -1276,72 +1293,245 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
             />
 
             {showContextBadge && (
-              <ControlRow label="Context Text">
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "6px",
-                  }}
-                >
-                  <input
-                    type="text"
-                    placeholder="Added new feature • {date}"
-                    value={contextBadgeText}
-                    onChange={(e) => setContextBadgeText(e.target.value)}
-                    className={styles.input}
-                  />
-                  {/* The Variable Chips */}
+              <>
+                <ControlRow label="Position">
+                  {/* A cool 2x2 grid for positioning */}
                   <div
-                    style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "4px",
+                    }}
                   >
-                    <button
-                      className={styles.ghostBtn}
-                      style={{
-                        padding: "3px 6px",
-                        fontSize: "8px",
-                        textTransform: "lowercase",
-                        flex: "none",
-                      }}
-                      onClick={() =>
-                        setContextBadgeText(`${contextBadgeText} {url}`.trim())
-                      }
-                    >
-                      + {"{url}"}
-                    </button>
-                    <button
-                      className={styles.ghostBtn}
-                      style={{
-                        padding: "3px 6px",
-                        fontSize: "8px",
-                        textTransform: "lowercase",
-                        flex: "none",
-                      }}
-                      onClick={() =>
-                        setContextBadgeText(`${contextBadgeText} {date}`.trim())
-                      }
-                    >
-                      + {"{date}"}
-                    </button>
-                    <button
-                      className={styles.ghostBtn}
-                      style={{
-                        padding: "3px 6px",
-                        fontSize: "8px",
-                        textTransform: "lowercase",
-                        flex: "none",
-                      }}
-                      onClick={() =>
-                        setContextBadgeText(
-                          `${contextBadgeText} {title}`.trim(),
-                        )
-                      }
-                    >
-                      + {"{title}"}
-                    </button>
+                    {[
+                      { id: "top-left", label: "Top Left" },
+                      { id: "top-right", label: "Top Right" },
+                      { id: "bottom-left", label: "Bot Left" },
+                      { id: "bottom-right", label: "Bot Right" },
+                    ].map((pos) => (
+                      <button
+                        key={pos.id}
+                        onClick={() => setBadgePosition(pos.id as any)}
+                        className={`${styles.ghostBtn} ${badgePosition === pos.id ? styles.active : ""}`}
+                        style={
+                          badgePosition === pos.id
+                            ? {
+                                background: "var(--border-medium)",
+                                color: "var(--text-main)",
+                              }
+                            : {}
+                        }
+                      >
+                        {pos.label}
+                      </button>
+                    ))}
                   </div>
-                </div>
-              </ControlRow>
+                </ControlRow>
+
+                <ControlRow label="Theme">
+                  <div
+                    className={styles.btnGrid4}
+                    style={{ gridTemplateColumns: "1fr 1fr", gap: "5px" }}
+                  >
+                    {(["glass", "dark", "light", "transparent"] as const).map(
+                      (theme) => (
+                        <button
+                          key={theme}
+                          onClick={() => setBadgeTheme(theme)}
+                          className={`${styles.presetBtn} ${badgeTheme === theme ? styles.active : ""}`}
+                          style={{ textTransform: "capitalize" }}
+                        >
+                          {theme}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </ControlRow>
+
+                <ControlRow label="Context Icon">
+                  <div
+                    style={{ display: "flex", gap: "4px", marginBottom: "8px" }}
+                  >
+                    <select
+                      className={styles.select}
+                      value={badgeIconType}
+                      onChange={(e) => setBadgeIconType(e.target.value as any)}
+                      style={{ flex: 1 }}
+                    >
+                      <option value="dot">Color Dot</option>
+                      <option value="emoji">Emoji</option>
+                      <option value="custom">Custom Upload</option>
+                      <option value="none">None</option>
+                    </select>
+
+                    {/* Dynamic Value Input based on Icon Type */}
+                    {badgeIconType === "dot" && (
+                      <input
+                        type="color"
+                        value={badgeIconValue}
+                        onChange={(e) => setBadgeIconValue(e.target.value)}
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          cursor: "pointer",
+                          border: "none",
+                          borderRadius: "4px",
+                        }}
+                      />
+                    )}
+                    {badgeIconType === "emoji" && (
+                      <input
+                        type="text"
+                        value={badgeIconValue}
+                        onChange={(e) => setBadgeIconValue(e.target.value)}
+                        placeholder="🚀"
+                        className={styles.input}
+                        style={{ width: "40px", textAlign: "center" }}
+                        maxLength={2}
+                      />
+                    )}
+                  </div>
+
+                  {badgeIconType === "custom" && (
+                    <label className={styles.fileUpload}>
+                      <input
+                        type="file"
+                        accept="image/png, image/jpeg"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onloadend = () =>
+                            setBadgeIconValue(reader.result as string);
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                      {badgeIconValue && badgeIconValue.length > 20
+                        ? "Replace Image..."
+                        : "Upload Avatar/Logo..."}
+                    </label>
+                  )}
+                </ControlRow>
+
+                <ControlRow label="Context Text">
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "6px",
+                    }}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Added new feature • {date}"
+                      value={contextBadgeText}
+                      onChange={(e) => setContextBadgeText(e.target.value)}
+                      className={styles.input}
+                    />
+                    {/* The Variable Chips */}
+                    <div
+                      style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}
+                    >
+                      <button
+                        className={styles.ghostBtn}
+                        style={{
+                          padding: "3px 6px",
+                          fontSize: "8px",
+                          textTransform: "lowercase",
+                          flex: "none",
+                        }}
+                        onClick={() =>
+                          setContextBadgeText(
+                            `${contextBadgeText} {url}`.trim(),
+                          )
+                        }
+                      >
+                        + {"{url}"}
+                      </button>
+                      <button
+                        className={styles.ghostBtn}
+                        style={{
+                          padding: "3px 6px",
+                          fontSize: "8px",
+                          textTransform: "lowercase",
+                          flex: "none",
+                        }}
+                        onClick={() =>
+                          setContextBadgeText(
+                            `${contextBadgeText} {date}`.trim(),
+                          )
+                        }
+                      >
+                        + {"{date}"}
+                      </button>
+                      <button
+                        className={styles.ghostBtn}
+                        style={{
+                          padding: "3px 6px",
+                          fontSize: "8px",
+                          textTransform: "lowercase",
+                          flex: "none",
+                        }}
+                        onClick={() =>
+                          setContextBadgeText(
+                            `${contextBadgeText} {title}`.trim(),
+                          )
+                        }
+                      >
+                        + {"{title}"}
+                      </button>
+                    </div>
+                  </div>
+                </ControlRow>
+
+                <ControlRow label="Size & Radius">
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      className={styles.eyebrowVal}
+                      style={{ width: "30px" }}
+                    >
+                      {badgeFontSize}px
+                    </span>
+                    <input
+                      type="range"
+                      min="8"
+                      max="24"
+                      value={badgeFontSize}
+                      onChange={(e) => setBadgeFontSize(Number(e.target.value))}
+                      className={styles.slider}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                      marginTop: "8px",
+                    }}
+                  >
+                    <span
+                      className={styles.eyebrowVal}
+                      style={{ width: "30px" }}
+                    >
+                      R:{badgeRadius}
+                    </span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="50"
+                      value={badgeRadius}
+                      onChange={(e) => setBadgeRadius(Number(e.target.value))}
+                      className={styles.slider}
+                    />
+                  </div>
+                </ControlRow>
+              </>
             )}
 
             <div className={styles.divider} style={{ margin: "12px 0" }} />
@@ -1623,6 +1813,61 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                         />
                       )}
                     </div>
+                  </div>
+                </ControlRow>
+
+                {/* Add Size & Radius sliders for the Brand Watermark */}
+                <ControlRow label="Size & Radius">
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      className={styles.eyebrowVal}
+                      style={{ width: "30px" }}
+                    >
+                      {watermarkFontSize}px
+                    </span>
+                    <input
+                      type="range"
+                      min="10"
+                      max="32"
+                      value={watermarkFontSize}
+                      onChange={(e) =>
+                        setWatermarkFontSize(Number(e.target.value))
+                      }
+                      className={styles.slider}
+                      disabled={!isPro}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                      marginTop: "8px",
+                    }}
+                  >
+                    <span
+                      className={styles.eyebrowVal}
+                      style={{ width: "30px" }}
+                    >
+                      R:{watermarkRadius}
+                    </span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={watermarkRadius}
+                      onChange={(e) =>
+                        setWatermarkRadius(Number(e.target.value))
+                      }
+                      className={styles.slider}
+                      disabled={!isPro}
+                    />
                   </div>
                 </ControlRow>
               </>

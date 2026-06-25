@@ -151,10 +151,18 @@ export interface AppState {
   watermarkTheme: "glass" | "dark" | "light" | "transparent";
   watermarkFont: string;
   watermarkColor: string;
+  watermarkRadius: number;
+  watermarkFontSize: number;
 
   // Context Badge
   showContextBadge: boolean;
   contextBadgeText: string;
+  badgePosition: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  badgeTheme: "glass" | "dark" | "light" | "transparent";
+  badgeRadius: number;
+  badgeFontSize: number;
+  badgeIconType: "dot" | "emoji" | "custom" | "none";
+  badgeIconValue: string;
 
   // export quality
   exportQuality: number;
@@ -243,10 +251,20 @@ export interface AppState {
   ) => void;
   setWatermarkFont: (font: string) => void;
   setWatermarkColor: (color: string) => void;
+  setWatermarkRadius: (radius: number) => void;
+  setWatermarkFontSize: (size: number) => void;
 
   // Context Badge
   setShowContextBadge: (show: boolean) => void;
   setContextBadgeText: (text: string) => void;
+  setBadgePosition: (
+    pos: "top-left" | "top-right" | "bottom-left" | "bottom-right",
+  ) => void;
+  setBadgeTheme: (theme: "glass" | "dark" | "light" | "transparent") => void;
+  setBadgeRadius: (radius: number) => void;
+  setBadgeFontSize: (size: number) => void;
+  setBadgeIconType: (type: "dot" | "emoji" | "custom" | "none") => void;
+  setBadgeIconValue: (val: string) => void;
 
   // export
   setExportQuality: (quality: number) => void;
@@ -369,10 +387,18 @@ export const useControlsStore = create<AppState>()(
       watermarkTheme: "glass",
       watermarkFont: "Inter, sans-serif",
       watermarkColor: "#ffffff",
+      watermarkRadius: 999, // Pill shape
+      watermarkFontSize: 13,
 
       // Context Badge
       showContextBadge: false, // Default off
-      contextBadgeText: "Shipped new feature • {date}", // Default template
+      contextBadgeText: "Shipped new feature • {date}",
+      badgePosition: "bottom-left",
+      badgeTheme: "dark", // A sleek dark default looks great for build tags
+      badgeRadius: 6,
+      badgeFontSize: 11,
+      badgeIconType: "dot",
+      badgeIconValue: "#34D399",
 
       // export quality
       exportQuality: 1,
@@ -508,10 +534,18 @@ export const useControlsStore = create<AppState>()(
       setWatermarkTheme: (theme) => set({ watermarkTheme: theme }),
       setWatermarkFont: (font) => set({ watermarkFont: font }),
       setWatermarkColor: (color) => set({ watermarkColor: color }),
+      setWatermarkRadius: (radius) => set({ watermarkRadius: radius }),
+      setWatermarkFontSize: (size) => set({ watermarkFontSize: size }),
 
       // Context Badge
       setShowContextBadge: (show) => set({ showContextBadge: show }),
       setContextBadgeText: (text) => set({ contextBadgeText: text }),
+      setBadgePosition: (pos) => set({ badgePosition: pos }),
+      setBadgeTheme: (theme) => set({ badgeTheme: theme }),
+      setBadgeRadius: (radius) => set({ badgeRadius: radius }),
+      setBadgeFontSize: (size) => set({ badgeFontSize: size }),
+      setBadgeIconType: (type) => set({ badgeIconType: type }),
+      setBadgeIconValue: (val) => set({ badgeIconValue: val }),
 
       // image export Quality
       setExportQuality: (quality) => set({ exportQuality: quality }),
