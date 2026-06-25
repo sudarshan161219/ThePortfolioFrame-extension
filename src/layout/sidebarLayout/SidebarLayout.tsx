@@ -215,7 +215,9 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setGlassChroma = useControlsStore((s) => s.setGlassChroma);
 
   const showWatermark = useControlsStore((s) => s.showWatermark);
+  const watermarkTiled = useControlsStore((s) => s.watermarkTiled);
   const watermarkType = useControlsStore((s) => s.watermarkType);
+  const watermarkQrContent = useControlsStore((s) => s.watermarkQrContent);
   const watermarkText = useControlsStore((s) => s.watermarkText);
   const watermarkLogo = useControlsStore((s) => s.watermarkLogo);
   const watermarkSocialPlatform = useControlsStore(
@@ -228,7 +230,11 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const watermarkFontSize = useControlsStore((s) => s.watermarkFontSize);
 
   const setShowWatermark = useControlsStore((s) => s.setShowWatermark);
+  const setWatermarkTiled = useControlsStore((s) => s.setWatermarkTiled);
   const setWatermarkType = useControlsStore((s) => s.setWatermarkType);
+  const setWatermarkQrContent = useControlsStore(
+    (s) => s.setWatermarkQrContent,
+  );
   const setWatermarkText = useControlsStore((s) => s.setWatermarkText);
   const setWatermarkLogo = useControlsStore((s) => s.setWatermarkLogo);
   const setWatermarkSocialPlatform = useControlsStore(
@@ -1292,6 +1298,31 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               onChange={(checked) => setShowContextBadge(checked)}
             />
 
+            {/* --- NEW: IP PROTECTION PATTERN --- */}
+            <ToggleRow
+              id="watermarkTiledToggle"
+              label="IP Protection Pattern"
+              checked={watermarkTiled}
+              onChange={(checked) => {
+                if (!isPro)
+                  return alert("Upgrade to Pro to unlock IP Protection!");
+                setWatermarkTiled(checked);
+              }}
+            />
+            {watermarkTiled && (
+              <div
+                style={{
+                  padding: "0 16px",
+                  marginBottom: "8px",
+                  fontSize: "10px",
+                  color: "var(--text-muted)",
+                  fontStyle: "italic",
+                }}
+              >
+                Uses your Custom Text and Font Color to tile across the image.
+              </div>
+            )}
+
             {showContextBadge && (
               <>
                 <ControlRow label="Position">
@@ -1606,11 +1637,32 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                     >
                       Logo
                     </button>
+
+                    <button
+                      onClick={() => {
+                        if (!isPro) return alert("Upgrade!");
+                        setWatermarkType("qr");
+                      }}
+                      className={`${styles.ghostBtn} ${watermarkType === "qr" ? styles.active : ""}`}
+                      style={
+                        watermarkType === "qr"
+                          ? {
+                              background: "var(--accent-soft)",
+                              color: "var(--accent-main)",
+                              borderColor: "var(--border-active)",
+                            }
+                          : {}
+                      }
+                    >
+                      QR Code
+                    </button>
                   </div>
                 </ControlRow>
 
                 {/* Conditional Inputs based on Watermark Mode */}
-                {watermarkType === "text" || watermarkType === "social" ? (
+                {watermarkType === "text" ||
+                watermarkType === "social" ||
+                watermarkType === "qr" ? (
                   <>
                     {watermarkType === "social" && (
                       <ControlRow label="Platform">
@@ -1636,18 +1688,52 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                       </ControlRow>
                     )}
 
+                    {/* qr code */}
+                    {watermarkType === "qr" && (
+                      <ControlRow label="QR Link">
+                        <div style={{ position: "relative" }}>
+                          <input
+                            type="text"
+                            placeholder="https://... or {url}"
+                            value={watermarkQrContent}
+                            onChange={(e) =>
+                              setWatermarkQrContent(e.target.value)
+                            }
+                            disabled={!isPro}
+                            className={styles.input}
+                          />
+                          {!isPro && (
+                            <div
+                              className={styles.lockOverlay}
+                              onClick={() => alert("Upgrade!")}
+                              style={{
+                                borderRadius: "var(--radius-sm)",
+                                cursor: "pointer",
+                              }}
+                            >
+                              🔒
+                            </div>
+                          )}
+                        </div>
+                      </ControlRow>
+                    )}
+
                     <ControlRow
                       label={
-                        watermarkType === "social" ? "Handle" : "Custom Text"
+                        watermarkType === "social"
+                          ? "Handle"
+                          : watermarkType === "qr"
+                            ? "Display Text"
+                            : "Custom Text"
                       }
                     >
                       <div style={{ position: "relative" }}>
                         <input
                           type="text"
                           placeholder={
-                            watermarkType === "social"
-                              ? "@yourhandle"
-                              : "Enter brand name..."
+                            watermarkType === "qr"
+                              ? "github.com/you or {url}"
+                              : "Enter text..."
                           }
                           value={
                             !isPro ? "✨ Made with AppName" : watermarkText

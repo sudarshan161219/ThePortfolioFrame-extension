@@ -144,7 +144,9 @@ export interface AppState {
 
   // Water mark
   showWatermark: boolean;
-  watermarkType: "text" | "logo" | "social";
+  watermarkTiled: boolean;
+  watermarkType: "text" | "logo" | "social" | "qr";
+  watermarkQrContent: string;
   watermarkLogo: string | null;
   watermarkSocialPlatform: "x" | "github" | "linkedin" | "instagram";
   watermarkText: string;
@@ -240,7 +242,9 @@ export interface AppState {
 
   // water mark
   setShowWatermark: (show: boolean) => void;
-  setWatermarkType: (type: "text" | "logo" | "social") => void;
+  setWatermarkTiled: (tiled: boolean) => void;
+  setWatermarkType: (type: "text" | "logo" | "social" | "qr") => void;
+  setWatermarkQrContent: (content: string) => void;
   setWatermarkLogo: (logo: string | null) => void;
   setWatermarkSocialPlatform: (
     platform: "x" | "github" | "linkedin" | "instagram",
@@ -380,7 +384,9 @@ export const useControlsStore = create<AppState>()(
 
       // water mark
       showWatermark: true,
+      watermarkTiled: false,
       watermarkType: "social",
+      watermarkQrContent: "{url}",
       watermarkLogo: null,
       watermarkSocialPlatform: "x",
       watermarkText: "✨ Made with The Portfolio Frame.",
@@ -526,7 +532,9 @@ export const useControlsStore = create<AppState>()(
 
       // water mark
       setShowWatermark: (show) => set({ showWatermark: show }),
+      setWatermarkTiled: (tiled) => set({ watermarkTiled: tiled }),
       setWatermarkType: (type) => set({ watermarkType: type }),
+      setWatermarkQrContent: (content) => set({ watermarkQrContent: content }),
       setWatermarkLogo: (logo) => set({ watermarkLogo: logo }),
       setWatermarkSocialPlatform: (platform) =>
         set({ watermarkSocialPlatform: platform }),

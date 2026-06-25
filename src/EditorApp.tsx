@@ -4,7 +4,8 @@ import { useControlsStore } from "./store/useControlsStore.ts";
 import { ratios } from "./constants/ratios";
 import { base64ToBlob } from "./helpers/base64ToBlob.ts";
 // import { GlassOverlay } from "./components/glassLayer/GlassLayer.tsx";
-// import { SOCIAL_ICONS } from "./constants/social_icons.ts";
+import { getDisplayUrl } from "./utils/formatUrl.ts";
+import QRCode from "react-qr-code";
 import styles from "./EditorApp.module.css";
 
 const SOCIAL_ICONS = {
@@ -59,7 +60,9 @@ export const EditorApp = () => {
   const setImageSource = useControlsStore((s) => s.setImageSource);
   const setImageSourceRaw = useControlsStore((s) => s.setImageSourceRaw);
   const showWatermark = useControlsStore((s) => s.showWatermark);
+  const watermarkTiled = useControlsStore((s) => s.watermarkTiled);
   const watermarkType = useControlsStore((s) => s.watermarkType);
+  const watermarkQrContent = useControlsStore((s) => s.watermarkQrContent);
   const watermarkLogo = useControlsStore((s) => s.watermarkLogo);
   const watermarkSocialPlatform = useControlsStore(
     (s) => s.watermarkSocialPlatform,
@@ -277,6 +280,58 @@ export const EditorApp = () => {
             </div>
           )}
 
+          {/* --- IP PROTECTION: TILED PATTERN OVERLAY --- */}
+          {isPro && watermarkTiled && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                pointerEvents: "none",
+                zIndex: 40, // Keeps it above the mockup, below the UI corners
+                opacity: 0.15, // Subtle, so it doesn't ruin the image
+              }}
+            >
+              <svg width="100%" height="100%">
+                <defs>
+                  <pattern
+                    id="tiled-watermark"
+                    x="0"
+                    y="0"
+                    width="250" // Spacing between tiles horizontally
+                    height="150" // Spacing between tiles vertically
+                    patternUnits="userSpaceOnUse"
+                    patternTransform="rotate(-30)" // That classic diagonal watermark look
+                  >
+                    <text
+                      x="50%"
+                      y="50%"
+                      dominantBaseline="middle"
+                      textAnchor="middle"
+                      fill={watermarkColor || "#ffffff"}
+                      style={{
+                        fontFamily: watermarkFont,
+                        fontSize: "18px",
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {/* Uses your Smart Parser! */}
+                      {parseSmartVariables(watermarkText) || "PROTECTED"}
+                    </text>
+                  </pattern>
+                </defs>
+                <rect
+                  x="0"
+                  y="0"
+                  width="100%"
+                  height="100%"
+                  fill="url(#tiled-watermark)"
+                />
+              </svg>
+            </div>
+          )}
+
           {/* --- WATERMARK LOGIC --- */}
           {(!isPro || showWatermark) && (
             <div
@@ -329,6 +384,58 @@ export const EditorApp = () => {
                   <span style={{ transform: "translateY(0.5px)" }}>
                     {parseSmartVariables(watermarkText) || "@yourhandle"}
                   </span>
+                </div>
+              ) : watermarkType === "qr" ? (
+                /* --- THE NEW QR CODE RENDERER --- */
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
+                >
+                  {/* The white safe-zone box to ensure scannability */}
+                  <div
+                    style={{
+                      background: "#ffffff",
+                      padding: "4px",
+                      borderRadius: "6px",
+                      display: "flex",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    }}
+                  >
+                    <QRCode
+                      value={
+                        parseSmartVariables(watermarkQrContent) ||
+                        "https://yourdomain.com"
+                      }
+                      size={36} /* Nice compact size */
+                      level="L" /* Low error correction for a cleaner, less dense pattern */
+                      fgColor="#000000"
+                      bgColor="transparent"
+                    />
+                  </div>
+                  {/* Call to action block */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "2px",
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "0.75em",
+                        opacity: 0.7,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Scan to visit
+                    </span>
+                    <span style={{ transform: "translateY(1px)" }}>
+                      {parseSmartVariables(watermarkText) ||
+                        getDisplayUrl(pageUrl)}
+                    </span>
+                  </div>
                 </div>
               ) : (
                 /* Parse variables here */
