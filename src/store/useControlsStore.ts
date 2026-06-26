@@ -144,7 +144,6 @@ export interface AppState {
 
   // Water mark
   showWatermark: boolean;
-  watermarkTiled: boolean;
   watermarkType: "text" | "logo" | "social" | "qr";
   watermarkQrContent: string;
   watermarkLogo: string | null;
@@ -155,6 +154,14 @@ export interface AppState {
   watermarkColor: string;
   watermarkRadius: number;
   watermarkFontSize: number;
+
+  // watermark Tile
+  watermarkTiled: boolean;
+  tiledTheme: "solid" | "outline" | "overlay";
+  tiledOpacity: number;
+  tiledAngle: number;
+  tiledFontSize: number;
+  tiledSpacing: number;
 
   // Context Badge
   showContextBadge: boolean;
@@ -242,7 +249,6 @@ export interface AppState {
 
   // water mark
   setShowWatermark: (show: boolean) => void;
-  setWatermarkTiled: (tiled: boolean) => void;
   setWatermarkType: (type: "text" | "logo" | "social" | "qr") => void;
   setWatermarkQrContent: (content: string) => void;
   setWatermarkLogo: (logo: string | null) => void;
@@ -257,6 +263,14 @@ export interface AppState {
   setWatermarkColor: (color: string) => void;
   setWatermarkRadius: (radius: number) => void;
   setWatermarkFontSize: (size: number) => void;
+
+  // watermark Tile
+  setWatermarkTiled: (tiled: boolean) => void;
+  setTiledTheme: (theme: "solid" | "outline" | "overlay") => void;
+  setTiledOpacity: (opacity: number) => void;
+  setTiledAngle: (angle: number) => void;
+  setTiledFontSize: (size: number) => void;
+  setTiledSpacing: (spacing: number) => void;
 
   // Context Badge
   setShowContextBadge: (show: boolean) => void;
@@ -384,7 +398,7 @@ export const useControlsStore = create<AppState>()(
 
       // water mark
       showWatermark: true,
-      watermarkTiled: false,
+
       watermarkType: "social",
       watermarkQrContent: "{url}",
       watermarkLogo: null,
@@ -395,6 +409,14 @@ export const useControlsStore = create<AppState>()(
       watermarkColor: "#ffffff",
       watermarkRadius: 999, // Pill shape
       watermarkFontSize: 13,
+
+      // watermark Tile
+      watermarkTiled: false,
+      tiledTheme: "solid",
+      tiledOpacity: 0.15, // Subtle default
+      tiledAngle: -30, // Classic diagonal
+      tiledFontSize: 18,
+      tiledSpacing: 250,
 
       // Context Badge
       showContextBadge: false, // Default off
@@ -532,7 +554,6 @@ export const useControlsStore = create<AppState>()(
 
       // water mark
       setShowWatermark: (show) => set({ showWatermark: show }),
-      setWatermarkTiled: (tiled) => set({ watermarkTiled: tiled }),
       setWatermarkType: (type) => set({ watermarkType: type }),
       setWatermarkQrContent: (content) => set({ watermarkQrContent: content }),
       setWatermarkLogo: (logo) => set({ watermarkLogo: logo }),
@@ -544,6 +565,14 @@ export const useControlsStore = create<AppState>()(
       setWatermarkColor: (color) => set({ watermarkColor: color }),
       setWatermarkRadius: (radius) => set({ watermarkRadius: radius }),
       setWatermarkFontSize: (size) => set({ watermarkFontSize: size }),
+
+      // watermark Tile
+      setWatermarkTiled: (tiled) => set({ watermarkTiled: tiled }),
+      setTiledTheme: (theme) => set({ tiledTheme: theme }),
+      setTiledOpacity: (opacity) => set({ tiledOpacity: opacity }),
+      setTiledAngle: (angle) => set({ tiledAngle: angle }),
+      setTiledFontSize: (size) => set({ tiledFontSize: size }),
+      setTiledSpacing: (spacing) => set({ tiledSpacing: spacing }),
 
       // Context Badge
       setShowContextBadge: (show) => set({ showContextBadge: show }),

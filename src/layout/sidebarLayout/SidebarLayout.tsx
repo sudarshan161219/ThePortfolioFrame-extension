@@ -215,7 +215,6 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setGlassChroma = useControlsStore((s) => s.setGlassChroma);
 
   const showWatermark = useControlsStore((s) => s.showWatermark);
-  const watermarkTiled = useControlsStore((s) => s.watermarkTiled);
   const watermarkType = useControlsStore((s) => s.watermarkType);
   const watermarkQrContent = useControlsStore((s) => s.watermarkQrContent);
   const watermarkText = useControlsStore((s) => s.watermarkText);
@@ -230,7 +229,6 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const watermarkFontSize = useControlsStore((s) => s.watermarkFontSize);
 
   const setShowWatermark = useControlsStore((s) => s.setShowWatermark);
-  const setWatermarkTiled = useControlsStore((s) => s.setWatermarkTiled);
   const setWatermarkType = useControlsStore((s) => s.setWatermarkType);
   const setWatermarkQrContent = useControlsStore(
     (s) => s.setWatermarkQrContent,
@@ -245,6 +243,20 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setWatermarkColor = useControlsStore((s) => s.setWatermarkColor);
   const setWatermarkRadius = useControlsStore((s) => s.setWatermarkRadius);
   const setWatermarkFontSize = useControlsStore((s) => s.setWatermarkFontSize);
+
+  const watermarkTiled = useControlsStore((s) => s.watermarkTiled);
+  const tiledTheme = useControlsStore((s) => s.tiledTheme);
+  const tiledOpacity = useControlsStore((s) => s.tiledOpacity);
+  const tiledAngle = useControlsStore((s) => s.tiledAngle);
+  const tiledFontSize = useControlsStore((s) => s.tiledFontSize);
+  const tiledSpacing = useControlsStore((s) => s.tiledSpacing);
+
+  const setWatermarkTiled = useControlsStore((s) => s.setWatermarkTiled);
+  const setTiledTheme = useControlsStore((s) => s.setTiledTheme);
+  const setTiledOpacity = useControlsStore((s) => s.setTiledOpacity);
+  const setTiledAngle = useControlsStore((s) => s.setTiledAngle);
+  const setTiledFontSize = useControlsStore((s) => s.setTiledFontSize);
+  const setTiledSpacing = useControlsStore((s) => s.setTiledSpacing);
 
   const showContextBadge = useControlsStore((s) => s.showContextBadge);
   const contextBadgeText = useControlsStore((s) => s.contextBadgeText);
@@ -1298,7 +1310,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               onChange={(checked) => setShowContextBadge(checked)}
             />
 
-            {/* --- NEW: IP PROTECTION PATTERN --- */}
+            {/* --- 3. IP PROTECTION PATTERN --- */}
             <ToggleRow
               id="watermarkTiledToggle"
               label="IP Protection Pattern"
@@ -1309,17 +1321,114 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                 setWatermarkTiled(checked);
               }}
             />
+
             {watermarkTiled && (
               <div
                 style={{
-                  padding: "0 16px",
-                  marginBottom: "8px",
-                  fontSize: "10px",
-                  color: "var(--text-muted)",
-                  fontStyle: "italic",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                  marginTop: "8px",
+                  paddingBottom: "12px",
                 }}
               >
-                Uses your Custom Text and Font Color to tile across the image.
+                {/* Theme Selector */}
+                <ControlRow label="Pattern Style">
+                  <div className={styles.btnGrid3}>
+                    {(["solid", "outline", "overlay"] as const).map((theme) => (
+                      <button
+                        key={theme}
+                        onClick={() => setTiledTheme(theme)}
+                        className={`${styles.presetBtn} ${tiledTheme === theme ? styles.active : ""}`}
+                        style={{ textTransform: "capitalize" }}
+                      >
+                        {theme}
+                      </button>
+                    ))}
+                  </div>
+                </ControlRow>
+
+                {/* Opacity Slider */}
+                <ControlRow
+                  label="Opacity"
+                  value={`${Math.round(tiledOpacity * 100)}%`}
+                >
+                  <input
+                    type="range"
+                    min="0.01"
+                    max="1"
+                    step="0.01"
+                    value={tiledOpacity}
+                    onChange={(e) => setTiledOpacity(Number(e.target.value))}
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                {/* Angle Slider */}
+                <ControlRow label="Angle" value={`${tiledAngle}°`}>
+                  <input
+                    type="range"
+                    min="-90"
+                    max="90"
+                    step="1"
+                    value={tiledAngle}
+                    onChange={(e) => setTiledAngle(Number(e.target.value))}
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                {/* Size & Spacing (Compact Grid Layout) */}
+                <ControlRow label="Size & Density">
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      className={styles.eyebrowVal}
+                      style={{ width: "35px" }}
+                    >
+                      {tiledFontSize}px
+                    </span>
+                    <input
+                      type="range"
+                      min="10"
+                      max="72"
+                      step="1"
+                      value={tiledFontSize}
+                      onChange={(e) => setTiledFontSize(Number(e.target.value))}
+                      className={styles.slider}
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                      marginTop: "8px",
+                    }}
+                  >
+                    <span
+                      className={styles.eyebrowVal}
+                      style={{ width: "35px" }}
+                    >
+                      Gap
+                    </span>
+                    <input
+                      type="range"
+                      min="100"
+                      max="600"
+                      step="10"
+                      value={tiledSpacing}
+                      onChange={(e) => setTiledSpacing(Number(e.target.value))}
+                      className={styles.slider}
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+                </ControlRow>
               </div>
             )}
 

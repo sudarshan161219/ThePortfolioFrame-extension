@@ -60,7 +60,6 @@ export const EditorApp = () => {
   const setImageSource = useControlsStore((s) => s.setImageSource);
   const setImageSourceRaw = useControlsStore((s) => s.setImageSourceRaw);
   const showWatermark = useControlsStore((s) => s.showWatermark);
-  const watermarkTiled = useControlsStore((s) => s.watermarkTiled);
   const watermarkType = useControlsStore((s) => s.watermarkType);
   const watermarkQrContent = useControlsStore((s) => s.watermarkQrContent);
   const watermarkLogo = useControlsStore((s) => s.watermarkLogo);
@@ -73,6 +72,13 @@ export const EditorApp = () => {
   const watermarkColor = useControlsStore((s) => s.watermarkColor);
   const watermarkRadius = useControlsStore((s) => s.watermarkRadius);
   const watermarkFontSize = useControlsStore((s) => s.watermarkFontSize);
+
+  const watermarkTiled = useControlsStore((s) => s.watermarkTiled);
+  const tiledTheme = useControlsStore((s) => s.tiledTheme);
+  const tiledOpacity = useControlsStore((s) => s.tiledOpacity);
+  const tiledAngle = useControlsStore((s) => s.tiledAngle);
+  const tiledFontSize = useControlsStore((s) => s.tiledFontSize);
+  const tiledSpacing = useControlsStore((s) => s.tiledSpacing);
 
   const showContextBadge = useControlsStore((s) => s.showContextBadge);
   const contextBadgeText = useControlsStore((s) => s.contextBadgeText);
@@ -287,8 +293,10 @@ export const EditorApp = () => {
                 position: "absolute",
                 inset: 0,
                 pointerEvents: "none",
-                zIndex: 40, // Keeps it above the mockup, below the UI corners
-                opacity: 0.15, // Subtle, so it doesn't ruin the image
+                zIndex: 40,
+                // Use nullish coalescing to guarantee it never fails if state is undefined
+                opacity: tiledOpacity ?? 0.15,
+                mixBlendMode: tiledTheme === "overlay" ? "overlay" : "normal",
               }}
             >
               <svg width="100%" height="100%">
@@ -297,27 +305,39 @@ export const EditorApp = () => {
                     id="tiled-watermark"
                     x="0"
                     y="0"
-                    width="250" // Spacing between tiles horizontally
-                    height="150" // Spacing between tiles vertically
+                    width={tiledSpacing || 250}
+                    height={(tiledSpacing || 250) * 0.6}
                     patternUnits="userSpaceOnUse"
-                    patternTransform="rotate(-30)" // That classic diagonal watermark look
+                    patternTransform={`rotate(${tiledAngle ?? -30})`}
                   >
                     <text
-                      x="50%"
-                      y="50%"
+                      // THE FIX: Strict math instead of "50%" prevents rendering bugs
+                      x={(tiledSpacing || 250) / 2}
+                      y={((tiledSpacing || 250) * 0.6) / 2}
                       dominantBaseline="middle"
                       textAnchor="middle"
-                      fill={watermarkColor || "#ffffff"}
+                      fill={
+                        tiledTheme === "outline"
+                          ? "none"
+                          : watermarkColor || "#ffffff"
+                      }
+                      stroke={
+                        tiledTheme === "outline"
+                          ? watermarkColor || "#ffffff"
+                          : "none"
+                      }
+                      strokeWidth={tiledTheme === "outline" ? "1.5" : "0"}
                       style={{
-                        fontFamily: watermarkFont,
-                        fontSize: "18px",
+                        fontFamily: watermarkFont || "system-ui, sans-serif",
+                        fontSize: `${tiledFontSize || 18}px`,
                         fontWeight: 700,
                         letterSpacing: "0.1em",
-                        textTransform: "uppercase",
                       }}
                     >
-                      {/* Uses your Smart Parser! */}
-                      {parseSmartVariables(watermarkText) || "PROTECTED"}
+                      {/* THE FIX: Force uppercase via JS instead of CSS */}
+                      {(
+                        parseSmartVariables(watermarkText) || "PROTECTED"
+                      ).toUpperCase()}
                     </text>
                   </pattern>
                 </defs>
