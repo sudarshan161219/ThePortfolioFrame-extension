@@ -10,7 +10,7 @@ import { type AppState, useControlsStore } from "./useControlsStore";
 // import { parseBoxShadow } from "../helpers/exportLayers/parseBoxShadow";
 import { toBlob, toJpeg, toSvg } from "html-to-image";
 import { ratios } from "../constants/ratios";
-import { HtmlInCanvas } from "remotion";
+// import { HtmlInCanvas } from "remotion";
 
 // ── Types ────────────────────────────────────────────────
 
@@ -149,101 +149,99 @@ export async function exportImage(
 }
 
 // The Remotion Video Exporter
+// The New Node.js Server Exporter
 async function exportVideo(
   format: "mp4" | "webm",
   onProgress: (progress: number) => void,
   targetWidth: number,
   targetHeight: number,
 ): Promise<void> {
-  const [{ renderMediaOnWeb }, { RemotionFrame }] = await Promise.all([
-    import("@remotion/web-renderer"),
-    import("../components/remotionFrame/RemotionFrame"),
-  ]);
-
-  // Warn user if flag isn't enabled — they'll get fallback rendering
-  const htmlInCanvasSupported = HtmlInCanvas.isSupported();
-  if (!htmlInCanvasSupported) {
-    console.warn(
-      "[Portfolio Frame] For best export quality, enable chrome://flags/#canvas-draw-element",
-    );
-    // don't block — allowHtmlInCanvas auto-falls back, still works
-  }
-
-  // 1. Grab the current state from your controls store to feed into Remotion
   const appState = useControlsStore.getState();
 
-  if (!appState.imageSource) {
-    console.error("Cannot export video: No image source found.");
+  if (!appState.imageSourceRaw) {
+    console.error("Cannot export video: No raw image source found.");
     return;
   }
 
-  let videoWidth = targetWidth;
-  let videoHeight = targetHeight;
-
-  // H264 safety — must be even
-  if (videoWidth % 2 !== 0) videoWidth += 1;
-  if (videoHeight % 2 !== 0) videoHeight += 1;
+  // Ensure dimensions are even for H.264 encoding requirements
+  const videoWidth = targetWidth % 2 !== 0 ? targetWidth + 1 : targetWidth;
+  const videoHeight = targetHeight % 2 !== 0 ? targetHeight + 1 : targetHeight;
 
   const exportTarget = document.getElementById("portfolio-export-target");
   const previewWidth = exportTarget?.clientWidth ?? 1280;
   const previewHeight = exportTarget?.clientHeight ?? 720;
-
   const previewScale = videoWidth / previewWidth;
 
+  // --- GIF DETECTION ---
+  // If a GIF is detected, extend the duration so it has time to loop
   const isGif = appState.bgImageRaw?.startsWith("data:image/gif");
+  const durationInFrames = isGif ? 180 : 120; // 6 seconds vs 4 seconds at 30fps
 
+  // Clean the state to remove non-serializable functions before sending over HTTP
   const serializableProps = Object.fromEntries(
     Object.entries(appState).filter(
       ([_, value]) => typeof value !== "function",
     ),
   ) as Record<string, unknown>;
 
+  // Inject backend-specific rendering metadata
   serializableProps.previewWidth = previewWidth;
   serializableProps.previewHeight = previewHeight;
   serializableProps.previewScale = previewScale;
+  serializableProps.videoWidth = videoWidth;
+  serializableProps.videoHeight = videoHeight;
+  serializableProps.durationInFrames = durationInFrames;
 
+  // 1. Setup the AbortController for manual user cancellations
   const abortController = new AbortController();
 
   try {
-    // Trigger the WebCodecs render
-    const { getBlob } = await renderMediaOnWeb({
-      composition: {
-        id: "PortfolioMockup",
-        component: RemotionFrame, // component
-        durationInFrames: isGif ? 180 : 120, // 4 seconds at 30fps
-        fps: 30,
-        width: videoWidth,
-        height: videoHeight,
-      } as any,
-      inputProps: serializableProps,
-      container: format,
-      videoCodec: format === "mp4" ? "h264" : "vp8",
-      audioCodec: "opus",
-      muted: true,
-      allowHtmlInCanvas: true,
-      onProgress: ({ progress }) => {
-        onProgress(progress);
+    // Optional: Simulate a progress bar for the UI since standard HTTP doesn't natively stream progress
+    let simulatedProgress = 0;
+    const progressInterval = setInterval(() => {
+      simulatedProgress += 0.05;
+      if (simulatedProgress < 0.9) onProgress(simulatedProgress);
+    }, 1000);
+
+    // 2. The Handshake: Send the massive payload to your local Node instance
+    const response = await fetch("http://localhost:3001/api/export-video", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        state: serializableProps,
+        licenseKey: "sk_test_12345",
+      }),
+      signal: abortController.signal,
     });
 
-    // Download the final video
-    const blob = await getBlob();
+    clearInterval(progressInterval);
 
-    // Release the large base64 strings immediately after render
-    serializableProps.imageSourceRaw = null;
-    serializableProps.bgImageRaw = null;
-
-    const url = URL.createObjectURL(blob);
-    download(url, FILENAME(format));
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch (error) {
-    if (abortController.signal.aborted) {
-      console.log("[The Portfolio Frame] Render was cancelled.");
-    } else {
-      throw error;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to render video on server.");
     }
-  } finally {
-    abortController.abort();
+
+    onProgress(1); // Force progress to 100% on completion
+
+    // 3. Receive the streamed MP4 and convert to a downloadable Blob
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+
+    download(url, FILENAME(format));
+
+    // Memory cleanup: destroy the object URL
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error: any) {
+    if (error.name === "AbortError") {
+      console.log(
+        "[🛑] Export cancelled by user. Server kill switch triggered.",
+      );
+    } else {
+      console.error("[The Portfolio Frame] Server Render Error:", error);
+    }
+    throw error;
   }
 }
 
