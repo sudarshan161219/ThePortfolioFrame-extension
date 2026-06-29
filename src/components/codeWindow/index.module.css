@@ -1,0 +1,232 @@
+/* --- WINDOW SHELL --- */
+.windowContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 800px;
+  min-width: 400px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* --- HEADER STYLES --- */
+.header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.headerMac {
+  justify-content: flex-start;
+}
+.headerWindows {
+  justify-content: space-between;
+}
+.headerMinimal {
+  justify-content: center;
+  background: transparent;
+  border: none;
+}
+
+.macButtons {
+  display: flex;
+  gap: 8px;
+  position: absolute;
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.winButtons {
+  display: flex;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+}
+.winIcon {
+  cursor: pointer;
+}
+
+/* --- LANGUAGE BADGE --- */
+.languageBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 0 auto;
+}
+
+.editorWrapper {
+  overflow: auto;
+}
+.editor textarea {
+  outline: none !important;
+}
+
+/* ============================================================
+   PREMIUM INSTAGRAM THEMES (Overrides Prism.js)
+   ============================================================ */
+
+/* 1. Dracula (Dark Purple/Neon Pink/Green) */
+.themeDracula {
+  background: #282a36;
+  color: #f8f8f2;
+}
+.themeDracula .languageBadge {
+  color: #f8f8f2;
+  background: rgba(255, 255, 255, 0.1);
+}
+.themeDracula :global(.token.keyword),
+.themeDracula :global(.token.operator) {
+  color: #ff79c6;
+}
+.themeDracula :global(.token.string),
+.themeDracula :global(.token.attr-value) {
+  color: #f1fa8c;
+}
+.themeDracula :global(.token.function),
+.themeDracula :global(.token.class-name) {
+  color: #50fa7b;
+}
+.themeDracula :global(.token.comment) {
+  color: #6272a4;
+  font-style: italic;
+}
+.themeDracula :global(.token.punctuation) {
+  color: #f8f8f2;
+  opacity: 0.7;
+}
+.themeDracula :global(.token.number),
+.themeDracula :global(.token.boolean) {
+  color: #bd93f9;
+}
+
+/* 2. Synthwave '84 (Neon Glow) */
+.themeSynthwave {
+  background: #2b213a;
+  color: #f92aad;
+  border: 1px solid rgba(249, 42, 173, 0.3);
+}
+.themeSynthwave .languageBadge {
+  color: #36f9f6;
+  background: rgba(54, 249, 246, 0.1);
+  border-color: rgba(54, 249, 246, 0.2);
+}
+.themeSynthwave :global(.token.keyword) {
+  color: #f92aad;
+  text-shadow: 0 0 5px #f92aad;
+}
+.themeSynthwave :global(.token.string) {
+  color: #ffb86c;
+}
+.themeSynthwave :global(.token.function) {
+  color: #36f9f6;
+  text-shadow: 0 0 5px #36f9f6;
+}
+.themeSynthwave :global(.token.comment) {
+  color: #848bbd;
+  font-style: italic;
+}
+.themeSynthwave :global(.token.number) {
+  color: #f97e72;
+}
+
+/* 3. Monokai (Classic Dark/Yellow) */
+.themeMonokai {
+  background: #272822;
+  color: #f8f8f2;
+}
+.themeMonokai .languageBadge {
+  color: #a6e22e;
+  background: rgba(166, 226, 46, 0.1);
+}
+.themeMonokai :global(.token.keyword) {
+  color: #f92672;
+}
+.themeMonokai :global(.token.string) {
+  color: #e6db74;
+}
+.themeMonokai :global(.token.function) {
+  color: #a6e22e;
+}
+.themeMonokai :global(.token.comment) {
+  color: #75715e;
+}
+.themeMonokai :global(.token.number) {
+  color: #ae81ff;
+}
+
+/* 4. GitHub Dark (Sleek/Blue/Red) */
+.themeGithub-dark {
+  background: #0d1117;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+}
+.themeGithub-dark .header {
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+}
+.themeGithub-dark .languageBadge {
+  color: #c9d1d9;
+  background: #21262d;
+  border-color: #30363d;
+}
+.themeGithub-dark :global(.token.keyword) {
+  color: #ff7b72;
+}
+.themeGithub-dark :global(.token.string) {
+  color: #a5d6ff;
+}
+.themeGithub-dark :global(.token.function) {
+  color: #d2a8ff;
+}
+.themeGithub-dark :global(.token.comment) {
+  color: #8b949e;
+}
+.themeGithub-dark :global(.token.number) {
+  color: #79c0ff;
+}
+
+/* 5. Minimal Light (Clean White/Grey) */
+.themeLight {
+  background: rgba(255, 255, 255, 0.95);
+  color: #24292e;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.themeLight .header {
+  background: rgba(246, 248, 250, 0.8);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.themeLight .languageBadge {
+  color: #24292e;
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.themeLight :global(.token.keyword) {
+  color: #d73a49;
+}
+.themeLight :global(.token.string) {
+  color: #032f62;
+}
+.themeLight :global(.token.function) {
+  color: #6f42c1;
+}
+.themeLight :global(.token.comment) {
+  color: #6a737d;
+}
+.themeLight .winButtons {
+  color: rgba(0, 0, 0, 0.4);
+}

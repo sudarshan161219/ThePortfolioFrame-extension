@@ -4,6 +4,7 @@ import { useControlsStore } from "./store/useControlsStore.ts";
 import { ratios } from "./constants/ratios";
 import { base64ToBlob } from "./helpers/base64ToBlob.ts";
 // import { GlassOverlay } from "./components/glassLayer/GlassLayer.tsx";
+import { CodeWindow } from "./components/codeWindow/CodeWindow";
 import { getDisplayUrl } from "./utils/formatUrl.ts";
 import QRCode from "react-qr-code";
 import styles from "./EditorApp.module.css";
@@ -88,6 +89,8 @@ export const EditorApp = () => {
   const badgeFontSize = useControlsStore((s) => s.badgeFontSize);
   const badgeIconType = useControlsStore((s) => s.badgeIconType);
   const badgeIconValue = useControlsStore((s) => s.badgeIconValue);
+
+  const editorMode = useControlsStore((s) => s.editorMode);
 
   const prevImageUrl = useRef<string | null>(null);
 
@@ -263,7 +266,21 @@ export const EditorApp = () => {
             data-bg="true"
           />
           {/* <GlassOverlay /> */}
-          <Frame />
+          {/* --- THE MAIN CONTENT (IMAGE OR CODE) --- */}
+          {editorMode === "image" ? (
+            <Frame />
+          ) : (
+            <div
+              style={{
+                padding: "40px",
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <CodeWindow />
+            </div>
+          )}
 
           {/* --- BUILD CONTEXT BADGE (Bottom Left) --- */}
           {showContextBadge && (

@@ -75,6 +75,9 @@ export type DeviceMockup =
 
 // 1. Define the TypeScript types for your state and actions
 export interface AppState {
+  // --- Core Modes ---
+  editorMode: "image" | "code";
+
   isPro: boolean;
   showBrowserFrame: boolean;
   showDeviceFrame: boolean;
@@ -173,11 +176,22 @@ export interface AppState {
   badgeIconType: "dot" | "emoji" | "custom" | "none";
   badgeIconValue: string;
 
+  // --- Code Editor State ---
+  codeSnippet: string;
+  codeLanguage: string;
+  codeTheme: "dracula" | "synthwave" | "monokai" | "github-dark" | "light"; // Expanded!
+  codeFontFamily: string; // NEW
+  showLanguageBadge: boolean; // NEW
+  windowStyle: "mac" | "windows" | "minimal";
+
   // export quality
   exportQuality: number;
   jpegQuality: number;
 
   // Setter Actions
+  // --- Core Modes ---
+  setEditorMode: (mode: "image" | "code") => void;
+
   setIsPro: (status: boolean) => void;
   setBrowserFrame: (status: boolean) => void;
   setDeviceFrame: (status: boolean) => void;
@@ -284,6 +298,16 @@ export interface AppState {
   setBadgeIconType: (type: "dot" | "emoji" | "custom" | "none") => void;
   setBadgeIconValue: (val: string) => void;
 
+  // --- Code Editor State ---
+  setCodeSnippet: (code: string) => void;
+  setCodeLanguage: (lang: string) => void;
+  setCodeTheme: (
+    theme: "dracula" | "synthwave" | "monokai" | "github-dark" | "light",
+  ) => void;
+  setCodeFontFamily: (font: string) => void;
+  setShowLanguageBadge: (show: boolean) => void;
+  setWindowStyle: (style: "mac" | "windows" | "minimal") => void;
+
   // export
   setExportQuality: (quality: number) => void;
   setJpegQuality: (quality: number) => void;
@@ -329,6 +353,8 @@ const getDefaultScreenConfig = (id: string) => {
 export const useControlsStore = create<AppState>()(
   persist(
     (set) => ({
+      // --- Core Modes ---
+      editorMode: "image",
       // Default Values
       isPro: true,
       showBrowserFrame: true,
@@ -428,11 +454,20 @@ export const useControlsStore = create<AppState>()(
       badgeIconType: "dot",
       badgeIconValue: "#34D399",
 
+      // --- Code Editor State ---
+      codeSnippet: "const greeting = 'Hello, World!';\nconsole.log(greeting);",
+      codeLanguage: "javascript",
+      codeTheme: "dracula",
+      codeFontFamily: '"JetBrains Mono", monospace',
+      showLanguageBadge: true,
+      windowStyle: "mac",
+
       // export quality
       exportQuality: 1,
       jpegQuality: 0.95,
 
       // Action Implementations
+      setEditorMode: (mode) => set({ editorMode: mode }),
       setIsPro: (status) => set({ isPro: status }),
       setBrowserFrame: (status) => set({ showBrowserFrame: status }),
       setDeviceFrame: (status) => set({ showDeviceFrame: status }),
@@ -583,6 +618,14 @@ export const useControlsStore = create<AppState>()(
       setBadgeFontSize: (size) => set({ badgeFontSize: size }),
       setBadgeIconType: (type) => set({ badgeIconType: type }),
       setBadgeIconValue: (val) => set({ badgeIconValue: val }),
+
+      // --- Code Editor State ---
+      setCodeSnippet: (code) => set({ codeSnippet: code }),
+      setCodeLanguage: (lang) => set({ codeLanguage: lang }),
+      setCodeTheme: (theme) => set({ codeTheme: theme }),
+      setCodeFontFamily: (font) => set({ codeFontFamily: font }),
+      setShowLanguageBadge: (show) => set({ showLanguageBadge: show }),
+      setWindowStyle: (style) => set({ windowStyle: style }),
 
       // image export Quality
       setExportQuality: (quality) => set({ exportQuality: quality }),

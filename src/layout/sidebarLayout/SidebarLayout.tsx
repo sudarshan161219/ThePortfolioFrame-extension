@@ -113,6 +113,7 @@ function ToggleRow({
 }
 
 export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
+  const editorMode = useControlsStore((s) => s.editorMode);
   const isPro = useControlsStore((s) => s.isPro);
   const tilt = useControlsStore((s) => s.tilt);
   const showBrowserFrame = useControlsStore((s) => s.showBrowserFrame);
@@ -126,7 +127,6 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const bgScale = useControlsStore((s) => s.bgScale);
   const bgPositionX = useControlsStore((s) => s.bgPositionX);
   const bgPositionY = useControlsStore((s) => s.bgPositionY);
-  // const handle = useControlsStore((s) => s.handle);
   const activeBg = useControlsStore((s) => s.activeBg);
   const tiltX = useControlsStore((s) => s.tiltX);
   const tiltY = useControlsStore((s) => s.tiltY);
@@ -154,6 +154,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const annotationFontFamily = useControlsStore((s) => s.annotationFontFamily);
   const activeAnnotationTool = useControlsStore((s) => s.activeAnnotationTool);
   const selectedAnnotationId = useControlsStore((s) => s.selectedAnnotationId);
+
+  const setEditorMode = useControlsStore((s) => s.setEditorMode);
   const setTilt = useControlsStore((s) => s.setTilt);
   const setBrowserFrame = useControlsStore((s) => s.setBrowserFrame);
   const setDeviceFrame = useControlsStore((s) => s.setDeviceFrame);
@@ -166,7 +168,6 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setBgScale = useControlsStore((s) => s.setBgScale);
   const setBgPositionX = useControlsStore((s) => s.setBgPositionX);
   const setBgPositionY = useControlsStore((s) => s.setBgPositionY);
-  // const setHandle = useControlsStore((s) => s.setHandle);
   const setPageUrl = useControlsStore((s) => s.setPageUrl);
   const setPageTitle = useControlsStore((s) => s.setPageTitle);
   const setActiveBg = useControlsStore((s) => s.setActiveBg);
@@ -276,6 +277,16 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setBadgeIconType = useControlsStore((s) => s.setBadgeIconType);
   const setBadgeIconValue = useControlsStore((s) => s.setBadgeIconValue);
 
+  const codeLanguage = useControlsStore((s) => s.codeLanguage);
+  const codeTheme = useControlsStore((s) => s.codeTheme);
+  const windowStyle = useControlsStore((s) => s.windowStyle);
+  const showLanguageBadge = useControlsStore((s) => s.showLanguageBadge);
+  const codeFontFamily = useControlsStore((s) => s.codeFontFamily);
+
+  const setCodeLanguage = useControlsStore((s) => s.setCodeLanguage);
+  const setShowLanguageBadge = useControlsStore((s) => s.setShowLanguageBadge);
+  const setCodeFontFamily = useControlsStore((s) => s.setCodeFontFamily);
+
   const annotationsRef = useRef(annotations);
   const prevBgUrl = useRef<string | null>(null);
   const readerRef = useRef<FileReader | null>(null);
@@ -380,6 +391,69 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
 
         {/* Scrollable controls */}
         <div className={styles.sidebarBody}>
+          {/* --- MASTER APP MODE TOGGLE --- */}
+          <div
+            style={{
+              padding: "16px",
+              borderBottom: "0.5px solid var(--border-light)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                background: "var(--bg-app)",
+                borderRadius: "6px",
+                padding: "4px",
+                border: "0.5px solid var(--border-medium)",
+              }}
+            >
+              <button
+                onClick={() => setEditorMode("image")}
+                style={{
+                  flex: 1,
+                  padding: "6px 0",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  borderRadius: "4px",
+                  background:
+                    editorMode === "image"
+                      ? "var(--bg-sidebar)"
+                      : "transparent",
+                  color:
+                    editorMode === "image"
+                      ? "var(--text-main)"
+                      : "var(--text-muted)",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                Screenshot
+              </button>
+              <button
+                onClick={() => setEditorMode("code")}
+                style={{
+                  flex: 1,
+                  padding: "6px 0",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  borderRadius: "4px",
+                  background:
+                    editorMode === "code" ? "var(--bg-sidebar)" : "transparent",
+                  color:
+                    editorMode === "code"
+                      ? "var(--text-main)"
+                      : "var(--text-muted)",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                Code Snippet
+              </button>
+            </div>
+          </div>
+
           {/* ── 1. Canvas & Layout ──────────────────── */}
           <Section title="Canvas & Layout">
             {/* Aspect ratio */}
@@ -529,180 +603,308 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           </Section>
 
           {/* ── 2. Browser Mockup ───────────────────── */}
-          <Section title="Browser Mockup" defaultOpen={false}>
-            <ToggleRow
-              id="showBrowserToggle" // ✅ FIX: Unique ID
-              label="Show Browser Frame"
-              checked={showBrowserFrame}
-              onChange={(checked) => {
-                setBrowserFrame(checked);
-                if (checked) {
-                  setDeviceFrame(false);
-                  setMockupCategory("browser"); // ✅ Syncs with Frame.tsx
-                } else {
-                  setMockupCategory("none"); // ✅ Resets to plain image
-                }
-              }}
-            />
 
-            {showBrowserFrame && (
-              <>
-                <ControlRow label="Mockup Style">
-                  <select
-                    className={styles.select}
-                    value={browserMockup}
-                    onChange={
-                      (e) => setBrowserMockup(e.target.value as BrowserMockup) // Removed 'as BrowserMockup' if store expects string
-                    }
-                  >
-                    {BROWSER_MOCKUPS.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.label} — {m.os}
-                      </option>
-                    ))}
-                  </select>
-                </ControlRow>
+          {editorMode === "image" && (
+            <Section title="Browser Mockup" defaultOpen={false}>
+              <ToggleRow
+                id="showBrowserToggle" // ✅ FIX: Unique ID
+                label="Show Browser Frame"
+                checked={showBrowserFrame}
+                onChange={(checked) => {
+                  setBrowserFrame(checked);
+                  if (checked) {
+                    setDeviceFrame(false);
+                    setMockupCategory("browser"); // ✅ Syncs with Frame.tsx
+                  } else {
+                    setMockupCategory("none"); // ✅ Resets to plain image
+                  }
+                }}
+              />
 
-                <ControlRow label="Browser URL">
-                  <input
-                    type="text"
-                    placeholder="yourdomain.com"
-                    value={pageUrl}
-                    onChange={(e) => setPageUrl(e.target.value)}
-                    className={styles.input}
-                  />
-                </ControlRow>
+              {showBrowserFrame && (
+                <>
+                  <ControlRow label="Mockup Style">
+                    <select
+                      className={styles.select}
+                      value={browserMockup}
+                      onChange={
+                        (e) => setBrowserMockup(e.target.value as BrowserMockup) // Removed 'as BrowserMockup' if store expects string
+                      }
+                    >
+                      {BROWSER_MOCKUPS.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.label} — {m.os}
+                        </option>
+                      ))}
+                    </select>
+                  </ControlRow>
 
-                <ControlRow label="Tab Title">
-                  <input
-                    type="text"
-                    placeholder="Leave blank to auto-generate…"
-                    value={pageTitle}
-                    onChange={(e) => setPageTitle(e.target.value)}
-                    className={styles.input}
-                  />
-                </ControlRow>
-              </>
-            )}
-          </Section>
+                  <ControlRow label="Browser URL">
+                    <input
+                      type="text"
+                      placeholder="yourdomain.com"
+                      value={pageUrl}
+                      onChange={(e) => setPageUrl(e.target.value)}
+                      className={styles.input}
+                    />
+                  </ControlRow>
+
+                  <ControlRow label="Tab Title">
+                    <input
+                      type="text"
+                      placeholder="Leave blank to auto-generate…"
+                      value={pageTitle}
+                      onChange={(e) => setPageTitle(e.target.value)}
+                      className={styles.input}
+                    />
+                  </ControlRow>
+                </>
+              )}
+            </Section>
+          )}
 
           {/* ── 3. Device Mockup ───────────────────── */}
-          <Section title="Device Mockup" defaultOpen={false}>
-            <ToggleRow
-              id="showDeviceToggle" // ✅ FIX: Unique ID
-              label="Show Device Frame"
-              checked={showDeviceFrame}
-              onChange={(checked) => {
-                setDeviceFrame(checked);
-                if (checked) {
-                  setBrowserFrame(false);
-                  setMockupCategory("device");
-                } else {
-                  setMockupCategory("none");
-                }
-              }}
-            />
+          {editorMode === "image" && (
+            <Section title="Device Mockup" defaultOpen={false}>
+              <ToggleRow
+                id="showDeviceToggle" // ✅ FIX: Unique ID
+                label="Show Device Frame"
+                checked={showDeviceFrame}
+                onChange={(checked) => {
+                  setDeviceFrame(checked);
+                  if (checked) {
+                    setBrowserFrame(false);
+                    setMockupCategory("device");
+                  } else {
+                    setMockupCategory("none");
+                  }
+                }}
+              />
 
-            {showDeviceFrame && (
-              <>
-                <ControlRow label="Mockup Style">
+              {showDeviceFrame && (
+                <>
+                  <ControlRow label="Mockup Style">
+                    <select
+                      className={styles.select}
+                      value={deviceMockup}
+                      onChange={(e) =>
+                        setDeviceMockup(e.target.value as DeviceMockup)
+                      }
+                    >
+                      {DEVICE_MOCKUPS.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
+                  </ControlRow>
+
+                  <ControlRow label="Position X">
+                    <div className={styles.arrowSliderRow}>
+                      <span className={styles.arrowLabel}>Left</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={50}
+                        step={0.1}
+                        value={screenLeft}
+                        onChange={(e) => setScreenLeft(Number(e.target.value))}
+                        className={styles.slider}
+                      />
+                      <span className={styles.arrowLabel}>Right</span>
+                    </div>
+                  </ControlRow>
+
+                  <ControlRow label="Position Y">
+                    <div className={styles.arrowSliderRow}>
+                      <span className={styles.arrowLabel}>Top</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={50}
+                        step={0.1}
+                        value={screenTop}
+                        onChange={(e) => setScreenTop(Number(e.target.value))}
+                        className={styles.slider}
+                      />
+                      <span className={styles.arrowLabel}>Bottom</span>
+                    </div>
+                  </ControlRow>
+
+                  <ControlRow label="Width">
+                    <div className={styles.arrowSliderRow}>
+                      <span className={styles.arrowLabel}>Narrow</span>
+                      <input
+                        type="range"
+                        min={10}
+                        max={100}
+                        step={0.1}
+                        value={screenWidth}
+                        onChange={(e) => setScreenWidth(Number(e.target.value))}
+                        className={styles.slider}
+                      />
+                      <span className={styles.arrowLabel}>Wide</span>
+                    </div>
+                  </ControlRow>
+
+                  <ControlRow label="Height">
+                    <div className={styles.arrowSliderRow}>
+                      <span className={styles.arrowLabel}>Short</span>
+                      <input
+                        type="range"
+                        min={10}
+                        max={100}
+                        step={0.1}
+                        value={screenHeight}
+                        onChange={(e) =>
+                          setScreenHeight(Number(e.target.value))
+                        }
+                        className={styles.slider}
+                      />
+                      <span className={styles.arrowLabel}>Tall</span>
+                    </div>
+                  </ControlRow>
+
+                  <button
+                    onClick={() => {
+                      const active = DEVICE_MOCKUPS.find(
+                        (m) => m.id === deviceMockup,
+                      );
+                      if (!active) return;
+                      setScreenLeft(parseFloat(active.screen.left));
+                      setScreenTop(parseFloat(active.screen.top));
+                      setScreenWidth(parseFloat(active.screen.width));
+                      setScreenHeight(parseFloat(active.screen.height));
+                    }}
+                    className={styles.resetBtn}
+                  >
+                    Reset to defaults
+                  </button>
+                </>
+              )}
+            </Section>
+          )}
+
+          {/* ── CODE EDITOR SETTINGS ───────────────────── */}
+          {editorMode === "code" && (
+            <Section title="Code Styling" defaultOpen={true}>
+              {/* Language & Icon Toggle */}
+              <ControlRow label="Language">
+                <div style={{ display: "flex", gap: "8px" }}>
                   <select
                     className={styles.select}
-                    value={deviceMockup}
-                    onChange={(e) =>
-                      setDeviceMockup(e.target.value as DeviceMockup)
-                    }
+                    value={codeLanguage}
+                    onChange={(e) => setCodeLanguage(e.target.value)}
+                    style={{ flex: 1 }}
                   >
-                    {DEVICE_MOCKUPS.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.label}
-                      </option>
-                    ))}
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="css">CSS</option>
+                    <option value="python">Python</option>
+                    <option value="rust">Rust</option>
                   </select>
-                </ControlRow>
+                  <button
+                    className={`${styles.ghostBtn} ${showLanguageBadge ? styles.active : ""}`}
+                    onClick={(prev) => setShowLanguageBadge(!prev)}
+                    title="Toggle Language Badge"
+                  >
+                    Badge
+                  </button>
+                </div>
+              </ControlRow>
 
-                <ControlRow label="Position X">
-                  <div className={styles.arrowSliderRow}>
-                    <span className={styles.arrowLabel}>Left</span>
-                    <input
-                      type="range"
-                      min={0}
-                      max={50}
-                      step={0.1}
-                      value={screenLeft}
-                      onChange={(e) => setScreenLeft(Number(e.target.value))}
-                      className={styles.slider}
-                    />
-                    <span className={styles.arrowLabel}>Right</span>
-                  </div>
-                </ControlRow>
+              {/* Window Style */}
+              <ControlRow label="Window Style">
+                <div className={styles.btnGrid3}>
+                  {(["mac", "windows", "minimal"] as const).map((style) => (
+                    <button
+                      key={style}
+                      onClick={() =>
+                        useControlsStore.getState().setWindowStyle(style)
+                      }
+                      className={`${styles.presetBtn} ${windowStyle === style ? styles.active : ""}`}
+                      style={{ textTransform: "capitalize" }}
+                    >
+                      {style}
+                    </button>
+                  ))}
+                </div>
+              </ControlRow>
 
-                <ControlRow label="Position Y">
-                  <div className={styles.arrowSliderRow}>
-                    <span className={styles.arrowLabel}>Top</span>
-                    <input
-                      type="range"
-                      min={0}
-                      max={50}
-                      step={0.1}
-                      value={screenTop}
-                      onChange={(e) => setScreenTop(Number(e.target.value))}
-                      className={styles.slider}
-                    />
-                    <span className={styles.arrowLabel}>Bottom</span>
-                  </div>
-                </ControlRow>
-
-                <ControlRow label="Width">
-                  <div className={styles.arrowSliderRow}>
-                    <span className={styles.arrowLabel}>Narrow</span>
-                    <input
-                      type="range"
-                      min={10}
-                      max={100}
-                      step={0.1}
-                      value={screenWidth}
-                      onChange={(e) => setScreenWidth(Number(e.target.value))}
-                      className={styles.slider}
-                    />
-                    <span className={styles.arrowLabel}>Wide</span>
-                  </div>
-                </ControlRow>
-
-                <ControlRow label="Height">
-                  <div className={styles.arrowSliderRow}>
-                    <span className={styles.arrowLabel}>Short</span>
-                    <input
-                      type="range"
-                      min={10}
-                      max={100}
-                      step={0.1}
-                      value={screenHeight}
-                      onChange={(e) => setScreenHeight(Number(e.target.value))}
-                      className={styles.slider}
-                    />
-                    <span className={styles.arrowLabel}>Tall</span>
-                  </div>
-                </ControlRow>
-
-                <button
-                  onClick={() => {
-                    const active = DEVICE_MOCKUPS.find(
-                      (m) => m.id === deviceMockup,
-                    );
-                    if (!active) return;
-                    setScreenLeft(parseFloat(active.screen.left));
-                    setScreenTop(parseFloat(active.screen.top));
-                    setScreenWidth(parseFloat(active.screen.width));
-                    setScreenHeight(parseFloat(active.screen.height));
-                  }}
-                  className={styles.resetBtn}
+              {/* Premium Themes */}
+              <ControlRow label="Color Theme">
+                <div
+                  className={styles.btnGrid3}
+                  style={{ gridTemplateColumns: "1fr 1fr", gap: "6px" }}
                 >
-                  Reset to defaults
-                </button>
-              </>
-            )}
-          </Section>
+                  {[
+                    { id: "dracula", label: "Dracula", color: "#ff79c6" },
+                    { id: "synthwave", label: "Synthwave", color: "#36f9f6" },
+                    { id: "monokai", label: "Monokai", color: "#a6e22e" },
+                    {
+                      id: "github-dark",
+                      label: "GitHub Dark",
+                      color: "#ff7b72",
+                    },
+                    { id: "light", label: "Minimal Light", color: "#d73a49" },
+                  ].map((theme) => (
+                    <button
+                      key={theme.id}
+                      onClick={() =>
+                        useControlsStore
+                          .getState()
+                          .setCodeTheme(theme.id as any)
+                      }
+                      className={`${styles.presetBtn} ${codeTheme === theme.id ? styles.active : ""}`}
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "flex-start",
+                        padding: "6px 8px",
+                        borderLeft:
+                          codeTheme === theme.id
+                            ? `3px solid ${theme.color}`
+                            : "0.5px solid var(--border-medium)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: "8px",
+                          height: "8px",
+                          borderRadius: "50%",
+                          background: theme.color,
+                          marginRight: "4px",
+                        }}
+                      />
+                      {theme.label}
+                    </button>
+                  ))}
+                </div>
+              </ControlRow>
+
+              {/* Fonts */}
+              <ControlRow label="Developer Font">
+                <select
+                  className={styles.select}
+                  value={codeFontFamily}
+                  onChange={(e) => setCodeFontFamily(e.target.value)}
+                >
+                  <option value='"JetBrains Mono", monospace'>
+                    JetBrains Mono
+                  </option>
+                  <option value='"Fira Code", monospace'>Fira Code</option>
+                  <option value='"Cascadia Code", monospace'>
+                    Cascadia Code
+                  </option>
+                  <option value='"SF Mono", Menlo, monospace'>
+                    SF Mono (Mac)
+                  </option>
+                  <option value='"Comic Sans MS", cursive'>
+                    Comic Sans (Chaotic Evil)
+                  </option>
+                </select>
+              </ControlRow>
+            </Section>
+          )}
 
           {/* ── 4. Frame Styles ─────────────────────── */}
           <Section title="Frame Styles" defaultOpen={false}>
