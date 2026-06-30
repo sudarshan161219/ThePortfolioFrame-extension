@@ -91,6 +91,7 @@ export const EditorApp = () => {
   const badgeIconValue = useControlsStore((s) => s.badgeIconValue);
 
   const editorMode = useControlsStore((s) => s.editorMode);
+  const framePadding = useControlsStore((s) => s.framePadding);
 
   const prevImageUrl = useRef<string | null>(null);
 
@@ -272,10 +273,11 @@ export const EditorApp = () => {
           ) : (
             <div
               style={{
-                padding: "40px",
+                padding: `${framePadding}px`,
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
+                transition: "padding 0.2s ease",
               }}
             >
               <CodeWindow />

@@ -179,10 +179,16 @@ export interface AppState {
   // --- Code Editor State ---
   codeSnippet: string;
   codeLanguage: string;
-  codeTheme: "dracula" | "synthwave" | "monokai" | "github-dark" | "light"; // Expanded!
-  codeFontFamily: string; // NEW
-  showLanguageBadge: boolean; // NEW
+  codeTheme: "dracula" | "synthwave" | "monokai" | "github-dark" | "light";
+  codeFontFamily: string;
+  showLanguageBadge: boolean;
+  isFormatting: boolean;
   windowStyle: "mac" | "windows" | "minimal";
+  showLineNumbers: boolean;
+  highlightedLines: string;
+  codeFontSize: number;
+  framePadding: number;
+  frameBorder: "none" | "thin" | "glass" | "dashed";
 
   // export quality
   exportQuality: number;
@@ -306,7 +312,13 @@ export interface AppState {
   ) => void;
   setCodeFontFamily: (font: string) => void;
   setShowLanguageBadge: (show: boolean) => void;
+  setIsFormatting: (show: boolean) => void;
   setWindowStyle: (style: "mac" | "windows" | "minimal") => void;
+  setShowLineNumbers: (show: boolean) => void;
+  setHighlightedLines: (lines: string) => void;
+  setCodeFontSize: (size: number) => void;
+  setFramePadding: (padding: number) => void;
+  setFrameBorder: (border: "none" | "thin" | "glass" | "dashed") => void;
 
   // export
   setExportQuality: (quality: number) => void;
@@ -461,6 +473,12 @@ export const useControlsStore = create<AppState>()(
       codeFontFamily: '"JetBrains Mono", monospace',
       showLanguageBadge: true,
       windowStyle: "mac",
+      showLineNumbers: true,
+      isFormatting: true,
+      highlightedLines: "",
+      codeFontSize: 14,
+      framePadding: 40,
+      frameBorder: "thin",
 
       // export quality
       exportQuality: 1,
@@ -625,7 +643,13 @@ export const useControlsStore = create<AppState>()(
       setCodeTheme: (theme) => set({ codeTheme: theme }),
       setCodeFontFamily: (font) => set({ codeFontFamily: font }),
       setShowLanguageBadge: (show) => set({ showLanguageBadge: show }),
+      setIsFormatting: (show) => set({ isFormatting: show }),
       setWindowStyle: (style) => set({ windowStyle: style }),
+      setShowLineNumbers: (show) => set({ showLineNumbers: show }),
+      setHighlightedLines: (lines) => set({ highlightedLines: lines }),
+      setCodeFontSize: (size) => set({ codeFontSize: size }),
+      setFramePadding: (padding) => set({ framePadding: padding }),
+      setFrameBorder: (border) => set({ frameBorder: border }),
 
       // image export Quality
       setExportQuality: (quality) => set({ exportQuality: quality }),

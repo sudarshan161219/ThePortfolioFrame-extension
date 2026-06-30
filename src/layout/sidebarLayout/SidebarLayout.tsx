@@ -16,17 +16,113 @@ import { SOLID_COLORS, GRADIENTS } from "../../constants/palettes";
 import { TOOL_BUTTONS } from "../../constants/annotation_tools_buttons";
 import { DRAW_TOOLS } from "../../constants/annotation_draw_tools";
 import { ANNOTATION_LABEL } from "../../utils/annatation_label";
-import { ANIMATION_PRESETS } from "../../constants/animations";
+// import { ANIMATION_PRESETS } from "../../constants/animations";
 import {
   ANNOTATION_FONTS,
   ANNOTATION_SIZES,
   ANNOTATION_COLORS,
 } from "../../constants/annotation_fonts";
+// --- PRETTIER BROWSER PLUGINS ---
+import * as prettier from "prettier/standalone";
+import * as babelPlugin from "prettier/plugins/babel";
+import * as estreePlugin from "prettier/plugins/estree";
+import * as cssPlugin from "prettier/plugins/postcss";
+
 import styles from "./index.module.css";
 
 interface SidebarLayoutProps {
   children?: React.ReactNode;
 }
+
+/** Top-level sidebar categories shown in the icon rail */
+type Category =
+  | "layout"
+  | "source"
+  | "frame"
+  | "background"
+  | "animate"
+  | "annotate"
+  | "brand";
+
+/** Minimal stroke-style icon set — no external icon dependency */
+function RailIcon({ id }: { id: Category }) {
+  const common = {
+    width: 16,
+    height: 16,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.6,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  switch (id) {
+    case "layout":
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <path d="M3 9h18" />
+          <path d="M9 9v12" />
+        </svg>
+      );
+    case "source":
+      return (
+        <svg {...common}>
+          <rect x="3" y="4" width="18" height="14" rx="2" />
+          <path d="M8 21h8" />
+          <path d="M8 10l-2 2 2 2" />
+          <path d="M16 10l2 2-2 2" />
+        </svg>
+      );
+    case "frame":
+      return (
+        <svg {...common}>
+          <path d="M3 9V5a2 2 0 0 1 2-2h4" />
+          <path d="M21 9V5a2 2 0 0 1-2-2h-4" />
+          <path d="M3 15v4a2 2 0 0 0 2 2h4" />
+          <path d="M21 15v4a2 2 0 0 1-2 2h-4" />
+        </svg>
+      );
+    case "background":
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <path d="M21 15l-5-5L5 21" />
+        </svg>
+      );
+    case "animate":
+      return (
+        <svg {...common}>
+          <path d="M6 4l14 8-14 8V4z" />
+        </svg>
+      );
+    case "annotate":
+      return (
+        <svg {...common}>
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+        </svg>
+      );
+    case "brand":
+      return (
+        <svg {...common}>
+          <path d="M12 2l2.4 5 5.6.6-4.2 3.7 1.2 5.5L12 14l-5 2.8 1.2-5.5L4 7.6l5.6-.6L12 2z" />
+        </svg>
+      );
+  }
+}
+
+const RAIL_ITEMS: { id: Category; label: string }[] = [
+  { id: "layout", label: "Layout" },
+  { id: "source", label: "Source" },
+  { id: "frame", label: "Frame" },
+  { id: "background", label: "Background" },
+  // { id: "animate", label: "Animate" },
+  { id: "annotate", label: "Annotate" },
+  { id: "brand", label: "Brand" },
+];
 
 /** Thin collapsible section wrapper */
 function Section({
@@ -113,6 +209,7 @@ function ToggleRow({
 }
 
 export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
+  const [activeCategory, setActiveCategory] = useState<Category>("layout");
   const editorMode = useControlsStore((s) => s.editorMode);
   const isPro = useControlsStore((s) => s.isPro);
   const tilt = useControlsStore((s) => s.tilt);
@@ -132,7 +229,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const tiltY = useControlsStore((s) => s.tiltY);
   const tiltZ = useControlsStore((s) => s.tiltZ);
   const zoom = useControlsStore((s) => s.zoom);
-  const animation = useControlsStore((s) => s.animation);
+  // const animation = useControlsStore((s) => s.animation);
   const aspectRatio = useControlsStore((s) => s.aspectRatio);
   const browserMockup = useControlsStore((s) => s.browserMockup);
   const deviceMockup = useControlsStore((s) => s.deviceMockup);
@@ -176,7 +273,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setTiltZ = useControlsStore((s) => s.setTiltZ);
   const setAspectRatio = useControlsStore((s) => s.setAspectRatio);
   const setZoom = useControlsStore((s) => s.setZoom);
-  const setAnimation = useControlsStore((s) => s.setAnimation);
+  // const setAnimation = useControlsStore((s) => s.setAnimation);
   const setBrowserMockup = useControlsStore((s) => s.setBrowserMockup);
   const setDeviceMockup = useControlsStore((s) => s.setDeviceMockup);
   const setBorderRadius = useControlsStore((s) => s.setBorderRadius);
@@ -277,15 +374,30 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setBadgeIconType = useControlsStore((s) => s.setBadgeIconType);
   const setBadgeIconValue = useControlsStore((s) => s.setBadgeIconValue);
 
+  const isFormatting = useControlsStore((s) => s.isFormatting);
   const codeLanguage = useControlsStore((s) => s.codeLanguage);
   const codeTheme = useControlsStore((s) => s.codeTheme);
+  const codeSnippet = useControlsStore((s) => s.codeSnippet);
   const windowStyle = useControlsStore((s) => s.windowStyle);
   const showLanguageBadge = useControlsStore((s) => s.showLanguageBadge);
   const codeFontFamily = useControlsStore((s) => s.codeFontFamily);
+  const showLineNumbers = useControlsStore((s) => s.showLineNumbers);
+  const highlightedLines = useControlsStore((s) => s.highlightedLines);
+  const codeFontSize = useControlsStore((s) => s.codeFontSize);
+  const frameBorder = useControlsStore((s) => s.frameBorder);
+  const framePadding = useControlsStore((s) => s.framePadding);
 
+  const setIsFormatting = useControlsStore((s) => s.setIsFormatting);
   const setCodeLanguage = useControlsStore((s) => s.setCodeLanguage);
+  const setCodeTheme = useControlsStore((s) => s.setCodeTheme);
+  const setCodeSnippet = useControlsStore((s) => s.setCodeSnippet);
   const setShowLanguageBadge = useControlsStore((s) => s.setShowLanguageBadge);
   const setCodeFontFamily = useControlsStore((s) => s.setCodeFontFamily);
+  const setShowLineNumbers = useControlsStore((s) => s.setShowLineNumbers);
+  const setHighlightedLines = useControlsStore((s) => s.setHighlightedLines);
+  const setCodeFontSize = useControlsStore((s) => s.setCodeFontSize);
+  const setFrameBorder = useControlsStore((s) => s.setFrameBorder);
+  const setFramePadding = useControlsStore((s) => s.setFramePadding);
 
   const annotationsRef = useRef(annotations);
   const prevBgUrl = useRef<string | null>(null);
@@ -312,6 +424,31 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setAnnotationFontFamily,
     setAnnotationFontSize,
   ]);
+
+  const handlePrettify = async () => {
+    setIsFormatting(true);
+    try {
+      const parser =
+        codeLanguage === "css"
+          ? "css"
+          : codeLanguage === "typescript"
+            ? "babel-ts"
+            : "babel";
+
+      const formatted = await prettier.format(codeSnippet, {
+        parser,
+        plugins: [babelPlugin, estreePlugin, cssPlugin],
+        semi: true,
+        singleQuote: true,
+        tabWidth: 2,
+      });
+      setCodeSnippet(formatted);
+    } catch (err) {
+      console.warn("Prettier couldn't format this language/code yet:", err);
+    } finally {
+      setIsFormatting(false);
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -363,13 +500,13 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     setActiveBg(null);
   };
 
-  const handleAnimationSelect = (preset: (typeof ANIMATION_PRESETS)[0]) => {
-    if (preset.isPro && !isPro) {
-      console.log("Trigger Upsell Modal!");
-      return;
-    }
-    setAnimation(preset.id);
-  };
+  // const handleAnimationSelect = (preset: (typeof ANIMATION_PRESETS)[0]) => {
+  //   if (preset.isPro && !isPro) {
+  //     console.log("Trigger Upsell Modal!");
+  //     return;
+  //   }
+  //   setAnimation(preset.id);
+  // };
 
   return (
     <div className={styles.root}>
@@ -389,8 +526,35 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           {isPro && <span className={styles.proBadge}>Pro</span>}
         </div>
 
-        {/* Scrollable controls */}
-        <div className={styles.sidebarBody}>
+        {/* ── Icon rail + scrollable panel ──────────── */}
+        <div className={styles.shell}>
+          <nav className={styles.iconRail} aria-label="Sidebar categories">
+            {RAIL_ITEMS.map((item) => {
+              const isSource = item.id === "source";
+              const label = isSource
+                ? editorMode === "code"
+                  ? "Code"
+                  : "Mockup"
+                : item.label;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`${styles.railBtn} ${activeCategory === item.id ? styles.railBtnActive : ""}`}
+                  onClick={() => setActiveCategory(item.id)}
+                  title={label}
+                  aria-pressed={activeCategory === item.id}
+                >
+                  <span className={styles.railIcon}>
+                    <RailIcon id={item.id} />
+                  </span>
+                  <span className={styles.railLabel}>{label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className={styles.sidebarBody}>
           {/* --- MASTER APP MODE TOGGLE --- */}
           <div
             style={{
@@ -455,6 +619,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           </div>
 
           {/* ── 1. Canvas & Layout ──────────────────── */}
+          {activeCategory === "layout" && (
           <Section title="Canvas & Layout">
             {/* Aspect ratio */}
             <ControlRow label="Aspect Ratio">
@@ -563,7 +728,9 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               </div>
             )}
           </Section>
+          )}
 
+          {/* {activeCategory === "animate" && (
           <Section title="VIDEO ANIMATIONS" defaultOpen={true}>
             <div
               style={{
@@ -601,11 +768,12 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               })}
             </div>
           </Section>
+          )} */}
 
           {/* ── 2. Browser Mockup ───────────────────── */}
 
-          {editorMode === "image" && (
-            <Section title="Browser Mockup" defaultOpen={false}>
+          {activeCategory === "source" && editorMode === "image" && (
+            <Section title="Browser Mockup" defaultOpen={true}>
               <ToggleRow
                 id="showBrowserToggle" // ✅ FIX: Unique ID
                 label="Show Browser Frame"
@@ -664,8 +832,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           )}
 
           {/* ── 3. Device Mockup ───────────────────── */}
-          {editorMode === "image" && (
-            <Section title="Device Mockup" defaultOpen={false}>
+          {activeCategory === "source" && editorMode === "image" && (
+            <Section title="Device Mockup" defaultOpen={true}>
               <ToggleRow
                 id="showDeviceToggle" // ✅ FIX: Unique ID
                 label="Show Device Frame"
@@ -786,7 +954,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           )}
 
           {/* ── CODE EDITOR SETTINGS ───────────────────── */}
-          {editorMode === "code" && (
+          {activeCategory === "source" && editorMode === "code" && (
             <Section title="Code Styling" defaultOpen={true}>
               {/* Language & Icon Toggle */}
               <ControlRow label="Language">
@@ -805,12 +973,49 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                   </select>
                   <button
                     className={`${styles.ghostBtn} ${showLanguageBadge ? styles.active : ""}`}
-                    onClick={(prev) => setShowLanguageBadge(!prev)}
+                    onClick={() => setShowLanguageBadge(!showLanguageBadge)}
                     title="Toggle Language Badge"
                   >
                     Badge
                   </button>
+
+                  {/* --- THE PRETTIER BUTTON --- */}
+                  <button
+                    onClick={handlePrettify}
+                    className={styles.prettifyBtn}
+                    title="Format Code"
+                    disabled={isFormatting}
+                  >
+                    {isFormatting ? "..." : "✨ Prettify"}
+                  </button>
                 </div>
+              </ControlRow>
+
+              <ToggleRow
+                id="lineNumbersToggle"
+                label="Show Line Numbers"
+                checked={showLineNumbers}
+                onChange={(checked) => setShowLineNumbers(checked)}
+              />
+
+              {/* Line Highlighting Input */}
+              <ControlRow label="Highlight Lines">
+                <input
+                  type="text"
+                  placeholder="e.g. 1, 3-5"
+                  value={highlightedLines}
+                  onChange={(e) => setHighlightedLines(e.target.value)}
+                  className={styles.input}
+                />
+                <p
+                  style={{
+                    fontSize: "9px",
+                    color: "var(--text-muted)",
+                    marginTop: "4px",
+                  }}
+                >
+                  Separate lines with commas. Use a dash for ranges.
+                </p>
               </ControlRow>
 
               {/* Window Style */}
@@ -850,11 +1055,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                   ].map((theme) => (
                     <button
                       key={theme.id}
-                      onClick={() =>
-                        useControlsStore
-                          .getState()
-                          .setCodeTheme(theme.id as any)
-                      }
+                      onClick={() => setCodeTheme(theme.id as any)}
                       className={`${styles.presetBtn} ${codeTheme === theme.id ? styles.active : ""}`}
                       style={{
                         flexDirection: "row",
@@ -903,11 +1104,76 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                   </option>
                 </select>
               </ControlRow>
+
+              {/* Size & Spacing (Compact Grid Layout) */}
+              <ControlRow label="Scale & Text Size">
+                <div
+                  style={{ display: "flex", gap: "10px", alignItems: "center" }}
+                >
+                  <span className={styles.eyebrowVal} style={{ width: "35px" }}>
+                    {codeFontSize}px
+                  </span>
+                  <input
+                    type="range"
+                    min="12"
+                    max="32"
+                    step="1"
+                    value={codeFontSize}
+                    onChange={(e) => setCodeFontSize(Number(e.target.value))}
+                    className={styles.slider}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    alignItems: "center",
+                    marginTop: "8px",
+                  }}
+                >
+                  <span className={styles.eyebrowVal} style={{ width: "35px" }}>
+                    Pad
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="120"
+                    step="4"
+                    value={framePadding}
+                    onChange={(e) => setFramePadding(Number(e.target.value))}
+                    className={styles.slider}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+              </ControlRow>
+
+              {/* Frame Border Styles */}
+              <ControlRow label="Frame Border">
+                <div
+                  className={styles.btnGrid4}
+                  style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "4px" }}
+                >
+                  {(["none", "thin", "glass", "dashed"] as const).map(
+                    (border) => (
+                      <button
+                        key={border}
+                        onClick={() => setFrameBorder(border)}
+                        className={`${styles.presetBtn} ${frameBorder === border ? styles.active : ""}`}
+                        style={{ textTransform: "capitalize", fontSize: "9px" }}
+                      >
+                        {border}
+                      </button>
+                    ),
+                  )}
+                </div>
+              </ControlRow>
             </Section>
           )}
 
           {/* ── 4. Frame Styles ─────────────────────── */}
-          <Section title="Frame Styles" defaultOpen={false}>
+          {activeCategory === "frame" && (
+          <Section title="Frame Styles" defaultOpen={true}>
             {/* Border radius */}
             <ControlRow label="Border Radius" value={`${borderRadius}px`}>
               <input
@@ -1025,8 +1291,10 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               />
             </ControlRow>
           </Section>
+          )}
 
           {/* ── 5. Backgrounds ──────────────────────── */}
+          {activeCategory === "background" && (
           <Section title="Backgrounds">
             {/* glass effect */}
             <ControlRow label="Glass Effect">
@@ -1275,9 +1543,11 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               </>
             )}
           </Section>
+          )}
 
           {/* ── 6. Annotations ──────────────────────── */}
-          <Section title="Annotations" defaultOpen={false}>
+          {activeCategory === "annotate" && (
+          <Section title="Annotations" defaultOpen={true}>
             {/* ── Tool buttons ──────────────────────────── */}
             <ControlRow label="Add">
               <div className={styles.btnGrid3}>
@@ -1500,10 +1770,11 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               </div>
             )}
           </Section>
+          )}
 
-          {/* ── 7. Watermark ────────────────────────── */}
           {/* ── 7. Brand & Context ────────────────────────── */}
-          <Section title="Brand & Context" defaultOpen={false}>
+          {activeCategory === "brand" && (
+          <Section title="Brand & Context" defaultOpen={true}>
             {/* --- 1. BUILD CONTEXT (The Journey Badge) --- */}
             <ToggleRow
               id="contextBadgeToggle"
@@ -2270,6 +2541,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
               </>
             )}
           </Section>
+          )}
+          </div>
         </div>
       </aside>
 

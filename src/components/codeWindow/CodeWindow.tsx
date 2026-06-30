@@ -5,9 +5,8 @@ import "prismjs/components/prism-typescript";
 import "prismjs/components/prism-css";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-rust";
-// Add more languages as needed...
+import "prismjs/themes/prism-tomorrow.css";
 
-import "prismjs/themes/prism-tomorrow.css"; // A great default dark theme
 import { useControlsStore } from "../../store/useControlsStore";
 import styles from "./index.module.css";
 
@@ -42,16 +41,48 @@ const LANGUAGE_ICONS = {
   ),
 };
 
+// Helper to parse "1, 3-5" into [1, 3, 4, 5]
+const parseHighlightedLines = (input: string) => {
+  const lines = new Set<number>();
+  if (!input.trim()) return [];
+
+  const parts = input.split(",");
+  for (const part of parts) {
+    if (part.includes("-")) {
+      const [start, end] = part.split("-").map(Number);
+      if (!isNaN(start) && !isNaN(end)) {
+        for (let i = start; i <= end; i++) lines.add(i);
+      }
+    } else {
+      const num = Number(part);
+      if (!isNaN(num)) lines.add(num);
+    }
+  }
+  return Array.from(lines);
+};
+
 export const CodeWindow = () => {
+  const borderRadius = useControlsStore((s) => s.borderRadius);
+  const shadowOpacity = useControlsStore((s) => s.shadowOpacity);
   const codeSnippet = useControlsStore((s) => s.codeSnippet);
   const codeLanguage = useControlsStore((s) => s.codeLanguage);
   const codeTheme = useControlsStore((s) => s.codeTheme);
   const codeFontFamily = useControlsStore((s) => s.codeFontFamily);
   const showLanguageBadge = useControlsStore((s) => s.showLanguageBadge);
   const windowStyle = useControlsStore((s) => s.windowStyle);
+  const showLineNumbers = useControlsStore((s) => s.showLineNumbers);
+  const highlightedLines = useControlsStore((s) => s.highlightedLines);
+  const codeFontSize = useControlsStore((s) => s.codeFontSize);
+  const frameBorder = useControlsStore((s) => s.frameBorder);
   const setCodeSnippet = useControlsStore((s) => s.setCodeSnippet);
 
-  // Safely highlight the code based on the selected language
+  // Calculations for perfect visual alignment
+  const lineHeight = codeFontSize * 1.5;
+  const editorPaddingTop = 24;
+  const linesCount = codeSnippet.split("\n").length || 1;
+  const lineNumbers = Array.from({ length: linesCount }, (_, i) => i + 1);
+  const activeLines = parseHighlightedLines(highlightedLines);
+
   const highlightCode = (code: string) => {
     if (Prism.languages[codeLanguage]) {
       return Prism.highlight(code, Prism.languages[codeLanguage], codeLanguage);
@@ -63,8 +94,17 @@ export const CodeWindow = () => {
     <div
       className={`${styles.windowContainer} ${styles[`theme${codeTheme.charAt(0).toUpperCase() + codeTheme.slice(1)}`]}`}
       style={{
-        borderRadius: `${useControlsStore((s) => s.borderRadius)}px`,
-        boxShadow: `0 20px 40px rgba(0, 0, 0, ${useControlsStore((s) => s.shadowOpacity)})`,
+        borderRadius: `${borderRadius}px`,
+        boxShadow: `0 20px 40px rgba(0, 0, 0, ${shadowOpacity}`,
+        border:
+          frameBorder === "none"
+            ? "none"
+            : frameBorder === "thin"
+              ? "1px solid rgba(255, 255, 255, 0.15)"
+              : frameBorder === "dashed"
+                ? "2px dashed rgba(255, 255, 255, 0.3)"
+                : "4px solid rgba(255, 255, 255, 0.1)",
+        backgroundClip: frameBorder === "glass" ? "padding-box" : "border-box",
       }}
     >
       {/* macOS Style Header Bar */}
@@ -101,18 +141,60 @@ export const CodeWindow = () => {
           </div>
         )}
       </div>
+
       {/* The Actual Editor */}
       <div className={styles.editorWrapper}>
+        {/* 1. Highlight Overlay (Sits behind the text) */}
+        <div
+          className={styles.highlightLayer}
+          style={{ top: editorPaddingTop }}
+        >
+          {activeLines.map((lineNum) => (
+            <div
+              key={lineNum}
+              className={styles.highlightRow}
+              style={{
+                top: (lineNum - 1) * lineHeight,
+                height: lineHeight,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* 2. Line Number Gutter */}
+        {showLineNumbers && (
+          <div
+            className={styles.gutter}
+            style={{
+              paddingTop: editorPaddingTop,
+              paddingBottom: editorPaddingTop,
+            }}
+          >
+            {lineNumbers.map((n) => (
+              <div
+                key={n}
+                className={`${styles.gutterLine} ${activeLines.includes(n) ? styles.gutterActive : ""}`}
+                style={{ height: lineHeight, lineHeight: `${lineHeight}px` }}
+              >
+                {n}
+              </div>
+            ))}
+          </div>
+        )}
         <Editor
           value={codeSnippet}
           onValueChange={(code: string) => setCodeSnippet(code)}
           highlight={highlightCode}
-          padding={24}
+          padding={editorPaddingTop}
           style={{
             fontFamily: codeFontFamily,
-            fontSize: 14,
+            fontSize: codeFontSize,
+            lineHeight: `${lineHeight}px`,
             outline: "none",
-            minHeight: "150px", // Ensure it doesn't collapse when empty
+            minHeight: "150px",
+            // Push text to the right if gutter is active
+            paddingLeft: showLineNumbers ? "64px" : "24px",
+            background: "transparent", // Must be transparent to see highlights
           }}
           className={styles.editor}
         />

@@ -230,3 +230,84 @@
 .themeLight .winButtons {
   color: rgba(0, 0, 0, 0.4);
 }
+
+/* --- EDITOR LAYOUT ENGINE --- */
+.editorWrapper {
+  position: relative;
+  overflow: auto;
+  min-height: 150px;
+}
+
+.editor {
+  position: relative;
+  z-index: 5; /* Sits above highlights */
+}
+.editor textarea {
+  outline: none !important;
+}
+
+/* --- LINE HIGHLIGHTING --- */
+.highlightLayer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0; /* Sits UNDER the editor text */
+  pointer-events: none;
+}
+
+.highlightRow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: rgba(100, 150, 255, 0.15); /* A universal highlight color */
+  border-left: 3px solid #6366f1; /* Indigo accent */
+}
+
+/* --- LINE NUMBER GUTTER --- */
+.gutter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  pointer-events: none;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.gutterLine {
+  color: rgba(255, 255, 255, 0.3);
+  padding-right: 10px;
+}
+
+/* Highlight the number if the line is highlighted */
+.gutterActive {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+}
+
+/* Add fallback colors for Light Themes */
+.themeLight .gutter {
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
+}
+.themeLight .gutterLine {
+  color: rgba(0, 0, 0, 0.3);
+}
+.themeLight .gutterActive {
+  color: #6366f1;
+}
+.themeLight .prettifyBtn {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.themeLight .highlightRow {
+  background: rgba(99, 102, 241, 0.1);
+}
