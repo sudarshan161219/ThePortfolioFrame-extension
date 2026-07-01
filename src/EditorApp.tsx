@@ -4,6 +4,7 @@ import { useControlsStore } from "./store/useControlsStore.ts";
 import { ratios } from "./constants/ratios";
 import { base64ToBlob } from "./helpers/base64ToBlob.ts";
 // import { GlassOverlay } from "./components/glassLayer/GlassLayer.tsx";
+import { detectLanguage } from "./utils/detectLanguage.ts";
 import { CodeWindow } from "./components/codeWindow/CodeWindow";
 import { getDisplayUrl } from "./utils/formatUrl.ts";
 import QRCode from "react-qr-code";
@@ -93,16 +94,56 @@ export const EditorApp = () => {
   const editorMode = useControlsStore((s) => s.editorMode);
   const framePadding = useControlsStore((s) => s.framePadding);
 
+  const setEditorMode = useControlsStore((s) => s.setEditorMode);
+  const setCodeSnippet = useControlsStore((s) => s.setCodeSnippet);
+  const setCodeLanguage = useControlsStore((s) => s.setCodeLanguage);
+
+  const viewportZoom = useControlsStore((s) => s.viewportZoom);
+
+
   const prevImageUrl = useRef<string | null>(null);
 
   useEffect(() => {
+    // Expand the requested keys to include our code bridges
     chrome.storage.local.get(
-      ["tempImageBridge", "tempUrlBridge", "capturedImage", "capturedUrl"],
+      [
+        "tempImageBridge",
+        "tempUrlBridge",
+        "capturedImage",
+        "capturedUrl",
+        "tempCodeBridge",
+        "tempModeBridge",
+      ],
       (result) => {
-        // 1. Prioritize the new bridge, fallback to the old capture method
+        // --- 1. HANDLE CONTEXT MENU TEXT ARRIVAL ---
+        if (
+          result.tempCodeBridge &&
+          typeof result.tempCodeBridge === "string"
+        ) {
+          const incomingCode = result.tempCodeBridge;
+
+          setCodeSnippet(incomingCode);
+          setEditorMode("code");
+          setIsPro(true);
+          // Auto-detect code rules on the fly
+          const inlineLang = detectLanguage(incomingCode);
+          setCodeLanguage(inlineLang);
+
+          if (
+            result.tempUrlBridge &&
+            typeof result.tempUrlBridge === "string"
+          ) {
+            setPageUrl(result.tempUrlBridge);
+          }
+
+          setIsPro(true);
+        }
+
+        // --- 2. FALLBACK TO EXISTING IMAGE CAPTURE LOGIC ---
         const finalImage = result.tempImageBridge || result.capturedImage;
         const finalUrl = result.tempUrlBridge || result.capturedUrl;
         setIsPro(true);
+
         if (finalImage && typeof finalImage === "string") {
           if (prevImageUrl.current) URL.revokeObjectURL(prevImageUrl.current);
 
@@ -111,17 +152,15 @@ export const EditorApp = () => {
           prevImageUrl.current = objectUrl;
           setImageSource(objectUrl);
           setImageSourceRaw(finalImage);
+          setEditorMode("image"); // Ensure it drops back into screenshot layout
         } else {
-          console.warn(
-            "[The Portfolio Frame] No valid image found in storage.",
-          );
+          console.warn("[The Portfolio Frame] No valid asset data found.");
         }
 
         if (finalUrl && typeof finalUrl === "string") {
           setPageUrl(finalUrl);
         }
 
-        // 2. THE FIX: Transfer bridge data to permanent storage before destroying it
         if (result.tempImageBridge) {
           chrome.storage.local.set(
             {
@@ -129,7 +168,6 @@ export const EditorApp = () => {
               capturedUrl: result.tempUrlBridge || result.capturedUrl,
             },
             () => {
-              // 3. Now it is safe to destroy the bridge data
               chrome.storage.local.remove(["tempImageBridge", "tempUrlBridge"]);
             },
           );
@@ -137,10 +175,36 @@ export const EditorApp = () => {
       },
     );
 
+    const handleStorageChange = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: string,
+    ) => {
+      if (areaName === "local" && changes.tempCodeBridge?.newValue) {
+        // New code just arrived from the popup!
+        const incomingCode = changes.tempCodeBridge.newValue;
+        if (incomingCode && typeof incomingCode === "string") {
+          setCodeSnippet(incomingCode);
+          setEditorMode("code");
+          setCodeLanguage(detectLanguage(incomingCode));
+        }
+      }
+    };
+
+    chrome.storage.onChanged.addListener(handleStorageChange);
+
     return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange);
       if (prevImageUrl.current) URL.revokeObjectURL(prevImageUrl.current);
     };
-  }, [setImageSource, setImageSourceRaw, setIsPro, setPageUrl]);
+  }, [
+    setImageSource,
+    setImageSourceRaw,
+    setIsPro,
+    setPageUrl,
+    setEditorMode,
+    setCodeSnippet,
+    setCodeLanguage,
+  ]);
 
   const dynamicBgStyle: React.CSSProperties = {
     background: bgImage ? `url(${bgImage}) no-repeat` : customBg,
@@ -275,12 +339,25 @@ export const EditorApp = () => {
               style={{
                 padding: `${framePadding}px`,
                 width: "100%",
+                height: "100%",
                 display: "flex",
                 justifyContent: "center",
+                alignItems: "center",
                 transition: "padding 0.2s ease",
               }}
             >
-              <CodeWindow />
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  transform: `scale(${viewportZoom})`,
+                  transformOrigin: "center center",
+                  transition: "transform 0.2s ease",
+                }}
+              >
+                <CodeWindow />
+              </div>
             </div>
           )}
 
@@ -412,7 +489,11 @@ export const EditorApp = () => {
                 />
               ) : watermarkType === "social" ? (
                 <div
-                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
                 >
                   {
                     SOCIAL_ICONS[
@@ -427,7 +508,11 @@ export const EditorApp = () => {
               ) : watermarkType === "qr" ? (
                 /* --- THE NEW QR CODE RENDERER --- */
                 <div
-                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
                 >
                   {/* The white safe-zone box to ensure scannability */}
                   <div

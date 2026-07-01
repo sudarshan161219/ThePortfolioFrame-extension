@@ -43,6 +43,55 @@ export const PopupActionMenu = () => {
     chrome.tabs.create({ url: chrome.runtime.getURL("upload.html") });
   };
 
+  // ─── OPTION 2: Capture Highlighted Text ─── //
+  const handleSelection = async () => {
+    // 1. Locate the exact tab the user is actively looking at
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (!tab?.id) return;
+
+    // 2. Execute a lightweight runner inside that tab to read its window selection
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: tab.id },
+        func: () => window.getSelection()?.toString() || "",
+      },
+      (injectionResults) => {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "Script injection failed:",
+            chrome.runtime.lastError.message,
+          );
+          return;
+        }
+
+        const selectedText = injectionResults[0]?.result;
+
+        // If the user didn't highlight anything, warn them gently and halt
+        if (!selectedText || !selectedText.trim()) {
+          alert(
+            "Please highlight some code on the webpage first before opening the menu!",
+          );
+          return;
+        }
+
+        // 3. Fire the verified text across your local storage bridge
+        chrome.storage.local.set(
+          {
+            tempCodeBridge: selectedText,
+            tempUrlBridge: tab.url || "",
+            tempModeBridge: "code",
+          },
+          () => {
+            openEditorTab(); // Safe to open the canvas now that storage is populated!
+          },
+        );
+      },
+    );
+  };
+
   return (
     <div className={styles.popupMenu}>
       <div className={styles.popupHeader}>
@@ -56,6 +105,18 @@ export const PopupActionMenu = () => {
         </div>
         <span className={styles.itemLabel}>
           Capture Active Tab
+          <span className={styles.itemSub}>png · current window</span>
+        </span>
+        <span className={styles.itemArrow}>›</span>
+      </button>
+
+      {/* selection */}
+      <button className={styles.menuItem} onClick={handleSelection}>
+        <div className={styles.itemIcon}>
+          <Camera size={15} />
+        </div>
+        <span className={styles.itemLabel}>
+          Beautify Code Snippet
           <span className={styles.itemSub}>png · current window</span>
         </span>
         <span className={styles.itemArrow}>›</span>

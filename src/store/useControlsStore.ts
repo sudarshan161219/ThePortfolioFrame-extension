@@ -189,6 +189,7 @@ export interface AppState {
   codeFontSize: number;
   framePadding: number;
   frameBorder: "none" | "thin" | "glass" | "dashed";
+  viewportZoom: number;
 
   // export quality
   exportQuality: number;
@@ -319,6 +320,7 @@ export interface AppState {
   setCodeFontSize: (size: number) => void;
   setFramePadding: (padding: number) => void;
   setFrameBorder: (border: "none" | "thin" | "glass" | "dashed") => void;
+  setViewportZoom: (zoom: number) => void;
 
   // export
   setExportQuality: (quality: number) => void;
@@ -479,6 +481,7 @@ export const useControlsStore = create<AppState>()(
       codeFontSize: 14,
       framePadding: 40,
       frameBorder: "thin",
+      viewportZoom: 1,
 
       // export quality
       exportQuality: 1,
@@ -650,6 +653,7 @@ export const useControlsStore = create<AppState>()(
       setCodeFontSize: (size) => set({ codeFontSize: size }),
       setFramePadding: (padding) => set({ framePadding: padding }),
       setFrameBorder: (border) => set({ frameBorder: border }),
+      setViewportZoom: (zoom) => set({ viewportZoom: zoom }),
 
       // image export Quality
       setExportQuality: (quality) => set({ exportQuality: quality }),

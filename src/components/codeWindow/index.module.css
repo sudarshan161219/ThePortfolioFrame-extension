@@ -73,7 +73,12 @@
   overflow: auto;
 }
 .editor textarea {
+  padding: 24px 24px 24px 0px !important;
   outline: none !important;
+}
+
+.editor pre {
+  padding: 24px 24px 24px 0px !important;
 }
 
 /* ============================================================

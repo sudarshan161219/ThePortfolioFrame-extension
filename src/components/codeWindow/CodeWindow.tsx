@@ -181,23 +181,24 @@ export const CodeWindow = () => {
             ))}
           </div>
         )}
-        <Editor
-          value={codeSnippet}
-          onValueChange={(code: string) => setCodeSnippet(code)}
-          highlight={highlightCode}
-          padding={editorPaddingTop}
-          style={{
-            fontFamily: codeFontFamily,
-            fontSize: codeFontSize,
-            lineHeight: `${lineHeight}px`,
-            outline: "none",
-            minHeight: "150px",
-            // Push text to the right if gutter is active
-            paddingLeft: showLineNumbers ? "64px" : "24px",
-            background: "transparent", // Must be transparent to see highlights
-          }}
-          className={styles.editor}
-        />
+        <div style={{ paddingLeft: showLineNumbers ? 65 : 24 }}>
+          <Editor
+            value={codeSnippet}
+            onValueChange={(code: string) => setCodeSnippet(code)}
+            highlight={highlightCode}
+            padding={editorPaddingTop}
+            style={{
+              fontFamily: codeFontFamily,
+              fontSize: codeFontSize,
+              lineHeight: `${lineHeight}px`,
+              outline: "none",
+              minHeight: "150px",
+              // paddingLeft: showLineNumbers ? "64px" : "24px",
+              background: "transparent",
+            }}
+            className={styles.editor}
+          />
+        </div>
       </div>
     </div>
   );

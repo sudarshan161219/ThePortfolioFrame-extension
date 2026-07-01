@@ -386,6 +386,8 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const codeFontSize = useControlsStore((s) => s.codeFontSize);
   const frameBorder = useControlsStore((s) => s.frameBorder);
   const framePadding = useControlsStore((s) => s.framePadding);
+  const viewportZoom = useControlsStore((s) => s.viewportZoom);
+
 
   const setIsFormatting = useControlsStore((s) => s.setIsFormatting);
   const setCodeLanguage = useControlsStore((s) => s.setCodeLanguage);
@@ -398,6 +400,7 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
   const setCodeFontSize = useControlsStore((s) => s.setCodeFontSize);
   const setFrameBorder = useControlsStore((s) => s.setFrameBorder);
   const setFramePadding = useControlsStore((s) => s.setFramePadding);
+  const setViewportZoom = useControlsStore((s) => s.setViewportZoom);
 
   const annotationsRef = useRef(annotations);
   const prevBgUrl = useRef<string | null>(null);
@@ -555,182 +558,190 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           </nav>
 
           <div className={styles.sidebarBody}>
-          {/* --- MASTER APP MODE TOGGLE --- */}
-          <div
-            style={{
-              padding: "16px",
-              borderBottom: "0.5px solid var(--border-light)",
-            }}
-          >
+            {/* --- MASTER APP MODE TOGGLE --- */}
             <div
               style={{
-                display: "flex",
-                background: "var(--bg-app)",
-                borderRadius: "6px",
-                padding: "4px",
-                border: "0.5px solid var(--border-medium)",
+                padding: "16px",
+                borderBottom: "0.5px solid var(--border-light)",
               }}
             >
-              <button
-                onClick={() => setEditorMode("image")}
+              <div
                 style={{
-                  flex: 1,
-                  padding: "6px 0",
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  borderRadius: "4px",
-                  background:
-                    editorMode === "image"
-                      ? "var(--bg-sidebar)"
-                      : "transparent",
-                  color:
-                    editorMode === "image"
-                      ? "var(--text-main)"
-                      : "var(--text-muted)",
-                  border: "none",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
+                  display: "flex",
+                  background: "var(--bg-app)",
+                  borderRadius: "6px",
+                  padding: "4px",
+                  border: "0.5px solid var(--border-medium)",
                 }}
               >
-                Screenshot
-              </button>
-              <button
-                onClick={() => setEditorMode("code")}
-                style={{
-                  flex: 1,
-                  padding: "6px 0",
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  borderRadius: "4px",
-                  background:
-                    editorMode === "code" ? "var(--bg-sidebar)" : "transparent",
-                  color:
-                    editorMode === "code"
-                      ? "var(--text-main)"
-                      : "var(--text-muted)",
-                  border: "none",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                }}
-              >
-                Code Snippet
-              </button>
+                <button
+                  onClick={() => setEditorMode("image")}
+                  style={{
+                    flex: 1,
+                    padding: "6px 0",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    borderRadius: "4px",
+                    background:
+                      editorMode === "image"
+                        ? "var(--bg-sidebar)"
+                        : "transparent",
+                    color:
+                      editorMode === "image"
+                        ? "var(--text-main)"
+                        : "var(--text-muted)",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  Screenshot
+                </button>
+                <button
+                  onClick={() => setEditorMode("code")}
+                  style={{
+                    flex: 1,
+                    padding: "6px 0",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    borderRadius: "4px",
+                    background:
+                      editorMode === "code"
+                        ? "var(--bg-sidebar)"
+                        : "transparent",
+                    color:
+                      editorMode === "code"
+                        ? "var(--text-main)"
+                        : "var(--text-muted)",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  Code Snippet
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* ── 1. Canvas & Layout ──────────────────── */}
-          {activeCategory === "layout" && (
-          <Section title="Canvas & Layout">
-            {/* Aspect ratio */}
-            <ControlRow label="Aspect Ratio">
-              <div className={styles.btnGrid3}>
-                {ratios.map((ratio) => {
-                  const isPortrait = (ratio.height ?? 0) > (ratio.width ?? 0);
-                  const isSquare = ratio.width === ratio.height;
-                  return (
-                    <button
-                      key={ratio.value}
-                      onClick={() => setAspectRatio(ratio.value as AspectRatio)}
-                      className={`${styles.presetBtn} ${aspectRatio === ratio.value ? styles.active : ""}`}
-                      style={
-                        {
-                          "--preview-w": isPortrait ? "13px" : "18px",
-                          "--preview-h":
-                            isPortrait && !isSquare ? "18px" : "13px",
-                        } as React.CSSProperties
-                      }
-                    >
-                      <div className={styles.ratioShape} />
-                      {ratio.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </ControlRow>
-
-            {/* Zoom */}
-            <ControlRow label="Zoom" value={`${zoom}×`}>
-              <input
-                type="range"
-                min={0.1}
-                max={2}
-                step={0.01}
-                value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
-                className={styles.slider}
-              />
-            </ControlRow>
-
-            {/* 3D Transform */}
-            <ToggleRow
-              id="tiltToggle"
-              label="3D Transform"
-              checked={tilt}
-              onChange={setTilt}
-            />
-
-            {tilt && (
-              <div className={styles.controlRow}>
-                <div className={styles.subPanel}>
-                  <div className={styles.subRow}>
-                    <span className={styles.eyebrow}>
-                      Tilt X <span className={styles.eyebrowVal}>{tiltX}°</span>
-                    </span>
-                    <input
-                      type="range"
-                      min={-60}
-                      max={60}
-                      step={1}
-                      value={tiltX}
-                      onChange={(e) => setTiltX(Number(e.target.value))}
-                      className={styles.slider}
-                    />
+            {/* ── 1. Canvas & Layout ──────────────────── */}
+            {activeCategory === "layout" && (
+              <Section title="Canvas & Layout">
+                {/* Aspect ratio */}
+                <ControlRow label="Aspect Ratio">
+                  <div className={styles.btnGrid3}>
+                    {ratios.map((ratio) => {
+                      const isPortrait =
+                        (ratio.height ?? 0) > (ratio.width ?? 0);
+                      const isSquare = ratio.width === ratio.height;
+                      return (
+                        <button
+                          key={ratio.value}
+                          onClick={() =>
+                            setAspectRatio(ratio.value as AspectRatio)
+                          }
+                          className={`${styles.presetBtn} ${aspectRatio === ratio.value ? styles.active : ""}`}
+                          style={
+                            {
+                              "--preview-w": isPortrait ? "13px" : "18px",
+                              "--preview-h":
+                                isPortrait && !isSquare ? "18px" : "13px",
+                            } as React.CSSProperties
+                          }
+                        >
+                          <div className={styles.ratioShape} />
+                          {ratio.label}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div className={styles.subRow}>
-                    <span className={styles.eyebrow}>
-                      Tilt Y <span className={styles.eyebrowVal}>{tiltY}°</span>
-                    </span>
-                    <input
-                      type="range"
-                      min={-60}
-                      max={60}
-                      step={1}
-                      value={tiltY}
-                      onChange={(e) => setTiltY(Number(e.target.value))}
-                      className={styles.slider}
-                    />
+                </ControlRow>
+
+                {/* Zoom */}
+                <ControlRow label="Zoom" value={`${zoom}×`}>
+                  <input
+                    type="range"
+                    min={0.1}
+                    max={2}
+                    step={0.01}
+                    value={zoom}
+                    onChange={(e) => setZoom(Number(e.target.value))}
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                {/* 3D Transform */}
+                <ToggleRow
+                  id="tiltToggle"
+                  label="3D Transform"
+                  checked={tilt}
+                  onChange={setTilt}
+                />
+
+                {tilt && (
+                  <div className={styles.controlRow}>
+                    <div className={styles.subPanel}>
+                      <div className={styles.subRow}>
+                        <span className={styles.eyebrow}>
+                          Tilt X{" "}
+                          <span className={styles.eyebrowVal}>{tiltX}°</span>
+                        </span>
+                        <input
+                          type="range"
+                          min={-60}
+                          max={60}
+                          step={1}
+                          value={tiltX}
+                          onChange={(e) => setTiltX(Number(e.target.value))}
+                          className={styles.slider}
+                        />
+                      </div>
+                      <div className={styles.subRow}>
+                        <span className={styles.eyebrow}>
+                          Tilt Y{" "}
+                          <span className={styles.eyebrowVal}>{tiltY}°</span>
+                        </span>
+                        <input
+                          type="range"
+                          min={-60}
+                          max={60}
+                          step={1}
+                          value={tiltY}
+                          onChange={(e) => setTiltY(Number(e.target.value))}
+                          className={styles.slider}
+                        />
+                      </div>
+                      <div className={styles.subRow}>
+                        <span className={styles.eyebrow}>
+                          Spin{" "}
+                          <span className={styles.eyebrowVal}>{tiltZ}°</span>
+                        </span>
+                        <input
+                          type="range"
+                          min={-180}
+                          max={180}
+                          step={1}
+                          value={tiltZ}
+                          onChange={(e) => setTiltZ(Number(e.target.value))}
+                          className={styles.slider}
+                        />
+                      </div>
+                      <button
+                        onClick={() => {
+                          setTiltX(0);
+                          setTiltY(0);
+                          setTiltZ(0);
+                        }}
+                        className={styles.resetBtn}
+                      >
+                        Reset angles
+                      </button>
+                    </div>
                   </div>
-                  <div className={styles.subRow}>
-                    <span className={styles.eyebrow}>
-                      Spin <span className={styles.eyebrowVal}>{tiltZ}°</span>
-                    </span>
-                    <input
-                      type="range"
-                      min={-180}
-                      max={180}
-                      step={1}
-                      value={tiltZ}
-                      onChange={(e) => setTiltZ(Number(e.target.value))}
-                      className={styles.slider}
-                    />
-                  </div>
-                  <button
-                    onClick={() => {
-                      setTiltX(0);
-                      setTiltY(0);
-                      setTiltZ(0);
-                    }}
-                    className={styles.resetBtn}
-                  >
-                    Reset angles
-                  </button>
-                </div>
-              </div>
+                )}
+              </Section>
             )}
-          </Section>
-          )}
 
-          {/* {activeCategory === "animate" && (
+            {/* {activeCategory === "animate" && (
           <Section title="VIDEO ANIMATIONS" defaultOpen={true}>
             <div
               style={{
@@ -770,1088 +781,348 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
           </Section>
           )} */}
 
-          {/* ── 2. Browser Mockup ───────────────────── */}
+            {/* ── 2. Browser Mockup ───────────────────── */}
 
-          {activeCategory === "source" && editorMode === "image" && (
-            <Section title="Browser Mockup" defaultOpen={true}>
-              <ToggleRow
-                id="showBrowserToggle" // ✅ FIX: Unique ID
-                label="Show Browser Frame"
-                checked={showBrowserFrame}
-                onChange={(checked) => {
-                  setBrowserFrame(checked);
-                  if (checked) {
-                    setDeviceFrame(false);
-                    setMockupCategory("browser"); // ✅ Syncs with Frame.tsx
-                  } else {
-                    setMockupCategory("none"); // ✅ Resets to plain image
-                  }
-                }}
-              />
+            {activeCategory === "source" && editorMode === "image" && (
+              <Section title="Browser Mockup" defaultOpen={true}>
+                <ToggleRow
+                  id="showBrowserToggle" // ✅ FIX: Unique ID
+                  label="Show Browser Frame"
+                  checked={showBrowserFrame}
+                  onChange={(checked) => {
+                    setBrowserFrame(checked);
+                    if (checked) {
+                      setDeviceFrame(false);
+                      setMockupCategory("browser"); // ✅ Syncs with Frame.tsx
+                    } else {
+                      setMockupCategory("none"); // ✅ Resets to plain image
+                    }
+                  }}
+                />
 
-              {showBrowserFrame && (
-                <>
-                  <ControlRow label="Mockup Style">
-                    <select
-                      className={styles.select}
-                      value={browserMockup}
-                      onChange={
-                        (e) => setBrowserMockup(e.target.value as BrowserMockup) // Removed 'as BrowserMockup' if store expects string
-                      }
-                    >
-                      {BROWSER_MOCKUPS.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.label} — {m.os}
-                        </option>
-                      ))}
-                    </select>
-                  </ControlRow>
+                {showBrowserFrame && (
+                  <>
+                    <ControlRow label="Mockup Style">
+                      <select
+                        className={styles.select}
+                        value={browserMockup}
+                        onChange={
+                          (e) =>
+                            setBrowserMockup(e.target.value as BrowserMockup) // Removed 'as BrowserMockup' if store expects string
+                        }
+                      >
+                        {BROWSER_MOCKUPS.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.label} — {m.os}
+                          </option>
+                        ))}
+                      </select>
+                    </ControlRow>
 
-                  <ControlRow label="Browser URL">
-                    <input
-                      type="text"
-                      placeholder="yourdomain.com"
-                      value={pageUrl}
-                      onChange={(e) => setPageUrl(e.target.value)}
-                      className={styles.input}
-                    />
-                  </ControlRow>
-
-                  <ControlRow label="Tab Title">
-                    <input
-                      type="text"
-                      placeholder="Leave blank to auto-generate…"
-                      value={pageTitle}
-                      onChange={(e) => setPageTitle(e.target.value)}
-                      className={styles.input}
-                    />
-                  </ControlRow>
-                </>
-              )}
-            </Section>
-          )}
-
-          {/* ── 3. Device Mockup ───────────────────── */}
-          {activeCategory === "source" && editorMode === "image" && (
-            <Section title="Device Mockup" defaultOpen={true}>
-              <ToggleRow
-                id="showDeviceToggle" // ✅ FIX: Unique ID
-                label="Show Device Frame"
-                checked={showDeviceFrame}
-                onChange={(checked) => {
-                  setDeviceFrame(checked);
-                  if (checked) {
-                    setBrowserFrame(false);
-                    setMockupCategory("device");
-                  } else {
-                    setMockupCategory("none");
-                  }
-                }}
-              />
-
-              {showDeviceFrame && (
-                <>
-                  <ControlRow label="Mockup Style">
-                    <select
-                      className={styles.select}
-                      value={deviceMockup}
-                      onChange={(e) =>
-                        setDeviceMockup(e.target.value as DeviceMockup)
-                      }
-                    >
-                      {DEVICE_MOCKUPS.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.label}
-                        </option>
-                      ))}
-                    </select>
-                  </ControlRow>
-
-                  <ControlRow label="Position X">
-                    <div className={styles.arrowSliderRow}>
-                      <span className={styles.arrowLabel}>Left</span>
+                    <ControlRow label="Browser URL">
                       <input
-                        type="range"
-                        min={0}
-                        max={50}
-                        step={0.1}
-                        value={screenLeft}
-                        onChange={(e) => setScreenLeft(Number(e.target.value))}
-                        className={styles.slider}
+                        type="text"
+                        placeholder="yourdomain.com"
+                        value={pageUrl}
+                        onChange={(e) => setPageUrl(e.target.value)}
+                        className={styles.input}
                       />
-                      <span className={styles.arrowLabel}>Right</span>
-                    </div>
-                  </ControlRow>
+                    </ControlRow>
 
-                  <ControlRow label="Position Y">
-                    <div className={styles.arrowSliderRow}>
-                      <span className={styles.arrowLabel}>Top</span>
+                    <ControlRow label="Tab Title">
                       <input
-                        type="range"
-                        min={0}
-                        max={50}
-                        step={0.1}
-                        value={screenTop}
-                        onChange={(e) => setScreenTop(Number(e.target.value))}
-                        className={styles.slider}
+                        type="text"
+                        placeholder="Leave blank to auto-generate…"
+                        value={pageTitle}
+                        onChange={(e) => setPageTitle(e.target.value)}
+                        className={styles.input}
                       />
-                      <span className={styles.arrowLabel}>Bottom</span>
-                    </div>
-                  </ControlRow>
+                    </ControlRow>
+                  </>
+                )}
+              </Section>
+            )}
 
-                  <ControlRow label="Width">
-                    <div className={styles.arrowSliderRow}>
-                      <span className={styles.arrowLabel}>Narrow</span>
-                      <input
-                        type="range"
-                        min={10}
-                        max={100}
-                        step={0.1}
-                        value={screenWidth}
-                        onChange={(e) => setScreenWidth(Number(e.target.value))}
-                        className={styles.slider}
-                      />
-                      <span className={styles.arrowLabel}>Wide</span>
-                    </div>
-                  </ControlRow>
+            {/* ── 3. Device Mockup ───────────────────── */}
+            {activeCategory === "source" && editorMode === "image" && (
+              <Section title="Device Mockup" defaultOpen={true}>
+                <ToggleRow
+                  id="showDeviceToggle" // ✅ FIX: Unique ID
+                  label="Show Device Frame"
+                  checked={showDeviceFrame}
+                  onChange={(checked) => {
+                    setDeviceFrame(checked);
+                    if (checked) {
+                      setBrowserFrame(false);
+                      setMockupCategory("device");
+                    } else {
+                      setMockupCategory("none");
+                    }
+                  }}
+                />
 
-                  <ControlRow label="Height">
-                    <div className={styles.arrowSliderRow}>
-                      <span className={styles.arrowLabel}>Short</span>
-                      <input
-                        type="range"
-                        min={10}
-                        max={100}
-                        step={0.1}
-                        value={screenHeight}
+                {showDeviceFrame && (
+                  <>
+                    <ControlRow label="Mockup Style">
+                      <select
+                        className={styles.select}
+                        value={deviceMockup}
                         onChange={(e) =>
-                          setScreenHeight(Number(e.target.value))
+                          setDeviceMockup(e.target.value as DeviceMockup)
                         }
-                        className={styles.slider}
-                      />
-                      <span className={styles.arrowLabel}>Tall</span>
-                    </div>
-                  </ControlRow>
-
-                  <button
-                    onClick={() => {
-                      const active = DEVICE_MOCKUPS.find(
-                        (m) => m.id === deviceMockup,
-                      );
-                      if (!active) return;
-                      setScreenLeft(parseFloat(active.screen.left));
-                      setScreenTop(parseFloat(active.screen.top));
-                      setScreenWidth(parseFloat(active.screen.width));
-                      setScreenHeight(parseFloat(active.screen.height));
-                    }}
-                    className={styles.resetBtn}
-                  >
-                    Reset to defaults
-                  </button>
-                </>
-              )}
-            </Section>
-          )}
-
-          {/* ── CODE EDITOR SETTINGS ───────────────────── */}
-          {activeCategory === "source" && editorMode === "code" && (
-            <Section title="Code Styling" defaultOpen={true}>
-              {/* Language & Icon Toggle */}
-              <ControlRow label="Language">
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <select
-                    className={styles.select}
-                    value={codeLanguage}
-                    onChange={(e) => setCodeLanguage(e.target.value)}
-                    style={{ flex: 1 }}
-                  >
-                    <option value="javascript">JavaScript</option>
-                    <option value="typescript">TypeScript</option>
-                    <option value="css">CSS</option>
-                    <option value="python">Python</option>
-                    <option value="rust">Rust</option>
-                  </select>
-                  <button
-                    className={`${styles.ghostBtn} ${showLanguageBadge ? styles.active : ""}`}
-                    onClick={() => setShowLanguageBadge(!showLanguageBadge)}
-                    title="Toggle Language Badge"
-                  >
-                    Badge
-                  </button>
-
-                  {/* --- THE PRETTIER BUTTON --- */}
-                  <button
-                    onClick={handlePrettify}
-                    className={styles.prettifyBtn}
-                    title="Format Code"
-                    disabled={isFormatting}
-                  >
-                    {isFormatting ? "..." : "✨ Prettify"}
-                  </button>
-                </div>
-              </ControlRow>
-
-              <ToggleRow
-                id="lineNumbersToggle"
-                label="Show Line Numbers"
-                checked={showLineNumbers}
-                onChange={(checked) => setShowLineNumbers(checked)}
-              />
-
-              {/* Line Highlighting Input */}
-              <ControlRow label="Highlight Lines">
-                <input
-                  type="text"
-                  placeholder="e.g. 1, 3-5"
-                  value={highlightedLines}
-                  onChange={(e) => setHighlightedLines(e.target.value)}
-                  className={styles.input}
-                />
-                <p
-                  style={{
-                    fontSize: "9px",
-                    color: "var(--text-muted)",
-                    marginTop: "4px",
-                  }}
-                >
-                  Separate lines with commas. Use a dash for ranges.
-                </p>
-              </ControlRow>
-
-              {/* Window Style */}
-              <ControlRow label="Window Style">
-                <div className={styles.btnGrid3}>
-                  {(["mac", "windows", "minimal"] as const).map((style) => (
-                    <button
-                      key={style}
-                      onClick={() =>
-                        useControlsStore.getState().setWindowStyle(style)
-                      }
-                      className={`${styles.presetBtn} ${windowStyle === style ? styles.active : ""}`}
-                      style={{ textTransform: "capitalize" }}
-                    >
-                      {style}
-                    </button>
-                  ))}
-                </div>
-              </ControlRow>
-
-              {/* Premium Themes */}
-              <ControlRow label="Color Theme">
-                <div
-                  className={styles.btnGrid3}
-                  style={{ gridTemplateColumns: "1fr 1fr", gap: "6px" }}
-                >
-                  {[
-                    { id: "dracula", label: "Dracula", color: "#ff79c6" },
-                    { id: "synthwave", label: "Synthwave", color: "#36f9f6" },
-                    { id: "monokai", label: "Monokai", color: "#a6e22e" },
-                    {
-                      id: "github-dark",
-                      label: "GitHub Dark",
-                      color: "#ff7b72",
-                    },
-                    { id: "light", label: "Minimal Light", color: "#d73a49" },
-                  ].map((theme) => (
-                    <button
-                      key={theme.id}
-                      onClick={() => setCodeTheme(theme.id as any)}
-                      className={`${styles.presetBtn} ${codeTheme === theme.id ? styles.active : ""}`}
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "flex-start",
-                        padding: "6px 8px",
-                        borderLeft:
-                          codeTheme === theme.id
-                            ? `3px solid ${theme.color}`
-                            : "0.5px solid var(--border-medium)",
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: "8px",
-                          height: "8px",
-                          borderRadius: "50%",
-                          background: theme.color,
-                          marginRight: "4px",
-                        }}
-                      />
-                      {theme.label}
-                    </button>
-                  ))}
-                </div>
-              </ControlRow>
-
-              {/* Fonts */}
-              <ControlRow label="Developer Font">
-                <select
-                  className={styles.select}
-                  value={codeFontFamily}
-                  onChange={(e) => setCodeFontFamily(e.target.value)}
-                >
-                  <option value='"JetBrains Mono", monospace'>
-                    JetBrains Mono
-                  </option>
-                  <option value='"Fira Code", monospace'>Fira Code</option>
-                  <option value='"Cascadia Code", monospace'>
-                    Cascadia Code
-                  </option>
-                  <option value='"SF Mono", Menlo, monospace'>
-                    SF Mono (Mac)
-                  </option>
-                  <option value='"Comic Sans MS", cursive'>
-                    Comic Sans (Chaotic Evil)
-                  </option>
-                </select>
-              </ControlRow>
-
-              {/* Size & Spacing (Compact Grid Layout) */}
-              <ControlRow label="Scale & Text Size">
-                <div
-                  style={{ display: "flex", gap: "10px", alignItems: "center" }}
-                >
-                  <span className={styles.eyebrowVal} style={{ width: "35px" }}>
-                    {codeFontSize}px
-                  </span>
-                  <input
-                    type="range"
-                    min="12"
-                    max="32"
-                    step="1"
-                    value={codeFontSize}
-                    onChange={(e) => setCodeFontSize(Number(e.target.value))}
-                    className={styles.slider}
-                    style={{ flex: 1 }}
-                  />
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                    alignItems: "center",
-                    marginTop: "8px",
-                  }}
-                >
-                  <span className={styles.eyebrowVal} style={{ width: "35px" }}>
-                    Pad
-                  </span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="120"
-                    step="4"
-                    value={framePadding}
-                    onChange={(e) => setFramePadding(Number(e.target.value))}
-                    className={styles.slider}
-                    style={{ flex: 1 }}
-                  />
-                </div>
-              </ControlRow>
-
-              {/* Frame Border Styles */}
-              <ControlRow label="Frame Border">
-                <div
-                  className={styles.btnGrid4}
-                  style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "4px" }}
-                >
-                  {(["none", "thin", "glass", "dashed"] as const).map(
-                    (border) => (
-                      <button
-                        key={border}
-                        onClick={() => setFrameBorder(border)}
-                        className={`${styles.presetBtn} ${frameBorder === border ? styles.active : ""}`}
-                        style={{ textTransform: "capitalize", fontSize: "9px" }}
                       >
-                        {border}
-                      </button>
-                    ),
-                  )}
-                </div>
-              </ControlRow>
-            </Section>
-          )}
+                        {DEVICE_MOCKUPS.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.label}
+                          </option>
+                        ))}
+                      </select>
+                    </ControlRow>
 
-          {/* ── 4. Frame Styles ─────────────────────── */}
-          {activeCategory === "frame" && (
-          <Section title="Frame Styles" defaultOpen={true}>
-            {/* Border radius */}
-            <ControlRow label="Border Radius" value={`${borderRadius}px`}>
-              <input
-                type="range"
-                min={0}
-                max={40}
-                step={1}
-                value={borderRadius}
-                onChange={(e) => setBorderRadius(Number(e.target.value))}
-                className={styles.slider}
-              />
-              <div className={styles.btnGrid4}>
-                {RADIUS_PRESETS.map((preset) => (
-                  <button
-                    key={preset.label}
-                    onClick={() => setBorderRadius(preset.value)}
-                    className={`${styles.presetBtn} ${borderRadius === preset.value ? styles.active : ""}`}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </ControlRow>
-
-            {/* Shadow */}
-            <ControlRow
-              label="Shadow Opacity"
-              value={`${Math.round(shadowOpacity * 100)}%`}
-            >
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.02}
-                value={shadowOpacity}
-                onChange={(e) => setShadowOpacity(Number(e.target.value))}
-                className={styles.slider}
-                disabled={shadowVariant === 0}
-              />
-              <div className={styles.btnGrid3}>
-                {SHADOW_PRESETS.map((preset, index) => (
-                  <button
-                    key={preset.label}
-                    onClick={() => setShadowVariant(index)}
-                    className={`${styles.presetBtn} ${shadowVariant === index ? styles.active : ""}`}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </ControlRow>
-
-            {/* Border */}
-            <ControlRow label="Border Width" value={`${borderWidth}px`}>
-              <input
-                type="range"
-                min={0}
-                max={20}
-                step={1}
-                value={borderWidth}
-                onChange={(e) => setBorderWidth(Number(e.target.value))}
-                className={styles.slider}
-              />
-            </ControlRow>
-
-            <div className={styles.controlRow}>
-              <div className={styles.toggleRow}>
-                <label htmlFor="glassToggle" className={styles.toggleLabel}>
-                  Glass Effect
-                </label>
-                <input
-                  id="glassToggle"
-                  type="checkbox"
-                  checked={isGlassBorder}
-                  onChange={(e) => setIsGlassBorder(e.target.checked)}
-                  className={styles.switch}
-                />
-              </div>
-            </div>
-
-            <ControlRow label="Border Color">
-              <div className={styles.btnRow}>
-                <button
-                  onClick={() => setBorderColor("rgba(255,255,255,0.2)")}
-                  className={styles.ghostBtn}
-                  style={{ background: "rgba(255,255,255,0.07)" }}
-                >
-                  Light
-                </button>
-                <button
-                  onClick={() => setBorderColor("rgba(0,0,0,0.2)")}
-                  className={styles.ghostBtn}
-                  style={{ background: "rgba(0,0,0,0.3)" }}
-                >
-                  Dark
-                </button>
-                <button
-                  onClick={() => setBorderColor("#6366F1")}
-                  className={styles.ghostBtn}
-                  style={{
-                    background: "#6366F1",
-                    color: "#fff",
-                    borderColor: "#6366F1",
-                  }}
-                >
-                  Accent
-                </button>
-              </div>
-              <input
-                type="text"
-                placeholder="rgba() or #hex…"
-                value={borderColor}
-                onChange={(e) => setBorderColor(e.target.value)}
-                className={styles.input}
-              />
-            </ControlRow>
-          </Section>
-          )}
-
-          {/* ── 5. Backgrounds ──────────────────────── */}
-          {activeCategory === "background" && (
-          <Section title="Backgrounds">
-            {/* glass effect */}
-            <ControlRow label="Glass Effect">
-              <input
-                type="checkbox"
-                checked={glassEnabled}
-                onChange={(e) => setGlassEnabled(e.target.checked)}
-              />
-            </ControlRow>
-
-            {glassEnabled && (
-              <>
-                <ControlRow label="Refraction" value={glassScale.toFixed(2)}>
-                  <input
-                    type="range"
-                    min={1}
-                    max={30}
-                    step={1}
-                    value={Math.round(glassScale * 100)}
-                    onChange={(e) =>
-                      setGlassScale(Number(e.target.value) / 100)
-                    }
-                    className={styles.slider}
-                  />
-                </ControlRow>
-
-                <ControlRow label="Curvature" value={glassCurvature}>
-                  <input
-                    type="range"
-                    min={10}
-                    max={80}
-                    step={1}
-                    value={glassCurvature}
-                    onChange={(e) => setGlassCurvature(Number(e.target.value))}
-                    className={styles.slider}
-                  />
-                </ControlRow>
-
-                <ControlRow label="Radius" value={`${glassRadius}px`}>
-                  <input
-                    type="range"
-                    min={0}
-                    max={80}
-                    step={1}
-                    value={glassRadius}
-                    onChange={(e) => setGlassRadius(Number(e.target.value))}
-                    className={styles.slider}
-                  />
-                </ControlRow>
-
-                <ControlRow label="Glow" value={glassGlow.toFixed(2)}>
-                  <input
-                    type="range"
-                    min={0}
-                    max={30}
-                    step={1}
-                    value={Math.round(glassGlow * 100)}
-                    onChange={(e) => setGlassGlow(Number(e.target.value) / 100)}
-                    className={styles.slider}
-                  />
-                </ControlRow>
-
-                <ControlRow label="Chroma" value={glassChroma.toFixed(2)}>
-                  <input
-                    type="range"
-                    min={0}
-                    max={50}
-                    step={1}
-                    value={Math.round(glassChroma * 100)}
-                    onChange={(e) =>
-                      setGlassChroma(Number(e.target.value) / 100)
-                    }
-                    className={styles.slider}
-                  />
-                </ControlRow>
-              </>
-            )}
-            {/* Solid colors */}
-            <ControlRow label="Solid Colors">
-              <div className={styles.swatchGrid}>
-                <button
-                  onClick={() => handleColorSelect("transparent")}
-                  className={`${styles.colorSwatch} ${customBg === "transparent" && !bgImage ? styles.swatchActive : ""}`}
-                  style={{
-                    backgroundImage:
-                      "conic-gradient(#333 25%, #1a1a1a 25%, #1a1a1a 50%, #333 50%, #333 75%, #1a1a1a 75%)",
-                    backgroundSize: "8px 8px",
-                  }}
-                  title="Transparent"
-                />
-                {SOLID_COLORS.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => handleColorSelect(color)}
-                    className={`${styles.colorSwatch} ${customBg === color && !bgImage ? styles.swatchActive : ""}`}
-                    style={{ background: color }}
-                    title={color}
-                  />
-                ))}
-              </div>
-            </ControlRow>
-
-            {/* Gradients */}
-            <ControlRow label="Gradients">
-              <div className={styles.swatchGrid}>
-                {GRADIENTS.map((gradient, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleColorSelect(gradient)}
-                    className={`${styles.colorSwatch} ${customBg === gradient && !bgImage ? styles.swatchActive : ""}`}
-                    style={{ background: gradient }}
-                  />
-                ))}
-              </div>
-            </ControlRow>
-
-            {/* Premium scenes */}
-            <ControlRow label="Premium Scenes">
-              <div className={styles.bgGrid}>
-                {BACKGROUNDS.map((bg) => {
-                  const isLocked = bg.isPro && !isPro;
-                  const isActive = activeBg?.id === bg.id;
-                  return (
-                    <div key={bg.id} className={styles.swatchGroup}>
-                      <button
-                        onClick={() => !isLocked && handleBgSelect(bg)}
-                        disabled={isLocked}
-                        className={`${styles.bgSwatch} ${styles[bg.bgKey as keyof typeof styles]} ${isActive ? styles.bgSwatchActive : ""} ${isLocked ? styles.bgSwatchLocked : ""}`}
-                      >
-                        {isLocked && (
-                          <div className={styles.lockOverlay}>🔒</div>
-                        )}
-                      </button>
-                      <div className={styles.swatchMeta}>
-                        <span className={styles.swatchName}>
-                          {bg.name.split(" ")[0]}
-                        </span>
-                        <span
-                          className={
-                            bg.isPro ? styles.proPill : styles.freePill
+                    <ControlRow label="Position X">
+                      <div className={styles.arrowSliderRow}>
+                        <span className={styles.arrowLabel}>Left</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={50}
+                          step={0.1}
+                          value={screenLeft}
+                          onChange={(e) =>
+                            setScreenLeft(Number(e.target.value))
                           }
-                        >
-                          {bg.isPro ? "Pro" : "Free"}
-                        </span>
+                          className={styles.slider}
+                        />
+                        <span className={styles.arrowLabel}>Right</span>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </ControlRow>
+                    </ControlRow>
 
-            {/* Custom CSS */}
-            <ControlRow label="Custom CSS / Hex">
-              <input
-                type="text"
-                placeholder="hex or linear-gradient(…)"
-                value={customBg}
-                onChange={(e) => handleColorSelect(e.target.value)}
-                className={styles.input}
-              />
-            </ControlRow>
+                    <ControlRow label="Position Y">
+                      <div className={styles.arrowSliderRow}>
+                        <span className={styles.arrowLabel}>Top</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={50}
+                          step={0.1}
+                          value={screenTop}
+                          onChange={(e) => setScreenTop(Number(e.target.value))}
+                          className={styles.slider}
+                        />
+                        <span className={styles.arrowLabel}>Bottom</span>
+                      </div>
+                    </ControlRow>
 
-            {/* Image upload */}
-            <ControlRow label="Image Upload">
-              <label className={styles.fileUpload}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  onClick={(e) => {
-                    (e.target as HTMLInputElement).value = "";
-                  }}
-                />
-                {bgImage ? "Replace image…" : "Choose image…"}
-              </label>
-              {bgImage && (
-                <button
-                  onClick={handleBgClear}
-                  className={styles.ghostBtn}
-                  style={{ marginTop: 6 }}
-                >
-                  Remove Image
-                </button>
-              )}
-            </ControlRow>
+                    <ControlRow label="Width">
+                      <div className={styles.arrowSliderRow}>
+                        <span className={styles.arrowLabel}>Narrow</span>
+                        <input
+                          type="range"
+                          min={10}
+                          max={100}
+                          step={0.1}
+                          value={screenWidth}
+                          onChange={(e) =>
+                            setScreenWidth(Number(e.target.value))
+                          }
+                          className={styles.slider}
+                        />
+                        <span className={styles.arrowLabel}>Wide</span>
+                      </div>
+                    </ControlRow>
 
-            {bgImage && (
-              <>
-                <ControlRow label="BG Blur" value={`${bgBlur}px`}>
-                  <input
-                    type="range"
-                    min={0}
-                    max={40}
-                    value={bgBlur}
-                    onChange={(e) => setBgBlur(Number(e.target.value))}
-                    className={styles.slider}
-                  />
-                </ControlRow>
+                    <ControlRow label="Height">
+                      <div className={styles.arrowSliderRow}>
+                        <span className={styles.arrowLabel}>Short</span>
+                        <input
+                          type="range"
+                          min={10}
+                          max={100}
+                          step={0.1}
+                          value={screenHeight}
+                          onChange={(e) =>
+                            setScreenHeight(Number(e.target.value))
+                          }
+                          className={styles.slider}
+                        />
+                        <span className={styles.arrowLabel}>Tall</span>
+                      </div>
+                    </ControlRow>
 
-                <ControlRow label="BG Size">
-                  <select
-                    className={styles.select}
-                    value={bgSize}
-                    onChange={(e) =>
-                      setBgSize(e.target.value as "cover" | "contain" | "auto")
-                    }
-                  >
-                    <option value="cover">Cover</option>
-                    <option value="contain">Contain</option>
-                    <option value="auto">Original</option>
-                  </select>
-                </ControlRow>
-
-                <ControlRow label="BG Scale" value={`${bgScale.toFixed(1)}x`}>
-                  <input
-                    type="range"
-                    min={50}
-                    max={200}
-                    value={bgScale * 100}
-                    onChange={(e) => setBgScale(Number(e.target.value) / 100)}
-                    className={styles.slider}
-                  />
-                </ControlRow>
-
-                <ControlRow label="BG Position X" value={`${bgPositionX}%`}>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={bgPositionX}
-                    onChange={(e) => setBgPositionX(Number(e.target.value))}
-                    className={styles.slider}
-                  />
-                </ControlRow>
-
-                <ControlRow label="BG Position Y" value={`${bgPositionY}%`}>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={bgPositionY}
-                    onChange={(e) => setBgPositionY(Number(e.target.value))}
-                    className={styles.slider}
-                  />
-                </ControlRow>
-              </>
-            )}
-          </Section>
-          )}
-
-          {/* ── 6. Annotations ──────────────────────── */}
-          {activeCategory === "annotate" && (
-          <Section title="Annotations" defaultOpen={true}>
-            {/* ── Tool buttons ──────────────────────────── */}
-            <ControlRow label="Add">
-              <div className={styles.btnGrid3}>
-                {TOOL_BUTTONS.map(({ type, icon, label }) => {
-                  const isActive = activeAnnotationTool === type;
-                  const isDrawTool = DRAW_TOOLS.includes(type);
-                  return (
                     <button
-                      key={type}
-                      className={`${styles.presetBtn} ${isActive ? styles.active : ""}`}
-                      title={
-                        isDrawTool
-                          ? `Click then drag on canvas`
-                          : `Add ${label}`
-                      }
                       onClick={() => {
-                        if (isActive) {
-                          setActiveAnnotationTool(null);
-                          return;
-                        }
-                        if (isDrawTool) {
-                          // Draw tools: activate draw mode, user drags on canvas
-                          setActiveAnnotationTool(type);
-                        } else if (type === "text") {
-                          addAnnotation("text");
-                        } else if (type === "number") {
-                          // Auto-increment number
-                          const existingNumbers = annotations
-                            .filter((a) => a.type === "number")
-                            .map((a) => a.number ?? 1);
-                          const next =
-                            existingNumbers.length > 0
-                              ? Math.max(...existingNumbers) + 1
-                              : 1;
-                          addAnnotation("number", { number: next });
-                        }
+                        const active = DEVICE_MOCKUPS.find(
+                          (m) => m.id === deviceMockup,
+                        );
+                        if (!active) return;
+                        setScreenLeft(parseFloat(active.screen.left));
+                        setScreenTop(parseFloat(active.screen.top));
+                        setScreenWidth(parseFloat(active.screen.width));
+                        setScreenHeight(parseFloat(active.screen.height));
                       }}
+                      className={styles.resetBtn}
                     >
-                      <span style={{ marginRight: 4, opacity: 0.7 }}>
-                        {icon}
-                      </span>
-                      {isActive && isDrawTool ? "Drawing…" : label}
+                      Reset to defaults
                     </button>
-                  );
-                })}
-              </div>
-            </ControlRow>
+                  </>
+                )}
+              </Section>
+            )}
 
-            {/* Draw mode hint */}
-            {activeAnnotationTool &&
-              DRAW_TOOLS.includes(activeAnnotationTool) && (
-                <div className={styles.controlRow}>
-                  <p className={styles.hint}>
-                    Click and drag on the canvas · <kbd>Esc</kbd> to cancel
-                  </p>
-                </div>
-              )}
+            {/* ── CODE EDITOR SETTINGS ───────────────────── */}
+            {activeCategory === "source" && editorMode === "code" && (
+              <Section title="Code Styling" defaultOpen={true}>
+                {/* Language & Icon Toggle */}
+                <ControlRow label="Language">
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <select
+                      className={styles.select}
+                      value={codeLanguage}
+                      onChange={(e) => setCodeLanguage(e.target.value)}
+                      style={{ flex: 1 }}
+                    >
+                      <option value="javascript">JavaScript</option>
+                      <option value="typescript">TypeScript</option>
+                      <option value="css">CSS</option>
+                      <option value="python">Python</option>
+                      <option value="rust">Rust</option>
+                    </select>
+                    <button
+                      className={`${styles.ghostBtn} ${showLanguageBadge ? styles.active : ""}`}
+                      onClick={() => setShowLanguageBadge(!showLanguageBadge)}
+                      title="Toggle Language Badge"
+                    >
+                      Badge
+                    </button>
 
-            {/* ── Color ─────────────────────────────────── */}
-            <ControlRow label="Color">
-              <div className={styles.swatchGrid}>
-                {ANNOTATION_COLORS.map((color) => (
-                  <button
-                    key={color}
-                    className={`${styles.colorSwatch} ${annotationColor === color ? styles.swatchActive : ""}`}
-                    style={{
-                      background: color,
-                      outline:
-                        color === "#ffffff"
-                          ? "0.5px solid rgba(255,255,255,0.2)"
-                          : "none",
-                    }}
-                    onClick={() => {
-                      setAnnotationColor(color);
-                      if (selectedAnnotationId) {
-                        updateAnnotation(selectedAnnotationId, {
-                          color: color,
-                        });
-                      }
-                    }}
+                    {/* --- THE PRETTIER BUTTON --- */}
+                    <button
+                      onClick={handlePrettify}
+                      className={styles.prettifyBtn}
+                      title="Format Code"
+                      disabled={isFormatting}
+                    >
+                      {isFormatting ? "..." : "✨ Prettify"}
+                    </button>
+                  </div>
+                </ControlRow>
+
+                <ToggleRow
+                  id="lineNumbersToggle"
+                  label="Show Line Numbers"
+                  checked={showLineNumbers}
+                  onChange={(checked) => setShowLineNumbers(checked)}
+                />
+
+                {/* Line Highlighting Input */}
+                <ControlRow label="Highlight Lines">
+                  <input
+                    type="text"
+                    placeholder="e.g. 1, 3-5"
+                    value={highlightedLines}
+                    onChange={(e) => setHighlightedLines(e.target.value)}
+                    className={styles.input}
                   />
-                ))}
-              </div>
-              <input
-                type="text"
-                placeholder="#hex or rgba(…)"
-                value={annotationColor}
-                onChange={(e) => {
-                  setAnnotationColor(e.target.value);
-
-                  if (selectedAnnotationId) {
-                    updateAnnotation(selectedAnnotationId, {
-                      color: e.target.value,
-                    });
-                  }
-                }}
-                className={styles.input}
-              />
-            </ControlRow>
-
-            {/* ── Font (text only) ──────────────────────── */}
-            <ControlRow label="Font">
-              <select
-                className={styles.select}
-                value={annotationFontFamily}
-                onChange={(e) => {
-                  setAnnotationFontFamily(e.target.value);
-                  if (selectedAnnotationId) {
-                    updateAnnotation(selectedAnnotationId, {
-                      fontFamily: e.target.value,
-                    });
-                  }
-                }}
-              >
-                {ANNOTATION_FONTS.map((f) => (
-                  <option
-                    key={f.value}
-                    value={f.value}
-                    style={{ fontFamily: f.value }}
-                  >
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </ControlRow>
-
-            {/* ── Font size ─────────────────────────────── */}
-            <ControlRow label="Size" value={`${annotationFontSize}px`}>
-              <input
-                type="range"
-                min={10}
-                max={48}
-                step={1}
-                value={annotationFontSize}
-                onChange={(e) => {
-                  setAnnotationFontSize(Number(e.target.value));
-                  if (selectedAnnotationId) {
-                    updateAnnotation(selectedAnnotationId, {
-                      fontSize: Number(e.target.value),
-                    });
-                  }
-                }}
-                className={styles.slider}
-              />
-              <div className={styles.btnGrid4}>
-                {ANNOTATION_SIZES.filter((_, i) => i % 2 === 0).map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => {
-                      setAnnotationFontSize(size);
-                      if (selectedAnnotationId) {
-                        updateAnnotation(selectedAnnotationId, {
-                          fontSize: size,
-                        });
-                      }
+                  <p
+                    style={{
+                      fontSize: "9px",
+                      color: "var(--text-muted)",
+                      marginTop: "4px",
                     }}
-                    className={`${styles.presetBtn} ${annotationFontSize === size ? styles.active : ""}`}
                   >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </ControlRow>
+                    Separate lines with commas. Use a dash for ranges.
+                  </p>
+                </ControlRow>
 
-            {/* ── Layers list ───────────────────────────── */}
-            {annotations.length > 0 && (
-              <ControlRow label="Layers">
-                <div className={styles.annotationList}>
-                  {[...annotations].reverse().map((ann, i) => (
-                    <div key={ann.id} className={styles.annotationItem}>
-                      <span className={styles.annotationIcon}>
-                        {ann.type === "text"
-                          ? "T"
-                          : ann.type === "box"
-                            ? "□"
-                            : ann.type === "arrow"
-                              ? "↗"
-                              : ann.type === "number"
-                                ? "①"
-                                : ann.type === "highlight"
-                                  ? "▬"
-                                  : "▪"}
-                      </span>
-                      <span
-                        className={styles.annotationIcon}
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          background: ann.color,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <span className={styles.annotationLabel}>
-                        {ANNOTATION_LABEL(ann, annotations.length - 1 - i)}
-                      </span>
-                      <button
-                        className={styles.annotationDelete}
-                        onClick={() => removeAnnotation(ann.id)}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </ControlRow>
-            )}
-
-            {/* ── Clear all ─────────────────────────────── */}
-            {annotations.length > 0 && (
-              <div className={styles.controlRow}>
-                <button
-                  className={styles.ghostBtn}
-                  onClick={() =>
-                    [...annotations].forEach((a) => removeAnnotation(a.id))
-                  }
-                >
-                  Clear all
-                </button>
-              </div>
-            )}
-          </Section>
-          )}
-
-          {/* ── 7. Brand & Context ────────────────────────── */}
-          {activeCategory === "brand" && (
-          <Section title="Brand & Context" defaultOpen={true}>
-            {/* --- 1. BUILD CONTEXT (The Journey Badge) --- */}
-            <ToggleRow
-              id="contextBadgeToggle"
-              label="Build Context Badge"
-              checked={showContextBadge}
-              onChange={(checked) => setShowContextBadge(checked)}
-            />
-
-            {/* --- 3. IP PROTECTION PATTERN --- */}
-            <ToggleRow
-              id="watermarkTiledToggle"
-              label="IP Protection Pattern"
-              checked={watermarkTiled}
-              onChange={(checked) => {
-                if (!isPro)
-                  return alert("Upgrade to Pro to unlock IP Protection!");
-                setWatermarkTiled(checked);
-              }}
-            />
-
-            {watermarkTiled && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px",
-                  marginTop: "8px",
-                  paddingBottom: "12px",
-                }}
-              >
-                {/* Theme Selector */}
-                <ControlRow label="Pattern Style">
+                {/* Window Style */}
+                <ControlRow label="Window Style">
                   <div className={styles.btnGrid3}>
-                    {(["solid", "outline", "overlay"] as const).map((theme) => (
+                    {(["mac", "windows", "minimal"] as const).map((style) => (
                       <button
-                        key={theme}
-                        onClick={() => setTiledTheme(theme)}
-                        className={`${styles.presetBtn} ${tiledTheme === theme ? styles.active : ""}`}
+                        key={style}
+                        onClick={() =>
+                          useControlsStore.getState().setWindowStyle(style)
+                        }
+                        className={`${styles.presetBtn} ${windowStyle === style ? styles.active : ""}`}
                         style={{ textTransform: "capitalize" }}
                       >
-                        {theme}
+                        {style}
                       </button>
                     ))}
                   </div>
                 </ControlRow>
 
-                {/* Opacity Slider */}
-                <ControlRow
-                  label="Opacity"
-                  value={`${Math.round(tiledOpacity * 100)}%`}
-                >
-                  <input
-                    type="range"
-                    min="0.01"
-                    max="1"
-                    step="0.01"
-                    value={tiledOpacity}
-                    onChange={(e) => setTiledOpacity(Number(e.target.value))}
-                    className={styles.slider}
-                  />
+                {/* Premium Themes */}
+                <ControlRow label="Color Theme">
+                  <div
+                    className={styles.btnGrid3}
+                    style={{ gridTemplateColumns: "1fr 1fr", gap: "6px" }}
+                  >
+                    {[
+                      { id: "dracula", label: "Dracula", color: "#ff79c6" },
+                      { id: "synthwave", label: "Synthwave", color: "#36f9f6" },
+                      { id: "monokai", label: "Monokai", color: "#a6e22e" },
+                      {
+                        id: "github-dark",
+                        label: "GitHub Dark",
+                        color: "#ff7b72",
+                      },
+                      { id: "light", label: "Minimal Light", color: "#d73a49" },
+                    ].map((theme) => (
+                      <button
+                        key={theme.id}
+                        onClick={() => setCodeTheme(theme.id as any)}
+                        className={`${styles.presetBtn} ${codeTheme === theme.id ? styles.active : ""}`}
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "flex-start",
+                          padding: "6px 8px",
+                          borderLeft:
+                            codeTheme === theme.id
+                              ? `3px solid ${theme.color}`
+                              : "0.5px solid var(--border-medium)",
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: "8px",
+                            height: "8px",
+                            borderRadius: "50%",
+                            background: theme.color,
+                            marginRight: "4px",
+                          }}
+                        />
+                        {theme.label}
+                      </button>
+                    ))}
+                  </div>
                 </ControlRow>
 
-                {/* Angle Slider */}
-                <ControlRow label="Angle" value={`${tiledAngle}°`}>
-                  <input
-                    type="range"
-                    min="-90"
-                    max="90"
-                    step="1"
-                    value={tiledAngle}
-                    onChange={(e) => setTiledAngle(Number(e.target.value))}
-                    className={styles.slider}
-                  />
+                {/* Fonts */}
+                <ControlRow label="Developer Font">
+                  <select
+                    className={styles.select}
+                    value={codeFontFamily}
+                    onChange={(e) => setCodeFontFamily(e.target.value)}
+                  >
+                    <option value='"JetBrains Mono", monospace'>
+                      JetBrains Mono
+                    </option>
+                    <option value='"Fira Code", monospace'>Fira Code</option>
+                    <option value='"Cascadia Code", monospace'>
+                      Cascadia Code
+                    </option>
+                    <option value='"SF Mono", Menlo, monospace'>
+                      SF Mono (Mac)
+                    </option>
+                    <option value='"Comic Sans MS", cursive'>
+                      Comic Sans (Chaotic Evil)
+                    </option>
+                  </select>
                 </ControlRow>
 
                 {/* Size & Spacing (Compact Grid Layout) */}
-                <ControlRow label="Size & Density">
+                <ControlRow label="Scale & Text Size">
                   <div
                     style={{
                       display: "flex",
@@ -1863,19 +1134,48 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                       className={styles.eyebrowVal}
                       style={{ width: "35px" }}
                     >
-                      {tiledFontSize}px
+                      {codeFontSize}px
                     </span>
                     <input
                       type="range"
-                      min="10"
-                      max="72"
+                      min="12"
+                      max="32"
                       step="1"
-                      value={tiledFontSize}
-                      onChange={(e) => setTiledFontSize(Number(e.target.value))}
+                      value={codeFontSize}
+                      onChange={(e) => setCodeFontSize(Number(e.target.value))}
                       className={styles.slider}
                       style={{ flex: 1 }}
                     />
                   </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      alignItems: "center",
+                      marginTop: "8px",
+                    }}
+                  >
+                    <span
+                      className={styles.eyebrowVal}
+                      style={{ width: "45px" }}
+                    >
+                      Scale {Math.round(viewportZoom * 100)}%
+                    </span>
+                    <input
+                      type="range"
+                      min="0.2"
+                      max="1.5"
+                      step="0.05"
+                      value={viewportZoom}
+                      onChange={(e) =>
+                        setViewportZoom(Number(e.target.value))
+                      }
+                      className={styles.slider}
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+
                   <div
                     style={{
                       display: "flex",
@@ -1888,660 +1188,1468 @@ export const SidebarLayout = ({ children }: SidebarLayoutProps) => {
                       className={styles.eyebrowVal}
                       style={{ width: "35px" }}
                     >
-                      Gap
+                      Pad
                     </span>
                     <input
                       type="range"
-                      min="100"
-                      max="600"
-                      step="10"
-                      value={tiledSpacing}
-                      onChange={(e) => setTiledSpacing(Number(e.target.value))}
+                      min="0"
+                      max="120"
+                      step="4"
+                      value={framePadding}
+                      onChange={(e) => setFramePadding(Number(e.target.value))}
                       className={styles.slider}
                       style={{ flex: 1 }}
                     />
                   </div>
                 </ControlRow>
-              </div>
-            )}
 
-            {showContextBadge && (
-              <>
-                <ControlRow label="Position">
-                  {/* A cool 2x2 grid for positioning */}
+                {/* Frame Border Styles */}
+                <ControlRow label="Frame Border">
                   <div
+                    className={styles.btnGrid4}
                     style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
+                      gridTemplateColumns: "1fr 1fr 1fr 1fr",
                       gap: "4px",
                     }}
                   >
-                    {[
-                      { id: "top-left", label: "Top Left" },
-                      { id: "top-right", label: "Top Right" },
-                      { id: "bottom-left", label: "Bot Left" },
-                      { id: "bottom-right", label: "Bot Right" },
-                    ].map((pos) => (
+                    {(["none", "thin", "glass", "dashed"] as const).map(
+                      (border) => (
+                        <button
+                          key={border}
+                          onClick={() => setFrameBorder(border)}
+                          className={`${styles.presetBtn} ${frameBorder === border ? styles.active : ""}`}
+                          style={{
+                            textTransform: "capitalize",
+                            fontSize: "9px",
+                          }}
+                        >
+                          {border}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </ControlRow>
+              </Section>
+            )}
+
+            {/* ── 4. Frame Styles ─────────────────────── */}
+            {activeCategory === "frame" && (
+              <Section title="Frame Styles" defaultOpen={true}>
+                {/* Border radius */}
+                <ControlRow label="Border Radius" value={`${borderRadius}px`}>
+                  <input
+                    type="range"
+                    min={0}
+                    max={40}
+                    step={1}
+                    value={borderRadius}
+                    onChange={(e) => setBorderRadius(Number(e.target.value))}
+                    className={styles.slider}
+                  />
+                  <div className={styles.btnGrid4}>
+                    {RADIUS_PRESETS.map((preset) => (
                       <button
-                        key={pos.id}
-                        onClick={() => setBadgePosition(pos.id as any)}
-                        className={`${styles.ghostBtn} ${badgePosition === pos.id ? styles.active : ""}`}
-                        style={
-                          badgePosition === pos.id
-                            ? {
-                                background: "var(--border-medium)",
-                                color: "var(--text-main)",
-                              }
-                            : {}
-                        }
+                        key={preset.label}
+                        onClick={() => setBorderRadius(preset.value)}
+                        className={`${styles.presetBtn} ${borderRadius === preset.value ? styles.active : ""}`}
                       >
-                        {pos.label}
+                        {preset.label}
                       </button>
                     ))}
                   </div>
                 </ControlRow>
 
-                <ControlRow label="Theme">
-                  <div
-                    className={styles.btnGrid4}
-                    style={{ gridTemplateColumns: "1fr 1fr", gap: "5px" }}
-                  >
-                    {(["glass", "dark", "light", "transparent"] as const).map(
-                      (theme) => (
+                {/* Shadow */}
+                <ControlRow
+                  label="Shadow Opacity"
+                  value={`${Math.round(shadowOpacity * 100)}%`}
+                >
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.02}
+                    value={shadowOpacity}
+                    onChange={(e) => setShadowOpacity(Number(e.target.value))}
+                    className={styles.slider}
+                    disabled={shadowVariant === 0}
+                  />
+                  <div className={styles.btnGrid3}>
+                    {SHADOW_PRESETS.map((preset, index) => (
+                      <button
+                        key={preset.label}
+                        onClick={() => setShadowVariant(index)}
+                        className={`${styles.presetBtn} ${shadowVariant === index ? styles.active : ""}`}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </ControlRow>
+
+                {/* Border */}
+                <ControlRow label="Border Width" value={`${borderWidth}px`}>
+                  <input
+                    type="range"
+                    min={0}
+                    max={20}
+                    step={1}
+                    value={borderWidth}
+                    onChange={(e) => setBorderWidth(Number(e.target.value))}
+                    className={styles.slider}
+                  />
+                </ControlRow>
+
+                <div className={styles.controlRow}>
+                  <div className={styles.toggleRow}>
+                    <label htmlFor="glassToggle" className={styles.toggleLabel}>
+                      Glass Effect
+                    </label>
+                    <input
+                      id="glassToggle"
+                      type="checkbox"
+                      checked={isGlassBorder}
+                      onChange={(e) => setIsGlassBorder(e.target.checked)}
+                      className={styles.switch}
+                    />
+                  </div>
+                </div>
+
+                <ControlRow label="Border Color">
+                  <div className={styles.btnRow}>
+                    <button
+                      onClick={() => setBorderColor("rgba(255,255,255,0.2)")}
+                      className={styles.ghostBtn}
+                      style={{ background: "rgba(255,255,255,0.07)" }}
+                    >
+                      Light
+                    </button>
+                    <button
+                      onClick={() => setBorderColor("rgba(0,0,0,0.2)")}
+                      className={styles.ghostBtn}
+                      style={{ background: "rgba(0,0,0,0.3)" }}
+                    >
+                      Dark
+                    </button>
+                    <button
+                      onClick={() => setBorderColor("#6366F1")}
+                      className={styles.ghostBtn}
+                      style={{
+                        background: "#6366F1",
+                        color: "#fff",
+                        borderColor: "#6366F1",
+                      }}
+                    >
+                      Accent
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="rgba() or #hex…"
+                    value={borderColor}
+                    onChange={(e) => setBorderColor(e.target.value)}
+                    className={styles.input}
+                  />
+                </ControlRow>
+              </Section>
+            )}
+
+            {/* ── 5. Backgrounds ──────────────────────── */}
+            {activeCategory === "background" && (
+              <Section title="Backgrounds">
+                {/* glass effect */}
+                <ControlRow label="Glass Effect">
+                  <input
+                    type="checkbox"
+                    checked={glassEnabled}
+                    onChange={(e) => setGlassEnabled(e.target.checked)}
+                  />
+                </ControlRow>
+
+                {glassEnabled && (
+                  <>
+                    <ControlRow
+                      label="Refraction"
+                      value={glassScale.toFixed(2)}
+                    >
+                      <input
+                        type="range"
+                        min={1}
+                        max={30}
+                        step={1}
+                        value={Math.round(glassScale * 100)}
+                        onChange={(e) =>
+                          setGlassScale(Number(e.target.value) / 100)
+                        }
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+
+                    <ControlRow label="Curvature" value={glassCurvature}>
+                      <input
+                        type="range"
+                        min={10}
+                        max={80}
+                        step={1}
+                        value={glassCurvature}
+                        onChange={(e) =>
+                          setGlassCurvature(Number(e.target.value))
+                        }
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+
+                    <ControlRow label="Radius" value={`${glassRadius}px`}>
+                      <input
+                        type="range"
+                        min={0}
+                        max={80}
+                        step={1}
+                        value={glassRadius}
+                        onChange={(e) => setGlassRadius(Number(e.target.value))}
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+
+                    <ControlRow label="Glow" value={glassGlow.toFixed(2)}>
+                      <input
+                        type="range"
+                        min={0}
+                        max={30}
+                        step={1}
+                        value={Math.round(glassGlow * 100)}
+                        onChange={(e) =>
+                          setGlassGlow(Number(e.target.value) / 100)
+                        }
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+
+                    <ControlRow label="Chroma" value={glassChroma.toFixed(2)}>
+                      <input
+                        type="range"
+                        min={0}
+                        max={50}
+                        step={1}
+                        value={Math.round(glassChroma * 100)}
+                        onChange={(e) =>
+                          setGlassChroma(Number(e.target.value) / 100)
+                        }
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+                  </>
+                )}
+                {/* Solid colors */}
+                <ControlRow label="Solid Colors">
+                  <div className={styles.swatchGrid}>
+                    <button
+                      onClick={() => handleColorSelect("transparent")}
+                      className={`${styles.colorSwatch} ${customBg === "transparent" && !bgImage ? styles.swatchActive : ""}`}
+                      style={{
+                        backgroundImage:
+                          "conic-gradient(#333 25%, #1a1a1a 25%, #1a1a1a 50%, #333 50%, #333 75%, #1a1a1a 75%)",
+                        backgroundSize: "8px 8px",
+                      }}
+                      title="Transparent"
+                    />
+                    {SOLID_COLORS.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => handleColorSelect(color)}
+                        className={`${styles.colorSwatch} ${customBg === color && !bgImage ? styles.swatchActive : ""}`}
+                        style={{ background: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                </ControlRow>
+
+                {/* Gradients */}
+                <ControlRow label="Gradients">
+                  <div className={styles.swatchGrid}>
+                    {GRADIENTS.map((gradient, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleColorSelect(gradient)}
+                        className={`${styles.colorSwatch} ${customBg === gradient && !bgImage ? styles.swatchActive : ""}`}
+                        style={{ background: gradient }}
+                      />
+                    ))}
+                  </div>
+                </ControlRow>
+
+                {/* Premium scenes */}
+                <ControlRow label="Premium Scenes">
+                  <div className={styles.bgGrid}>
+                    {BACKGROUNDS.map((bg) => {
+                      const isLocked = bg.isPro && !isPro;
+                      const isActive = activeBg?.id === bg.id;
+                      return (
+                        <div key={bg.id} className={styles.swatchGroup}>
+                          <button
+                            onClick={() => !isLocked && handleBgSelect(bg)}
+                            disabled={isLocked}
+                            className={`${styles.bgSwatch} ${styles[bg.bgKey as keyof typeof styles]} ${isActive ? styles.bgSwatchActive : ""} ${isLocked ? styles.bgSwatchLocked : ""}`}
+                          >
+                            {isLocked && (
+                              <div className={styles.lockOverlay}>🔒</div>
+                            )}
+                          </button>
+                          <div className={styles.swatchMeta}>
+                            <span className={styles.swatchName}>
+                              {bg.name.split(" ")[0]}
+                            </span>
+                            <span
+                              className={
+                                bg.isPro ? styles.proPill : styles.freePill
+                              }
+                            >
+                              {bg.isPro ? "Pro" : "Free"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ControlRow>
+
+                {/* Custom CSS */}
+                <ControlRow label="Custom CSS / Hex">
+                  <input
+                    type="text"
+                    placeholder="hex or linear-gradient(…)"
+                    value={customBg}
+                    onChange={(e) => handleColorSelect(e.target.value)}
+                    className={styles.input}
+                  />
+                </ControlRow>
+
+                {/* Image upload */}
+                <ControlRow label="Image Upload">
+                  <label className={styles.fileUpload}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      onClick={(e) => {
+                        (e.target as HTMLInputElement).value = "";
+                      }}
+                    />
+                    {bgImage ? "Replace image…" : "Choose image…"}
+                  </label>
+                  {bgImage && (
+                    <button
+                      onClick={handleBgClear}
+                      className={styles.ghostBtn}
+                      style={{ marginTop: 6 }}
+                    >
+                      Remove Image
+                    </button>
+                  )}
+                </ControlRow>
+
+                {bgImage && (
+                  <>
+                    <ControlRow label="BG Blur" value={`${bgBlur}px`}>
+                      <input
+                        type="range"
+                        min={0}
+                        max={40}
+                        value={bgBlur}
+                        onChange={(e) => setBgBlur(Number(e.target.value))}
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+
+                    <ControlRow label="BG Size">
+                      <select
+                        className={styles.select}
+                        value={bgSize}
+                        onChange={(e) =>
+                          setBgSize(
+                            e.target.value as "cover" | "contain" | "auto",
+                          )
+                        }
+                      >
+                        <option value="cover">Cover</option>
+                        <option value="contain">Contain</option>
+                        <option value="auto">Original</option>
+                      </select>
+                    </ControlRow>
+
+                    <ControlRow
+                      label="BG Scale"
+                      value={`${bgScale.toFixed(1)}x`}
+                    >
+                      <input
+                        type="range"
+                        min={50}
+                        max={200}
+                        value={bgScale * 100}
+                        onChange={(e) =>
+                          setBgScale(Number(e.target.value) / 100)
+                        }
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+
+                    <ControlRow label="BG Position X" value={`${bgPositionX}%`}>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={bgPositionX}
+                        onChange={(e) => setBgPositionX(Number(e.target.value))}
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+
+                    <ControlRow label="BG Position Y" value={`${bgPositionY}%`}>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={bgPositionY}
+                        onChange={(e) => setBgPositionY(Number(e.target.value))}
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+                  </>
+                )}
+              </Section>
+            )}
+
+            {/* ── 6. Annotations ──────────────────────── */}
+            {activeCategory === "annotate" && (
+              <Section title="Annotations" defaultOpen={true}>
+                {/* ── Tool buttons ──────────────────────────── */}
+                <ControlRow label="Add">
+                  <div className={styles.btnGrid3}>
+                    {TOOL_BUTTONS.map(({ type, icon, label }) => {
+                      const isActive = activeAnnotationTool === type;
+                      const isDrawTool = DRAW_TOOLS.includes(type);
+                      return (
                         <button
-                          key={theme}
-                          onClick={() => setBadgeTheme(theme)}
-                          className={`${styles.presetBtn} ${badgeTheme === theme ? styles.active : ""}`}
-                          style={{ textTransform: "capitalize" }}
+                          key={type}
+                          className={`${styles.presetBtn} ${isActive ? styles.active : ""}`}
+                          title={
+                            isDrawTool
+                              ? `Click then drag on canvas`
+                              : `Add ${label}`
+                          }
+                          onClick={() => {
+                            if (isActive) {
+                              setActiveAnnotationTool(null);
+                              return;
+                            }
+                            if (isDrawTool) {
+                              // Draw tools: activate draw mode, user drags on canvas
+                              setActiveAnnotationTool(type);
+                            } else if (type === "text") {
+                              addAnnotation("text");
+                            } else if (type === "number") {
+                              // Auto-increment number
+                              const existingNumbers = annotations
+                                .filter((a) => a.type === "number")
+                                .map((a) => a.number ?? 1);
+                              const next =
+                                existingNumbers.length > 0
+                                  ? Math.max(...existingNumbers) + 1
+                                  : 1;
+                              addAnnotation("number", { number: next });
+                            }
+                          }}
                         >
-                          {theme}
+                          <span style={{ marginRight: 4, opacity: 0.7 }}>
+                            {icon}
+                          </span>
+                          {isActive && isDrawTool ? "Drawing…" : label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </ControlRow>
+
+                {/* Draw mode hint */}
+                {activeAnnotationTool &&
+                  DRAW_TOOLS.includes(activeAnnotationTool) && (
+                    <div className={styles.controlRow}>
+                      <p className={styles.hint}>
+                        Click and drag on the canvas · <kbd>Esc</kbd> to cancel
+                      </p>
+                    </div>
+                  )}
+
+                {/* ── Color ─────────────────────────────────── */}
+                <ControlRow label="Color">
+                  <div className={styles.swatchGrid}>
+                    {ANNOTATION_COLORS.map((color) => (
+                      <button
+                        key={color}
+                        className={`${styles.colorSwatch} ${annotationColor === color ? styles.swatchActive : ""}`}
+                        style={{
+                          background: color,
+                          outline:
+                            color === "#ffffff"
+                              ? "0.5px solid rgba(255,255,255,0.2)"
+                              : "none",
+                        }}
+                        onClick={() => {
+                          setAnnotationColor(color);
+                          if (selectedAnnotationId) {
+                            updateAnnotation(selectedAnnotationId, {
+                              color: color,
+                            });
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="#hex or rgba(…)"
+                    value={annotationColor}
+                    onChange={(e) => {
+                      setAnnotationColor(e.target.value);
+
+                      if (selectedAnnotationId) {
+                        updateAnnotation(selectedAnnotationId, {
+                          color: e.target.value,
+                        });
+                      }
+                    }}
+                    className={styles.input}
+                  />
+                </ControlRow>
+
+                {/* ── Font (text only) ──────────────────────── */}
+                <ControlRow label="Font">
+                  <select
+                    className={styles.select}
+                    value={annotationFontFamily}
+                    onChange={(e) => {
+                      setAnnotationFontFamily(e.target.value);
+                      if (selectedAnnotationId) {
+                        updateAnnotation(selectedAnnotationId, {
+                          fontFamily: e.target.value,
+                        });
+                      }
+                    }}
+                  >
+                    {ANNOTATION_FONTS.map((f) => (
+                      <option
+                        key={f.value}
+                        value={f.value}
+                        style={{ fontFamily: f.value }}
+                      >
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </ControlRow>
+
+                {/* ── Font size ─────────────────────────────── */}
+                <ControlRow label="Size" value={`${annotationFontSize}px`}>
+                  <input
+                    type="range"
+                    min={10}
+                    max={48}
+                    step={1}
+                    value={annotationFontSize}
+                    onChange={(e) => {
+                      setAnnotationFontSize(Number(e.target.value));
+                      if (selectedAnnotationId) {
+                        updateAnnotation(selectedAnnotationId, {
+                          fontSize: Number(e.target.value),
+                        });
+                      }
+                    }}
+                    className={styles.slider}
+                  />
+                  <div className={styles.btnGrid4}>
+                    {ANNOTATION_SIZES.filter((_, i) => i % 2 === 0).map(
+                      (size) => (
+                        <button
+                          key={size}
+                          onClick={() => {
+                            setAnnotationFontSize(size);
+                            if (selectedAnnotationId) {
+                              updateAnnotation(selectedAnnotationId, {
+                                fontSize: size,
+                              });
+                            }
+                          }}
+                          className={`${styles.presetBtn} ${annotationFontSize === size ? styles.active : ""}`}
+                        >
+                          {size}
                         </button>
                       ),
                     )}
                   </div>
                 </ControlRow>
 
-                <ControlRow label="Context Icon">
-                  <div
-                    style={{ display: "flex", gap: "4px", marginBottom: "8px" }}
-                  >
-                    <select
-                      className={styles.select}
-                      value={badgeIconType}
-                      onChange={(e) => setBadgeIconType(e.target.value as any)}
-                      style={{ flex: 1 }}
+                {/* ── Layers list ───────────────────────────── */}
+                {annotations.length > 0 && (
+                  <ControlRow label="Layers">
+                    <div className={styles.annotationList}>
+                      {[...annotations].reverse().map((ann, i) => (
+                        <div key={ann.id} className={styles.annotationItem}>
+                          <span className={styles.annotationIcon}>
+                            {ann.type === "text"
+                              ? "T"
+                              : ann.type === "box"
+                                ? "□"
+                                : ann.type === "arrow"
+                                  ? "↗"
+                                  : ann.type === "number"
+                                    ? "①"
+                                    : ann.type === "highlight"
+                                      ? "▬"
+                                      : "▪"}
+                          </span>
+                          <span
+                            className={styles.annotationIcon}
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: "50%",
+                              background: ann.color,
+                              flexShrink: 0,
+                            }}
+                          />
+                          <span className={styles.annotationLabel}>
+                            {ANNOTATION_LABEL(ann, annotations.length - 1 - i)}
+                          </span>
+                          <button
+                            className={styles.annotationDelete}
+                            onClick={() => removeAnnotation(ann.id)}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </ControlRow>
+                )}
+
+                {/* ── Clear all ─────────────────────────────── */}
+                {annotations.length > 0 && (
+                  <div className={styles.controlRow}>
+                    <button
+                      className={styles.ghostBtn}
+                      onClick={() =>
+                        [...annotations].forEach((a) => removeAnnotation(a.id))
+                      }
                     >
-                      <option value="dot">Color Dot</option>
-                      <option value="emoji">Emoji</option>
-                      <option value="custom">Custom Upload</option>
-                      <option value="none">None</option>
-                    </select>
-
-                    {/* Dynamic Value Input based on Icon Type */}
-                    {badgeIconType === "dot" && (
-                      <input
-                        type="color"
-                        value={badgeIconValue}
-                        onChange={(e) => setBadgeIconValue(e.target.value)}
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          cursor: "pointer",
-                          border: "none",
-                          borderRadius: "4px",
-                        }}
-                      />
-                    )}
-                    {badgeIconType === "emoji" && (
-                      <input
-                        type="text"
-                        value={badgeIconValue}
-                        onChange={(e) => setBadgeIconValue(e.target.value)}
-                        placeholder="🚀"
-                        className={styles.input}
-                        style={{ width: "40px", textAlign: "center" }}
-                        maxLength={2}
-                      />
-                    )}
+                      Clear all
+                    </button>
                   </div>
+                )}
+              </Section>
+            )}
 
-                  {badgeIconType === "custom" && (
-                    <label className={styles.fileUpload}>
-                      <input
-                        type="file"
-                        accept="image/png, image/jpeg"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const reader = new FileReader();
-                          reader.onloadend = () =>
-                            setBadgeIconValue(reader.result as string);
-                          reader.readAsDataURL(file);
-                        }}
-                      />
-                      {badgeIconValue && badgeIconValue.length > 20
-                        ? "Replace Image..."
-                        : "Upload Avatar/Logo..."}
-                    </label>
-                  )}
-                </ControlRow>
+            {/* ── 7. Brand & Context ────────────────────────── */}
+            {activeCategory === "brand" && (
+              <Section title="Brand & Context" defaultOpen={true}>
+                {/* --- 1. BUILD CONTEXT (The Journey Badge) --- */}
+                <ToggleRow
+                  id="contextBadgeToggle"
+                  label="Build Context Badge"
+                  checked={showContextBadge}
+                  onChange={(checked) => setShowContextBadge(checked)}
+                />
 
-                <ControlRow label="Context Text">
+                {/* --- 3. IP PROTECTION PATTERN --- */}
+                <ToggleRow
+                  id="watermarkTiledToggle"
+                  label="IP Protection Pattern"
+                  checked={watermarkTiled}
+                  onChange={(checked) => {
+                    if (!isPro)
+                      return alert("Upgrade to Pro to unlock IP Protection!");
+                    setWatermarkTiled(checked);
+                  }}
+                />
+
+                {watermarkTiled && (
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
-                      gap: "6px",
-                    }}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Added new feature • {date}"
-                      value={contextBadgeText}
-                      onChange={(e) => setContextBadgeText(e.target.value)}
-                      className={styles.input}
-                    />
-                    {/* The Variable Chips */}
-                    <div
-                      style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}
-                    >
-                      <button
-                        className={styles.ghostBtn}
-                        style={{
-                          padding: "3px 6px",
-                          fontSize: "8px",
-                          textTransform: "lowercase",
-                          flex: "none",
-                        }}
-                        onClick={() =>
-                          setContextBadgeText(
-                            `${contextBadgeText} {url}`.trim(),
-                          )
-                        }
-                      >
-                        + {"{url}"}
-                      </button>
-                      <button
-                        className={styles.ghostBtn}
-                        style={{
-                          padding: "3px 6px",
-                          fontSize: "8px",
-                          textTransform: "lowercase",
-                          flex: "none",
-                        }}
-                        onClick={() =>
-                          setContextBadgeText(
-                            `${contextBadgeText} {date}`.trim(),
-                          )
-                        }
-                      >
-                        + {"{date}"}
-                      </button>
-                      <button
-                        className={styles.ghostBtn}
-                        style={{
-                          padding: "3px 6px",
-                          fontSize: "8px",
-                          textTransform: "lowercase",
-                          flex: "none",
-                        }}
-                        onClick={() =>
-                          setContextBadgeText(
-                            `${contextBadgeText} {title}`.trim(),
-                          )
-                        }
-                      >
-                        + {"{title}"}
-                      </button>
-                    </div>
-                  </div>
-                </ControlRow>
-
-                <ControlRow label="Size & Radius">
-                  <div
-                    style={{
-                      display: "flex",
                       gap: "10px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      className={styles.eyebrowVal}
-                      style={{ width: "30px" }}
-                    >
-                      {badgeFontSize}px
-                    </span>
-                    <input
-                      type="range"
-                      min="8"
-                      max="24"
-                      value={badgeFontSize}
-                      onChange={(e) => setBadgeFontSize(Number(e.target.value))}
-                      className={styles.slider}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      alignItems: "center",
                       marginTop: "8px",
+                      paddingBottom: "12px",
                     }}
                   >
-                    <span
-                      className={styles.eyebrowVal}
-                      style={{ width: "30px" }}
+                    {/* Theme Selector */}
+                    <ControlRow label="Pattern Style">
+                      <div className={styles.btnGrid3}>
+                        {(["solid", "outline", "overlay"] as const).map(
+                          (theme) => (
+                            <button
+                              key={theme}
+                              onClick={() => setTiledTheme(theme)}
+                              className={`${styles.presetBtn} ${tiledTheme === theme ? styles.active : ""}`}
+                              style={{ textTransform: "capitalize" }}
+                            >
+                              {theme}
+                            </button>
+                          ),
+                        )}
+                      </div>
+                    </ControlRow>
+
+                    {/* Opacity Slider */}
+                    <ControlRow
+                      label="Opacity"
+                      value={`${Math.round(tiledOpacity * 100)}%`}
                     >
-                      R:{badgeRadius}
-                    </span>
-                    <input
-                      type="range"
-                      min="0"
-                      max="50"
-                      value={badgeRadius}
-                      onChange={(e) => setBadgeRadius(Number(e.target.value))}
-                      className={styles.slider}
-                    />
+                      <input
+                        type="range"
+                        min="0.01"
+                        max="1"
+                        step="0.01"
+                        value={tiledOpacity}
+                        onChange={(e) =>
+                          setTiledOpacity(Number(e.target.value))
+                        }
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+
+                    {/* Angle Slider */}
+                    <ControlRow label="Angle" value={`${tiledAngle}°`}>
+                      <input
+                        type="range"
+                        min="-90"
+                        max="90"
+                        step="1"
+                        value={tiledAngle}
+                        onChange={(e) => setTiledAngle(Number(e.target.value))}
+                        className={styles.slider}
+                      />
+                    </ControlRow>
+
+                    {/* Size & Spacing (Compact Grid Layout) */}
+                    <ControlRow label="Size & Density">
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span
+                          className={styles.eyebrowVal}
+                          style={{ width: "35px" }}
+                        >
+                          {tiledFontSize}px
+                        </span>
+                        <input
+                          type="range"
+                          min="10"
+                          max="72"
+                          step="1"
+                          value={tiledFontSize}
+                          onChange={(e) =>
+                            setTiledFontSize(Number(e.target.value))
+                          }
+                          className={styles.slider}
+                          style={{ flex: 1 }}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "center",
+                          marginTop: "8px",
+                        }}
+                      >
+                        <span
+                          className={styles.eyebrowVal}
+                          style={{ width: "35px" }}
+                        >
+                          Gap
+                        </span>
+                        <input
+                          type="range"
+                          min="100"
+                          max="600"
+                          step="10"
+                          value={tiledSpacing}
+                          onChange={(e) =>
+                            setTiledSpacing(Number(e.target.value))
+                          }
+                          className={styles.slider}
+                          style={{ flex: 1 }}
+                        />
+                      </div>
+                    </ControlRow>
                   </div>
-                </ControlRow>
-              </>
-            )}
+                )}
 
-            <div className={styles.divider} style={{ margin: "12px 0" }} />
-
-            {/* --- 2. WATERMARK (The Brand Identity) --- */}
-            <ToggleRow
-              id="watermarkToggle"
-              label="Brand Watermark"
-              checked={showWatermark}
-              onChange={(checked) => {
-                if (!isPro)
-                  return alert("Upgrade to Pro to remove the watermark!");
-                setShowWatermark(checked);
-              }}
-            />
-
-            {showWatermark && (
-              <>
-                <ControlRow label="Type">
-                  <div className={styles.btnRow}>
-                    <button
-                      onClick={() => {
-                        if (!isPro) return alert("Upgrade to unlock modes!");
-                        setWatermarkType("text");
-                      }}
-                      className={`${styles.ghostBtn} ${watermarkType === "text" ? styles.active : ""}`}
-                      style={
-                        watermarkType === "text"
-                          ? {
-                              background: "var(--accent-soft)",
-                              color: "var(--accent-main)",
-                              borderColor: "var(--border-active)",
-                            }
-                          : {}
-                      }
-                    >
-                      Text
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (!isPro) return alert("Upgrade to unlock modes!");
-                        setWatermarkType("social");
-                      }}
-                      className={`${styles.ghostBtn} ${watermarkType === "social" ? styles.active : ""}`}
-                      style={
-                        watermarkType === "social"
-                          ? {
-                              background: "var(--accent-soft)",
-                              color: "var(--accent-main)",
-                              borderColor: "var(--border-active)",
-                            }
-                          : {}
-                      }
-                    >
-                      Social
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (!isPro) return alert("Upgrade to unlock modes!");
-                        setWatermarkType("logo");
-                      }}
-                      className={`${styles.ghostBtn} ${watermarkType === "logo" ? styles.active : ""}`}
-                      style={
-                        watermarkType === "logo"
-                          ? {
-                              background: "var(--accent-soft)",
-                              color: "var(--accent-main)",
-                              borderColor: "var(--border-active)",
-                            }
-                          : {}
-                      }
-                    >
-                      Logo
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        if (!isPro) return alert("Upgrade!");
-                        setWatermarkType("qr");
-                      }}
-                      className={`${styles.ghostBtn} ${watermarkType === "qr" ? styles.active : ""}`}
-                      style={
-                        watermarkType === "qr"
-                          ? {
-                              background: "var(--accent-soft)",
-                              color: "var(--accent-main)",
-                              borderColor: "var(--border-active)",
-                            }
-                          : {}
-                      }
-                    >
-                      QR Code
-                    </button>
-                  </div>
-                </ControlRow>
-
-                {/* Conditional Inputs based on Watermark Mode */}
-                {watermarkType === "text" ||
-                watermarkType === "social" ||
-                watermarkType === "qr" ? (
+                {showContextBadge && (
                   <>
-                    {watermarkType === "social" && (
-                      <ControlRow label="Platform">
+                    <ControlRow label="Position">
+                      {/* A cool 2x2 grid for positioning */}
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: "4px",
+                        }}
+                      >
+                        {[
+                          { id: "top-left", label: "Top Left" },
+                          { id: "top-right", label: "Top Right" },
+                          { id: "bottom-left", label: "Bot Left" },
+                          { id: "bottom-right", label: "Bot Right" },
+                        ].map((pos) => (
+                          <button
+                            key={pos.id}
+                            onClick={() => setBadgePosition(pos.id as any)}
+                            className={`${styles.ghostBtn} ${badgePosition === pos.id ? styles.active : ""}`}
+                            style={
+                              badgePosition === pos.id
+                                ? {
+                                    background: "var(--border-medium)",
+                                    color: "var(--text-main)",
+                                  }
+                                : {}
+                            }
+                          >
+                            {pos.label}
+                          </button>
+                        ))}
+                      </div>
+                    </ControlRow>
+
+                    <ControlRow label="Theme">
+                      <div
+                        className={styles.btnGrid4}
+                        style={{ gridTemplateColumns: "1fr 1fr", gap: "5px" }}
+                      >
+                        {(
+                          ["glass", "dark", "light", "transparent"] as const
+                        ).map((theme) => (
+                          <button
+                            key={theme}
+                            onClick={() => setBadgeTheme(theme)}
+                            className={`${styles.presetBtn} ${badgeTheme === theme ? styles.active : ""}`}
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            {theme}
+                          </button>
+                        ))}
+                      </div>
+                    </ControlRow>
+
+                    <ControlRow label="Context Icon">
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "4px",
+                          marginBottom: "8px",
+                        }}
+                      >
                         <select
                           className={styles.select}
-                          value={watermarkSocialPlatform}
+                          value={badgeIconType}
                           onChange={(e) =>
-                            setWatermarkSocialPlatform(
-                              e.target.value as
-                                | "x"
-                                | "github"
-                                | "linkedin"
-                                | "instagram",
-                            )
+                            setBadgeIconType(e.target.value as any)
                           }
-                          disabled={!isPro}
+                          style={{ flex: 1 }}
                         >
-                          <option value="x">X (Twitter)</option>
-                          <option value="github">GitHub</option>
-                          <option value="linkedin">LinkedIn</option>
-                          <option value="instagram">Instagram</option>
+                          <option value="dot">Color Dot</option>
+                          <option value="emoji">Emoji</option>
+                          <option value="custom">Custom Upload</option>
+                          <option value="none">None</option>
                         </select>
-                      </ControlRow>
-                    )}
 
-                    {/* qr code */}
-                    {watermarkType === "qr" && (
-                      <ControlRow label="QR Link">
-                        <div style={{ position: "relative" }}>
+                        {/* Dynamic Value Input based on Icon Type */}
+                        {badgeIconType === "dot" && (
+                          <input
+                            type="color"
+                            value={badgeIconValue}
+                            onChange={(e) => setBadgeIconValue(e.target.value)}
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              cursor: "pointer",
+                              border: "none",
+                              borderRadius: "4px",
+                            }}
+                          />
+                        )}
+                        {badgeIconType === "emoji" && (
                           <input
                             type="text"
-                            placeholder="https://... or {url}"
-                            value={watermarkQrContent}
-                            onChange={(e) =>
-                              setWatermarkQrContent(e.target.value)
-                            }
-                            disabled={!isPro}
+                            value={badgeIconValue}
+                            onChange={(e) => setBadgeIconValue(e.target.value)}
+                            placeholder="🚀"
                             className={styles.input}
+                            style={{ width: "40px", textAlign: "center" }}
+                            maxLength={2}
                           />
+                        )}
+                      </div>
+
+                      {badgeIconType === "custom" && (
+                        <label className={styles.fileUpload}>
+                          <input
+                            type="file"
+                            accept="image/png, image/jpeg"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const reader = new FileReader();
+                              reader.onloadend = () =>
+                                setBadgeIconValue(reader.result as string);
+                              reader.readAsDataURL(file);
+                            }}
+                          />
+                          {badgeIconValue && badgeIconValue.length > 20
+                            ? "Replace Image..."
+                            : "Upload Avatar/Logo..."}
+                        </label>
+                      )}
+                    </ControlRow>
+
+                    <ControlRow label="Context Text">
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "6px",
+                        }}
+                      >
+                        <input
+                          type="text"
+                          placeholder="Added new feature • {date}"
+                          value={contextBadgeText}
+                          onChange={(e) => setContextBadgeText(e.target.value)}
+                          className={styles.input}
+                        />
+                        {/* The Variable Chips */}
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "4px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <button
+                            className={styles.ghostBtn}
+                            style={{
+                              padding: "3px 6px",
+                              fontSize: "8px",
+                              textTransform: "lowercase",
+                              flex: "none",
+                            }}
+                            onClick={() =>
+                              setContextBadgeText(
+                                `${contextBadgeText} {url}`.trim(),
+                              )
+                            }
+                          >
+                            + {"{url}"}
+                          </button>
+                          <button
+                            className={styles.ghostBtn}
+                            style={{
+                              padding: "3px 6px",
+                              fontSize: "8px",
+                              textTransform: "lowercase",
+                              flex: "none",
+                            }}
+                            onClick={() =>
+                              setContextBadgeText(
+                                `${contextBadgeText} {date}`.trim(),
+                              )
+                            }
+                          >
+                            + {"{date}"}
+                          </button>
+                          <button
+                            className={styles.ghostBtn}
+                            style={{
+                              padding: "3px 6px",
+                              fontSize: "8px",
+                              textTransform: "lowercase",
+                              flex: "none",
+                            }}
+                            onClick={() =>
+                              setContextBadgeText(
+                                `${contextBadgeText} {title}`.trim(),
+                              )
+                            }
+                          >
+                            + {"{title}"}
+                          </button>
+                        </div>
+                      </div>
+                    </ControlRow>
+
+                    <ControlRow label="Size & Radius">
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span
+                          className={styles.eyebrowVal}
+                          style={{ width: "30px" }}
+                        >
+                          {badgeFontSize}px
+                        </span>
+                        <input
+                          type="range"
+                          min="8"
+                          max="24"
+                          value={badgeFontSize}
+                          onChange={(e) =>
+                            setBadgeFontSize(Number(e.target.value))
+                          }
+                          className={styles.slider}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "center",
+                          marginTop: "8px",
+                        }}
+                      >
+                        <span
+                          className={styles.eyebrowVal}
+                          style={{ width: "30px" }}
+                        >
+                          R:{badgeRadius}
+                        </span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="50"
+                          value={badgeRadius}
+                          onChange={(e) =>
+                            setBadgeRadius(Number(e.target.value))
+                          }
+                          className={styles.slider}
+                        />
+                      </div>
+                    </ControlRow>
+                  </>
+                )}
+
+                <div className={styles.divider} style={{ margin: "12px 0" }} />
+
+                {/* --- 2. WATERMARK (The Brand Identity) --- */}
+                <ToggleRow
+                  id="watermarkToggle"
+                  label="Brand Watermark"
+                  checked={showWatermark}
+                  onChange={(checked) => {
+                    if (!isPro)
+                      return alert("Upgrade to Pro to remove the watermark!");
+                    setShowWatermark(checked);
+                  }}
+                />
+
+                {showWatermark && (
+                  <>
+                    <ControlRow label="Type">
+                      <div className={styles.btnRow}>
+                        <button
+                          onClick={() => {
+                            if (!isPro)
+                              return alert("Upgrade to unlock modes!");
+                            setWatermarkType("text");
+                          }}
+                          className={`${styles.ghostBtn} ${watermarkType === "text" ? styles.active : ""}`}
+                          style={
+                            watermarkType === "text"
+                              ? {
+                                  background: "var(--accent-soft)",
+                                  color: "var(--accent-main)",
+                                  borderColor: "var(--border-active)",
+                                }
+                              : {}
+                          }
+                        >
+                          Text
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (!isPro)
+                              return alert("Upgrade to unlock modes!");
+                            setWatermarkType("social");
+                          }}
+                          className={`${styles.ghostBtn} ${watermarkType === "social" ? styles.active : ""}`}
+                          style={
+                            watermarkType === "social"
+                              ? {
+                                  background: "var(--accent-soft)",
+                                  color: "var(--accent-main)",
+                                  borderColor: "var(--border-active)",
+                                }
+                              : {}
+                          }
+                        >
+                          Social
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (!isPro)
+                              return alert("Upgrade to unlock modes!");
+                            setWatermarkType("logo");
+                          }}
+                          className={`${styles.ghostBtn} ${watermarkType === "logo" ? styles.active : ""}`}
+                          style={
+                            watermarkType === "logo"
+                              ? {
+                                  background: "var(--accent-soft)",
+                                  color: "var(--accent-main)",
+                                  borderColor: "var(--border-active)",
+                                }
+                              : {}
+                          }
+                        >
+                          Logo
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            if (!isPro) return alert("Upgrade!");
+                            setWatermarkType("qr");
+                          }}
+                          className={`${styles.ghostBtn} ${watermarkType === "qr" ? styles.active : ""}`}
+                          style={
+                            watermarkType === "qr"
+                              ? {
+                                  background: "var(--accent-soft)",
+                                  color: "var(--accent-main)",
+                                  borderColor: "var(--border-active)",
+                                }
+                              : {}
+                          }
+                        >
+                          QR Code
+                        </button>
+                      </div>
+                    </ControlRow>
+
+                    {/* Conditional Inputs based on Watermark Mode */}
+                    {watermarkType === "text" ||
+                    watermarkType === "social" ||
+                    watermarkType === "qr" ? (
+                      <>
+                        {watermarkType === "social" && (
+                          <ControlRow label="Platform">
+                            <select
+                              className={styles.select}
+                              value={watermarkSocialPlatform}
+                              onChange={(e) =>
+                                setWatermarkSocialPlatform(
+                                  e.target.value as
+                                    | "x"
+                                    | "github"
+                                    | "linkedin"
+                                    | "instagram",
+                                )
+                              }
+                              disabled={!isPro}
+                            >
+                              <option value="x">X (Twitter)</option>
+                              <option value="github">GitHub</option>
+                              <option value="linkedin">LinkedIn</option>
+                              <option value="instagram">Instagram</option>
+                            </select>
+                          </ControlRow>
+                        )}
+
+                        {/* qr code */}
+                        {watermarkType === "qr" && (
+                          <ControlRow label="QR Link">
+                            <div style={{ position: "relative" }}>
+                              <input
+                                type="text"
+                                placeholder="https://... or {url}"
+                                value={watermarkQrContent}
+                                onChange={(e) =>
+                                  setWatermarkQrContent(e.target.value)
+                                }
+                                disabled={!isPro}
+                                className={styles.input}
+                              />
+                              {!isPro && (
+                                <div
+                                  className={styles.lockOverlay}
+                                  onClick={() => alert("Upgrade!")}
+                                  style={{
+                                    borderRadius: "var(--radius-sm)",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  🔒
+                                </div>
+                              )}
+                            </div>
+                          </ControlRow>
+                        )}
+
+                        <ControlRow
+                          label={
+                            watermarkType === "social"
+                              ? "Handle"
+                              : watermarkType === "qr"
+                                ? "Display Text"
+                                : "Custom Text"
+                          }
+                        >
+                          <div style={{ position: "relative" }}>
+                            <input
+                              type="text"
+                              placeholder={
+                                watermarkType === "qr"
+                                  ? "github.com/you or {url}"
+                                  : "Enter text..."
+                              }
+                              value={
+                                !isPro ? "✨ Made with AppName" : watermarkText
+                              }
+                              onChange={(e) => setWatermarkText(e.target.value)}
+                              disabled={!isPro}
+                              className={styles.input}
+                            />
+                            {!isPro && (
+                              <div
+                                className={styles.lockOverlay}
+                                onClick={() =>
+                                  alert("Upgrade to customize watermark text!")
+                                }
+                                style={{
+                                  borderRadius: "var(--radius-sm)",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                🔒 Upgrade to customize
+                              </div>
+                            )}
+                          </div>
+                        </ControlRow>
+                      </>
+                    ) : (
+                      <ControlRow label="Upload Logo">
+                        <label
+                          className={styles.fileUpload}
+                          style={{ position: "relative", overflow: "hidden" }}
+                        >
+                          <input
+                            type="file"
+                            accept="image/png, image/svg+xml"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const reader = new FileReader();
+                              reader.onloadend = () =>
+                                setWatermarkLogo(reader.result as string);
+                              reader.readAsDataURL(file);
+                            }}
+                            disabled={!isPro}
+                          />
+                          {watermarkLogo
+                            ? "Replace logo..."
+                            : "Choose PNG/SVG..."}
                           {!isPro && (
                             <div
                               className={styles.lockOverlay}
-                              onClick={() => alert("Upgrade!")}
-                              style={{
-                                borderRadius: "var(--radius-sm)",
-                                cursor: "pointer",
-                              }}
+                              onClick={() => alert("Upgrade to upload logos!")}
                             >
                               🔒
                             </div>
                           )}
-                        </div>
+                        </label>
                       </ControlRow>
                     )}
 
-                    <ControlRow
-                      label={
-                        watermarkType === "social"
-                          ? "Handle"
-                          : watermarkType === "qr"
-                            ? "Display Text"
-                            : "Custom Text"
-                      }
-                    >
-                      <div style={{ position: "relative" }}>
-                        <input
-                          type="text"
-                          placeholder={
-                            watermarkType === "qr"
-                              ? "github.com/you or {url}"
-                              : "Enter text..."
-                          }
-                          value={
-                            !isPro ? "✨ Made with AppName" : watermarkText
-                          }
-                          onChange={(e) => setWatermarkText(e.target.value)}
+                    {/* Theme, Font & Color settings for the Brand Watermark */}
+                    {/* Theme Selector (Glass, Dark, Light, Transparent) */}
+                    <ControlRow label="Theme">
+                      <div
+                        className={styles.btnGrid4}
+                        style={{ gridTemplateColumns: "1fr 1fr", gap: "5px" }}
+                      >
+                        {(
+                          ["glass", "dark", "light", "transparent"] as const
+                        ).map((theme) => {
+                          const isActive = watermarkTheme === theme;
+                          return (
+                            <button
+                              key={theme}
+                              onClick={() => {
+                                if (!isPro)
+                                  return alert("Upgrade to unlock themes!");
+                                setWatermarkTheme(theme);
+                              }}
+                              className={`${styles.presetBtn} ${isActive ? styles.active : ""}`}
+                              style={{
+                                position: "relative",
+                                textTransform: "capitalize",
+                              }}
+                            >
+                              {theme}
+                              {!isPro && (
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    top: 2,
+                                    right: 3,
+                                    fontSize: 8,
+                                  }}
+                                >
+                                  🔒
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </ControlRow>
+
+                    {/* Font and Color Selector (Inline Row) */}
+                    <ControlRow label="Font & Color">
+                      <div style={{ display: "flex", gap: "6px" }}>
+                        {/* Font Dropdown */}
+                        <select
+                          className={styles.select}
+                          value={watermarkFont}
+                          onChange={(e) => {
+                            if (!isPro)
+                              return alert("Upgrade to unlock fonts!");
+                            setWatermarkFont(e.target.value);
+                          }}
                           disabled={!isPro}
-                          className={styles.input}
-                        />
-                        {!isPro && (
-                          <div
-                            className={styles.lockOverlay}
-                            onClick={() =>
-                              alert("Upgrade to customize watermark text!")
-                            }
-                            style={{
-                              borderRadius: "var(--radius-sm)",
-                              cursor: "pointer",
+                          style={{ flex: 1, padding: "7px 20px 7px 8px" }}
+                        >
+                          <option value="system-ui, sans-serif">
+                            System UI
+                          </option>
+                          <option value="Inter, sans-serif">Inter</option>
+                          <option value="'JetBrains Mono', monospace">
+                            JetBrains Mono
+                          </option>
+                          <option value="'Playfair Display', serif">
+                            Playfair
+                          </option>
+                        </select>
+
+                        {/* Color Picker Box */}
+                        <div
+                          style={{
+                            position: "relative",
+                            width: "30px",
+                            height: "30px",
+                            flexShrink: 0,
+                            borderRadius: "4px",
+                            overflow: "hidden",
+                            border: "0.5px solid var(--border-medium)",
+                          }}
+                          onClick={() => {
+                            if (!isPro)
+                              alert("Upgrade to unlock custom colors!");
+                          }}
+                        >
+                          <input
+                            type="color"
+                            value={!isPro ? "#ffffff" : watermarkColor}
+                            onChange={(e) => {
+                              if (!isPro) return;
+                              setWatermarkColor(e.target.value);
                             }}
-                          >
-                            🔒 Upgrade to customize
-                          </div>
-                        )}
+                            disabled={!isPro}
+                            style={{
+                              position: "absolute",
+                              top: "-10px",
+                              left: "-10px",
+                              width: "50px",
+                              height: "50px",
+                              cursor: isPro ? "pointer" : "not-allowed",
+                            }}
+                          />
+                          {/* Transparent Lock Overlay for the color box */}
+                          {!isPro && (
+                            <div
+                              className={styles.lockOverlay}
+                              style={{ background: "rgba(10,10,12,0.3)" }}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </ControlRow>
+
+                    {/* Add Size & Radius sliders for the Brand Watermark */}
+                    <ControlRow label="Size & Radius">
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span
+                          className={styles.eyebrowVal}
+                          style={{ width: "30px" }}
+                        >
+                          {watermarkFontSize}px
+                        </span>
+                        <input
+                          type="range"
+                          min="10"
+                          max="32"
+                          value={watermarkFontSize}
+                          onChange={(e) =>
+                            setWatermarkFontSize(Number(e.target.value))
+                          }
+                          className={styles.slider}
+                          disabled={!isPro}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "center",
+                          marginTop: "8px",
+                        }}
+                      >
+                        <span
+                          className={styles.eyebrowVal}
+                          style={{ width: "30px" }}
+                        >
+                          R:{watermarkRadius}
+                        </span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={watermarkRadius}
+                          onChange={(e) =>
+                            setWatermarkRadius(Number(e.target.value))
+                          }
+                          className={styles.slider}
+                          disabled={!isPro}
+                        />
                       </div>
                     </ControlRow>
                   </>
-                ) : (
-                  <ControlRow label="Upload Logo">
-                    <label
-                      className={styles.fileUpload}
-                      style={{ position: "relative", overflow: "hidden" }}
-                    >
-                      <input
-                        type="file"
-                        accept="image/png, image/svg+xml"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const reader = new FileReader();
-                          reader.onloadend = () =>
-                            setWatermarkLogo(reader.result as string);
-                          reader.readAsDataURL(file);
-                        }}
-                        disabled={!isPro}
-                      />
-                      {watermarkLogo ? "Replace logo..." : "Choose PNG/SVG..."}
-                      {!isPro && (
-                        <div
-                          className={styles.lockOverlay}
-                          onClick={() => alert("Upgrade to upload logos!")}
-                        >
-                          🔒
-                        </div>
-                      )}
-                    </label>
-                  </ControlRow>
                 )}
-
-                {/* Theme, Font & Color settings for the Brand Watermark */}
-                {/* Theme Selector (Glass, Dark, Light, Transparent) */}
-                <ControlRow label="Theme">
-                  <div
-                    className={styles.btnGrid4}
-                    style={{ gridTemplateColumns: "1fr 1fr", gap: "5px" }}
-                  >
-                    {(["glass", "dark", "light", "transparent"] as const).map(
-                      (theme) => {
-                        const isActive = watermarkTheme === theme;
-                        return (
-                          <button
-                            key={theme}
-                            onClick={() => {
-                              if (!isPro)
-                                return alert("Upgrade to unlock themes!");
-                              setWatermarkTheme(theme);
-                            }}
-                            className={`${styles.presetBtn} ${isActive ? styles.active : ""}`}
-                            style={{
-                              position: "relative",
-                              textTransform: "capitalize",
-                            }}
-                          >
-                            {theme}
-                            {!isPro && (
-                              <span
-                                style={{
-                                  position: "absolute",
-                                  top: 2,
-                                  right: 3,
-                                  fontSize: 8,
-                                }}
-                              >
-                                🔒
-                              </span>
-                            )}
-                          </button>
-                        );
-                      },
-                    )}
-                  </div>
-                </ControlRow>
-
-                {/* Font and Color Selector (Inline Row) */}
-                <ControlRow label="Font & Color">
-                  <div style={{ display: "flex", gap: "6px" }}>
-                    {/* Font Dropdown */}
-                    <select
-                      className={styles.select}
-                      value={watermarkFont}
-                      onChange={(e) => {
-                        if (!isPro) return alert("Upgrade to unlock fonts!");
-                        setWatermarkFont(e.target.value);
-                      }}
-                      disabled={!isPro}
-                      style={{ flex: 1, padding: "7px 20px 7px 8px" }}
-                    >
-                      <option value="system-ui, sans-serif">System UI</option>
-                      <option value="Inter, sans-serif">Inter</option>
-                      <option value="'JetBrains Mono', monospace">
-                        JetBrains Mono
-                      </option>
-                      <option value="'Playfair Display', serif">
-                        Playfair
-                      </option>
-                    </select>
-
-                    {/* Color Picker Box */}
-                    <div
-                      style={{
-                        position: "relative",
-                        width: "30px",
-                        height: "30px",
-                        flexShrink: 0,
-                        borderRadius: "4px",
-                        overflow: "hidden",
-                        border: "0.5px solid var(--border-medium)",
-                      }}
-                      onClick={() => {
-                        if (!isPro) alert("Upgrade to unlock custom colors!");
-                      }}
-                    >
-                      <input
-                        type="color"
-                        value={!isPro ? "#ffffff" : watermarkColor}
-                        onChange={(e) => {
-                          if (!isPro) return;
-                          setWatermarkColor(e.target.value);
-                        }}
-                        disabled={!isPro}
-                        style={{
-                          position: "absolute",
-                          top: "-10px",
-                          left: "-10px",
-                          width: "50px",
-                          height: "50px",
-                          cursor: isPro ? "pointer" : "not-allowed",
-                        }}
-                      />
-                      {/* Transparent Lock Overlay for the color box */}
-                      {!isPro && (
-                        <div
-                          className={styles.lockOverlay}
-                          style={{ background: "rgba(10,10,12,0.3)" }}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </ControlRow>
-
-                {/* Add Size & Radius sliders for the Brand Watermark */}
-                <ControlRow label="Size & Radius">
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      className={styles.eyebrowVal}
-                      style={{ width: "30px" }}
-                    >
-                      {watermarkFontSize}px
-                    </span>
-                    <input
-                      type="range"
-                      min="10"
-                      max="32"
-                      value={watermarkFontSize}
-                      onChange={(e) =>
-                        setWatermarkFontSize(Number(e.target.value))
-                      }
-                      className={styles.slider}
-                      disabled={!isPro}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      alignItems: "center",
-                      marginTop: "8px",
-                    }}
-                  >
-                    <span
-                      className={styles.eyebrowVal}
-                      style={{ width: "30px" }}
-                    >
-                      R:{watermarkRadius}
-                    </span>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={watermarkRadius}
-                      onChange={(e) =>
-                        setWatermarkRadius(Number(e.target.value))
-                      }
-                      className={styles.slider}
-                      disabled={!isPro}
-                    />
-                  </div>
-                </ControlRow>
-              </>
+              </Section>
             )}
-          </Section>
-          )}
           </div>
         </div>
       </aside>
